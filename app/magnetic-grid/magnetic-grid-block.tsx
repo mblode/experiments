@@ -56,19 +56,19 @@ const items: GridItem[] = [
   },
 ];
 
+// Spring configurations (constant to avoid recreating on each render)
+const POSITION_SPRING = { stiffness: 150, damping: 15, mass: 0.1 };
+const ROTATION_SPRING = { stiffness: 200, damping: 20 };
+const SCALE_SPRING = { stiffness: 300, damping: 25 };
+const GLOW_SPRING = { stiffness: 100, damping: 20 };
+
 interface MagneticCardProps {
   item: GridItem;
   mouseX: number;
   mouseY: number;
-  containerRect: DOMRect | null;
 }
 
-function MagneticCard({
-  item,
-  mouseX,
-  mouseY,
-  containerRect,
-}: MagneticCardProps) {
+function MagneticCard({ item, mouseX, mouseY }: MagneticCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Motion values for smooth animation
@@ -78,21 +78,27 @@ function MagneticCard({
   const rotateY = useMotionValue(0);
   const scale = useMotionValue(1);
 
-  // Spring configurations for natural feel
-  const springConfig = { stiffness: 150, damping: 15, mass: 0.1 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-  const springRotateX = useSpring(rotateX, { stiffness: 200, damping: 20 });
-  const springRotateY = useSpring(rotateY, { stiffness: 200, damping: 20 });
-  const springScale = useSpring(scale, { stiffness: 300, damping: 25 });
+  // Spring-based motion values
+  const springX = useSpring(x, POSITION_SPRING);
+  const springY = useSpring(y, POSITION_SPRING);
+  const springRotateX = useSpring(rotateX, ROTATION_SPRING);
+  const springRotateY = useSpring(rotateY, ROTATION_SPRING);
+  const springScale = useSpring(scale, SCALE_SPRING);
 
   // Glow effect based on proximity
   const glowOpacity = useMotionValue(0);
-  const springGlow = useSpring(glowOpacity, { stiffness: 100, damping: 20 });
+  const springGlow = useSpring(glowOpacity, GLOW_SPRING);
+
+  // Transform for shadow based on position
+  const shadowX = useTransform(springX, (val) => val * 0.5);
+  const shadowY = useTransform(springY, (val) => val * 0.5 + 10);
+
+  // Shine opacity derived from scale (hook must be at top level)
+  const shineOpacity = useTransform(springScale, [1, 1.08], [0.3, 0.6]);
 
   // Calculate magnetic effect
   useEffect(() => {
-    if (!cardRef.current || !containerRect) return;
+    if (!cardRef.current) return;
 
     const card = cardRef.current;
     const rect = card.getBoundingClientRect();
@@ -106,12 +112,11 @@ function MagneticCard({
     const deltaY = mouseY - cardCenterY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    // Magnetic effect radius
+    // Magnetic effect radius and strength
     const maxDistance = 300;
     const effectStrength = Math.max(0, 1 - distance / maxDistance);
 
-    // Pull toward cursor (inverted for magnetic attraction)
-    const pullStrength = 25;
+    // Pull toward cursor
     const pullX = deltaX * effectStrength * 0.15;
     const pullY = deltaY * effectStrength * 0.15;
 
@@ -130,11 +135,7 @@ function MagneticCard({
     rotateY.set(rotY);
     scale.set(scaleValue);
     glowOpacity.set(effectStrength * 0.8);
-  }, [mouseX, mouseY, containerRect, x, y, rotateX, rotateY, scale, glowOpacity]);
-
-  // Transform for shadow based on position
-  const shadowX = useTransform(springX, (val) => val * 0.5);
-  const shadowY = useTransform(springY, (val) => val * 0.5 + 10);
+  }, [mouseX, mouseY, x, y, rotateX, rotateY, scale, glowOpacity]);
 
   return (
     <motion.div
@@ -179,9 +180,7 @@ function MagneticCard({
         {/* Shine effect */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent"
-          style={{
-            opacity: useTransform(springScale, [1, 1.08], [0.3, 0.6]),
-          }}
+          style={{ opacity: shineOpacity }}
         />
 
         {/* Content */}
@@ -261,7 +260,6 @@ export function MagneticGridBlock() {
             item={item}
             mouseX={mousePos.x}
             mouseY={mousePos.y}
-            containerRect={containerRect}
           />
         ))}
       </div>
