@@ -134,4 +134,9 @@ export const blocks: Record<
     description:
       "Scroll progress bar with chapter indicators and highlight bookmarks",
   },
+  "magnetic-grid": {
+    name: "Magnetic grid",
+    description:
+      "Interactive card grid with cursor-driven magnetic attraction, spring physics, and 3D perspective effects",
+  },
 };
