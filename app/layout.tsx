@@ -5,30 +5,14 @@ import "./globals.css";
 import "@dnd-grid/react/styles.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const apercu = localFont({
+const glide = localFont({
   src: [
-    {
-      path: "../public/fonts/apercu-regular-pro.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/apercu-italic-pro.woff2",
-      weight: "400",
-      style: "italic",
-    },
-    {
-      path: "../public/fonts/apercu-bold-pro.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/apercu-bold-italic-pro.woff2",
-      weight: "700",
-      style: "italic",
-    },
+    { path: "../public/fonts/glide-variable.woff2", style: "normal" },
+    { path: "../public/fonts/glide-variable-italic.woff2", style: "italic" },
   ],
-  variable: "--font-apercu",
+  variable: "--font-glide",
+  weight: "400 900",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -46,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${apercu.variable} h-full font-normal font-sans text-foreground antialiased`}
+      className={`${glide.variable} h-full font-normal font-sans text-foreground antialiased`}
       lang="en"
       suppressHydrationWarning
     >
