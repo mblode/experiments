@@ -138,4 +138,9 @@ export const blocks: Record<
     name: "Dnd grid",
     description: "Resizable drag-and-drop grid layout using dnd-grid",
   },
+  "multi-stroke-text": {
+    name: "Multi-stroke text",
+    description:
+      "Layered text-stroke widths build a retro onion-ring outline effect with css-doodle",
+  },
 };
