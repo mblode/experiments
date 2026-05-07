@@ -141,6 +141,6 @@ export const blocks: Record<
   "multi-stroke-text": {
     name: "Multi-stroke text",
     description:
-      "Layered text-stroke widths build a retro onion-ring outline effect with css-doodle",
+      "Stacked SVG copies of the Linktree mark with progressively wider strokes build a retro onion-ring outline effect",
   },
 };
