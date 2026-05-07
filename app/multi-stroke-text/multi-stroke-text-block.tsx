@@ -3,17 +3,18 @@
 import { useEffect } from "react";
 
 const DOODLE_RULES = `
-  @grid: 1 / 600px 800px / #fff;
-  --c: #382f32, #ffeaf2, #fcd9e5, #fbc5d8, #f1396d;
+  @grid: 1 / 600px 600px / #f4e1e8;
+  --c: #cc0d55;
   background: @doodle(
-    @grid: 40x1 / 100%;
-    @content: '𖤛';
+    @grid: 36x1 / 100%;
+    @content: '✱';
     position: absolute;
     inset: 0;
-    font-size: 200px;
+    font: 240px/0 sans-serif;
+    color: var(--c);
     z-index: @I(-@i);
-    -webkit-text-stroke-color: @pn(--c);
-    -webkit-text-stroke-width: @i(*30px);
+    -webkit-text-stroke-color: @pn(--c, #f4e1e8);
+    -webkit-text-stroke-width: @calc(@i * 0.08em + 0.02em * (1 - (-1) ** @i));
   );
 `;
 
