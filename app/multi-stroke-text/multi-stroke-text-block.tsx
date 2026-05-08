@@ -1,37 +1,45 @@
-"use client";
+const LINKTREE_PATH =
+  "M171.274 344.942h74.09v167.296h-74.09V344.942zM0 173.468h126.068l-89.622-85.44 49.591-50.985 85.439 87.829V0h74.086v124.872L331 37.243l49.552 50.785-89.58 85.24H417v70.502H290.252l90.183 87.629L331 381.192 208.519 258.11 86.037 381.192l-49.591-49.591 90.218-87.631H0v-70.502z";
 
-import { useEffect } from "react";
+const LAYER_COUNT = 18;
+const BASE_STROKE = 14;
+const PRIMARY = "#cc0d55";
+const ACCENT = "#f4e1e8";
 
-const DOODLE_RULES = `
-  @grid: 1 / 600px 800px / #fff;
-  --c: #382f32, #ffeaf2, #fcd9e5, #fbc5d8, #f1396d;
-  background: @doodle(
-    @grid: 40x1 / 100%;
-    @content: '𖤛';
-    position: absolute;
-    inset: 0;
-    font-size: 200px;
-    z-index: @I(-@i);
-    -webkit-text-stroke-color: @pn(--c);
-    -webkit-text-stroke-width: @i(*30px);
-  );
-`;
+const layers = Array.from({ length: LAYER_COUNT }, (_, idx) => {
+  const ring = LAYER_COUNT - idx;
+  return {
+    id: `ring-${ring}`,
+    strokeWidth: ring * BASE_STROKE,
+    color: ring % 2 === 0 ? ACCENT : PRIMARY,
+  };
+});
 
 export const MultiStrokeTextBlock = () => {
-  useEffect(() => {
-    import("css-doodle");
-  }, []);
-
   return (
     <div className="flex flex-col items-center gap-6 p-8">
       <p className="max-w-prose text-center text-muted-foreground">
-        Stacked layers of <code>-webkit-text-stroke-width</code> at incremental
-        sizes draw the same glyph as concentric outlines, producing a retro
-        onion-ring effect.
+        Stacked copies of the Linktree mark drawn at progressively wider SVG
+        stroke widths build a retro onion-ring outline effect.
       </p>
-      <css-doodle>
-        <style>{DOODLE_RULES}</style>
-      </css-doodle>
+      <div className="relative grid size-[600px] place-items-center bg-[#f4e1e8]">
+        {layers.map((layer) => (
+          <svg
+            aria-hidden="true"
+            className="absolute"
+            fill={layer.color}
+            key={layer.id}
+            stroke={layer.color}
+            strokeLinejoin="round"
+            strokeWidth={layer.strokeWidth}
+            viewBox="0 0 417 512.238"
+            width="50%"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d={LINKTREE_PATH} />
+          </svg>
+        ))}
+      </div>
     </div>
   );
 };
