@@ -116,8 +116,7 @@ export function oklchToHex(l: number, c: number, h: number): string {
   try {
     const color = oklch({ l, c, h, mode: "oklch" });
     return formatHex(color) || "#000000";
-  } catch (error) {
-    console.error("Error converting OKLCH to HEX:", error);
+  } catch {
     return "#000000";
   }
 }
@@ -255,11 +254,11 @@ export function QRCodeBlock() {
       </div>
 
       {/* Right: Controls */}
-      <div className="flex items-center justify-center rounded-3xl bg-gray-100 px-4 py-12 lg:px-12">
+      <div className="flex items-center justify-center rounded-3xl bg-gray-100 px-4 py-12 lg:px-12 dark:bg-gray-900">
         <div className="mx-auto w-full max-w-[600px] space-y-1">
           {/* URL Input */}
           <Field
-            className="min-h-14 gap-0 rounded-full bg-white"
+            className="min-h-14 gap-0 rounded-full bg-white dark:bg-gray-800"
             orientation="horizontal"
           >
             <FieldLabel className="min-w-[200px] cursor-pointer px-6 py-2">
@@ -275,7 +274,7 @@ export function QRCodeBlock() {
 
           {/* Image URL Input */}
           <Field
-            className="min-h-14 gap-0 rounded-full bg-white"
+            className="min-h-14 gap-0 rounded-full bg-white dark:bg-gray-800"
             orientation="horizontal"
           >
             <FieldLabel className="min-w-[200px] cursor-pointer px-6 py-2">
@@ -290,7 +289,7 @@ export function QRCodeBlock() {
           </Field>
 
           {/* Hue and Saturation Picker */}
-          <div className="flex flex-row flex-wrap items-start justify-between gap-2 rounded-3xl bg-white p-2">
+          <div className="flex flex-row flex-wrap items-start justify-between gap-2 rounded-3xl bg-white p-2 dark:bg-gray-800">
             <Label className="p-4">Hue and saturation</Label>
 
             <div className="flex size-full min-w-[276px] gap-2 sm:max-w-[276px]">
@@ -420,7 +419,7 @@ export function QRCodeBlock() {
               {/* Saturation selector */}
               <button
                 aria-label="Cycle saturation levels"
-                className="cursor-pointer bg-gray-100 p-2 transition-transform duration-200 ease-out active:scale-[0.97]"
+                className="cursor-pointer bg-gray-100 p-2 transition-transform duration-200 ease-out active:scale-[0.97] dark:bg-gray-700"
                 onClick={handleSaturationClick}
                 style={{
                   borderRadius: 20,
@@ -465,7 +464,7 @@ export function QRCodeBlock() {
           </div>
 
           {/* Corner Radius */}
-          <div className="flex min-h-14 w-full flex-row rounded-3xl bg-white">
+          <div className="flex min-h-14 w-full flex-row rounded-3xl bg-white dark:bg-gray-800">
             <Label className="min-w-[200px] py-4 pr-4 pl-6">Corners</Label>
 
             <div className="flex w-full flex-row items-center justify-end">
@@ -518,13 +517,13 @@ export function QRCodeBlock() {
           </div>
 
           {/* Download Buttons */}
-          <div className="flex min-h-14 w-full flex-row rounded-3xl bg-white">
+          <div className="flex min-h-14 w-full flex-row rounded-3xl bg-white dark:bg-gray-800">
             <Label className="min-w-[200px] py-4 pr-4 pl-6">Download</Label>
 
             <div className="flex w-full flex-row items-center justify-end gap-2 pr-2">
               <button
                 aria-label="Download SVG"
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 px-4 py-2 transition-all duration-200 ease-out active:scale-95 [@media(hover:hover)]:hover:bg-gray-200"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 px-4 py-2 transition-all duration-200 ease-out active:scale-95 dark:bg-gray-700 [@media(hover:hover)]:hover:bg-gray-200 dark:[@media(hover:hover)]:hover:bg-gray-600"
                 onClick={handleDownloadSVG}
                 type="button"
               >
@@ -534,7 +533,7 @@ export function QRCodeBlock() {
 
               <button
                 aria-label="Download PNG"
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 px-4 py-2 transition-all duration-200 ease-out active:scale-95 [@media(hover:hover)]:hover:bg-gray-200"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-gray-100 px-4 py-2 transition-all duration-200 ease-out active:scale-95 dark:bg-gray-700 [@media(hover:hover)]:hover:bg-gray-200 dark:[@media(hover:hover)]:hover:bg-gray-600"
                 onClick={handleDownloadPNG}
                 type="button"
               >
