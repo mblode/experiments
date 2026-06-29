@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
+import { CraftedBy } from "@/components/crafted-by";
 import { Toaster } from "@/components/ui/sonner";
 
 const glide = localFont({
@@ -37,6 +38,9 @@ export default function RootLayout({
     >
       <body className="h-full bg-page-background">
         <div className="h-full">{children}</div>
+        <footer className="flex justify-center p-6">
+          <CraftedBy />
+        </footer>
       </body>
       <GoogleAnalytics gaId="G-FW4LDY9GCD" />
       <Toaster />
