@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { DocumentShadowBlock } from "./document-shadow-block";
+
+export const metadata = getExperimentMetadata("document-shadow");
 
 export default function Page() {
   return (

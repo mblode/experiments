@@ -214,9 +214,9 @@ export const DocumentShadowBlock = () => {
         </div>
 
         {/* Content */}
-        <h1 className="mb-2 font-bold text-3xl text-gray-900 sm:text-4xl">
+        <h2 className="mb-2 font-bold text-3xl text-gray-900 sm:text-4xl">
           The brightest flame casts the darkest shadow
-        </h1>
+        </h2>
 
         <p className="mt-6 text-gray-700 leading-relaxed">
           Shadows are a natural and often overlooked part of our daily

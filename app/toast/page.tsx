@@ -1,6 +1,8 @@
-"use client";
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { ToastBlock } from "./toast-block";
+
+export const metadata = getExperimentMetadata("toast");
 
 export default function Page() {
   return (

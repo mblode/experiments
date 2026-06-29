@@ -14,8 +14,8 @@ export const AlbumBlock = () => {
       type="button"
     >
       <div className="absolute bottom-8 flex w-full flex-col justify-center text-center text-foreground">
-        <h1 className="font-bold text-base">Bridge Over Troubled Water</h1>
-        <h2 className="text-sm">Simon & Garfunkel</h2>
+        <h2 className="font-bold text-base">Bridge Over Troubled Water</h2>
+        <h3 className="text-sm">Simon & Garfunkel</h3>
       </div>
 
       <div

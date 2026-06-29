@@ -403,7 +403,7 @@ function ListeningView() {
           alt="Anniversary's album cover"
           className="rounded-lg"
           height={52}
-          src="https://placehold.co/100x100"
+          src="/album.png"
           width={52}
         />
         <div className="flex flex-col gap-1 pr-12">

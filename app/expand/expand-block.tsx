@@ -36,7 +36,7 @@ function DateCard({ day, isExpanded, onToggle }: DateCardProps) {
           whileTap={{ scale: 0.98 }}
         >
           {/* Text with transform for position */}
-          <motion.h1
+          <motion.h2
             animate={{
               fontSize: isExpanded ? "5rem" : "1.5rem",
               color: isExpanded ? "#ffffff" : "#001f3f",
@@ -52,7 +52,7 @@ function DateCard({ day, isExpanded, onToggle }: DateCardProps) {
             }}
           >
             {day}
-          </motion.h1>
+          </motion.h2>
         </motion.div>
 
         {/* Secondary info card */}

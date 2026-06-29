@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { SheetBlock } from "./sheet-block";
+
+export const metadata = getExperimentMetadata("sheet");
 
 export default function Page() {
   return (

@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { DndGridBlock } from "./dnd-grid-block";
+
+export const metadata = getExperimentMetadata("dnd-grid");
 
 export default function Page() {
   return (

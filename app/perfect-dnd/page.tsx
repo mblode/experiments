@@ -1,8 +1,9 @@
-"use client";
-
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { EditorPage } from "./dnd-kit-page";
 import { StoreProvider } from "./stores/store";
+
+export const metadata = getExperimentMetadata("perfect-dnd");
 
 export default function Page() {
   return (

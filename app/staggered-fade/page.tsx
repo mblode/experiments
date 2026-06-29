@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { StaggeredFadeBlock } from "./staggered-fade-block";
+
+export const metadata = getExperimentMetadata("staggered-fade");
 
 export default function Page() {
   return (

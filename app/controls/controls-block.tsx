@@ -329,11 +329,11 @@ export const ControlsBlock = () => {
           transition={SPRING_CONFIG}
         >
           <div className="flex h-full flex-col gap-6">
-            <h1 className="font-bold text-3xl leading-tight sm:text-4xl">
+            <h2 className="font-bold text-3xl leading-tight sm:text-4xl">
               Hey, I'm John Smith.
               <br />
               I'm a design engineer based in Atlanta. Building something new.
-            </h1>
+            </h2>
           </div>
 
           <motion.button

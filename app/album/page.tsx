@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { AlbumBlock } from "./album-block";
+
+export const metadata = getExperimentMetadata("album");
 
 export default function Page() {
   return (

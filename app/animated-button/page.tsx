@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { AnimatedButtonBlock } from "./animated-button-block";
+
+export const metadata = getExperimentMetadata("animated-button");
 
 export default function Page() {
   return (

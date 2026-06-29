@@ -1,6 +1,8 @@
-"use client";
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { QRCodeBlock } from "./qr-code-block";
+
+export const metadata = getExperimentMetadata("qr-code");
 
 export default function Page() {
   return (
