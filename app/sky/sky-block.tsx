@@ -62,25 +62,25 @@ export const SkyBlock = () => {
       <div className="relative z-10 bg-noise">
         <section className="relative flex min-h-[100lvh] items-center justify-center">
           <div className="mx-auto flex max-w-[900px] flex-col items-center justify-center text-center">
-            <h1 className="text-6xl md:text-8xl">Sunrise</h1>
+            <p className="text-6xl md:text-8xl">Sunrise</p>
           </div>
         </section>
 
         <section className="relative flex min-h-[100lvh] items-center justify-center">
           <div className="mx-auto flex max-w-[900px] flex-col items-center justify-center text-center">
-            <h1 className="text-6xl md:text-8xl">Day</h1>
+            <p className="text-6xl md:text-8xl">Day</p>
           </div>
         </section>
 
         <section className="relative flex min-h-[100lvh] items-center justify-center">
           <div className="mx-auto flex max-w-[900px] flex-col items-center justify-center text-center">
-            <h1 className="text-6xl md:text-8xl">Sunset</h1>
+            <p className="text-6xl md:text-8xl">Sunset</p>
           </div>
         </section>
 
         <section className="relative flex min-h-[100lvh] items-center justify-center">
           <div className="mx-auto flex max-w-[900px] flex-col items-center justify-center text-center">
-            <h1 className="text-6xl md:text-8xl">Night</h1>
+            <p className="text-6xl md:text-8xl">Night</p>
           </div>
         </section>
       </div>

@@ -1,6 +1,9 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import "./styles.css";
 import { MoonBlock } from "./moon-block";
+
+export const metadata = getExperimentMetadata("moon");
 
 export default function Page() {
   return (

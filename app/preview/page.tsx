@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { PreviewBlock } from "./preview-block";
+
+export const metadata = getExperimentMetadata("preview");
 
 export default function Page() {
   return (

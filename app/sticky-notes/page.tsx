@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/ui/header";
 import { StickyNotesBlock } from "./sticky-notes-block";
+
+export const metadata: Metadata = {
+  title: "Sticky notes — Matt's experiments",
+  robots: { index: false, follow: true },
+};
 
 export default function Page() {
   return (

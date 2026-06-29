@@ -1,5 +1,8 @@
 import { MarkersBlock } from "@/app/markers/markers-block";
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
+
+export const metadata = getExperimentMetadata("markers");
 
 export default function Page() {
   return (

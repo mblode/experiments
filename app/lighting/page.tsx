@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { LightingBlock } from "./lighting-block";
+
+export const metadata = getExperimentMetadata("lighting");
 
 export default function Page() {
   return (

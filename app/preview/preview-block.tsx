@@ -86,12 +86,12 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
               className="object-cover"
               fill
               sizes={isExpanded ? "280px" : "86px"}
-              src="https://placehold.co/500x500"
+              src="/jamie-kettle-3t-j09n_pYo-unsplash.jpg"
             />
           </motion.div>
 
           {/* Text */}
-          <motion.h1
+          <motion.h2
             animate={{
               fontSize: isExpanded ? "1.5rem" : "1.125rem",
               marginLeft: isExpanded ? 0 : 16,
@@ -111,7 +111,7 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
             }}
           >
             Rabbit #{id}
-          </motion.h1>
+          </motion.h2>
         </motion.div>
       </motion.div>
     </motion.div>

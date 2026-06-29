@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "./password-input";

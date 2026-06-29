@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { CardStackBlock } from "./card-stack-block";
+
+export const metadata = getExperimentMetadata("card-stack");
 
 export default function Page() {
   return (

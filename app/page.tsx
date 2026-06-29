@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Card,
@@ -6,6 +7,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { blocks } from "@/lib/blocks";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: SITE_NAME,
+  description:
+    "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js. Explore live demos and source code.",
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description:
+      "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description:
+      "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js.",
+  },
+};
 
 export default function Page() {
   return (

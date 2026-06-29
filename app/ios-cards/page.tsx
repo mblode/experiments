@@ -1,5 +1,8 @@
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
 import { IosCardsBlock } from "./ios-cards-block";
+
+export const metadata = getExperimentMetadata("ios-cards");
 
 export default function Page() {
   return (

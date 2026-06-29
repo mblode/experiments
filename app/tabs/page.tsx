@@ -1,5 +1,8 @@
 import { TabsBlock } from "@/app/tabs/tabs-block";
 import { Header } from "@/components/ui/header";
+import { getExperimentMetadata } from "@/lib/seo";
+
+export const metadata = getExperimentMetadata("tabs");
 
 export default function Page() {
   return (
