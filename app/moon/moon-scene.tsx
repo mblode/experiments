@@ -16,6 +16,7 @@ import {
   TextureLoader,
   Vector2,
 } from "three";
+
 import { type Inputs, solveMoon } from "./astro";
 
 interface Props {
@@ -84,13 +85,7 @@ function MoonMesh(props: Props) {
     configureLunarTexture(normalMap, true);
     configureLunarTexture(roughnessMap);
     configureLunarTexture(displacementMap);
-  }, [
-    colorMap,
-    normalMap,
-    roughnessMap,
-    displacementMap,
-    gl.capabilities.getMaxAnisotropy,
-  ]);
+  }, [colorMap, normalMap, roughnessMap, displacementMap, gl.capabilities]);
 
   // Recompute astronomy solution when inputs change
   const sol = useMemo(() => solveMoon(inputs), [inputs]);

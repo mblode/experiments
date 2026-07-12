@@ -1,5 +1,6 @@
 "use client";
 import NextImage from "next/image";
+
 import { AbsoluteMapLabel } from "./absolute-map-label";
 import { CustomMapDot } from "./custom-map-dot";
 import { GetDirectionsButton } from "./get-directions-button";
@@ -16,7 +17,7 @@ export const MapBlock = () => {
     <a
       className="relative block w-full max-w-[400px] overflow-hidden rounded-3xl bg-white"
       href="https://www.google.com/maps/place/Melbourne+VIC/data=!4m2!3m1!1s0x6ad646b5d2ba4df7:0x4045675218ccd90?sa=X&ved=1t:242&ictx=111"
-      rel="noopener"
+      rel="noopener noreferrer"
       style={{
         height: HEIGHT,
       }}
@@ -27,7 +28,7 @@ export const MapBlock = () => {
         alt="Melbourne"
         className="size-full object-cover"
         height={HEIGHT}
-        src={`https://api.mapbox.com/styles/v1/matthewblode/clix8w21k00ux01qi5r472wau/static/${lng},${lat},${zoom},0/${WIDTH}x${HEIGHT}@2x?access_token=pk.eyJ1IjoibWF0dGhld2Jsb2RlIiwiYSI6ImNsaXg4dXZnODA0c3Uzc2wyNmNncTlibzkifQ.s4oJ2Ha9_yYNFf7vGOXvXg&logo=false&attribution=false`}
+        src={`https://api.mapbox.com/styles/v1/matthewblode/clix8w21k00ux01qi5r472wau/static/${lng},${lat},${zoom},0/${WIDTH}x${HEIGHT}@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}&logo=false&attribution=false`}
         width={WIDTH}
       />
 

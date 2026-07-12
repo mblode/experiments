@@ -125,13 +125,13 @@ function AccordionTrigger({
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             className="pointer-events-none absolute h-0.5 w-4 rounded-full bg-foreground"
-            transition={{ duration: 0.3, ease: [0.645, 0.045, 0.355, 1] }}
+            transition={transition}
           />
           <motion.div
             animate={{ scale: isOpen ? 0 : 1, rotateZ: isOpen ? 80 : 0 }}
             className="pointer-events-none absolute h-4 w-0.5 rounded-full bg-foreground"
             style={{ transformOrigin: "center" }}
-            transition={{ duration: 0.3, ease: [0.645, 0.045, 0.355, 1] }}
+            transition={transition}
           />
         </div>
       </AccordionTriggerPrimitive>

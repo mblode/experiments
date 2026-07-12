@@ -1,7 +1,13 @@
 "use client";
 
-import { DndGrid, type Layout, verticalCompactor } from "@dnd-grid/react";
+import {
+  DndGrid,
+  type Layout,
+  type LayoutItem,
+  verticalCompactor,
+} from "@dnd-grid/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
 
 export const BLOCK_GAP = 16;
@@ -113,19 +119,19 @@ export const DndGridBlock = () => {
           cols={BLOCK_COLUMNS}
           compactor={{ ...verticalCompactor }}
           layout={layout}
-          margin={margin}
+          gap={margin}
           onDrag={handlers.handleDrag}
           onDragStart={handlers.handleDragStart}
-          onDragStop={handlers.handleDragStop}
+          onDragEnd={handlers.handleDragStop}
           onLayoutChange={setLayout}
           onResize={handlers.handleResize}
           onResizeStart={handleResizeStart}
-          onResizeStop={handleResizeStop}
+          onResizeEnd={handleResizeStop}
           resizeHandles={["ne", "nw", "se", "sw"]}
           rowHeight={BLOCK_HEIGHT * scaleFactor}
           width={containerWidth}
         >
-          {layout.map((item) => {
+          {layout.map((item: LayoutItem) => {
             return (
               <button
                 aria-label={`Block ${item.i}`}
