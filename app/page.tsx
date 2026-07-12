@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+
 import {
   Card,
   CardDescription,
@@ -59,7 +60,7 @@ export default function Page() {
             <a
               className="text-foreground underline-offset-2 hover:underline"
               href="https://matthewblode.com"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               Matthew Blode
@@ -68,7 +69,7 @@ export default function Page() {
             <a
               className="text-foreground underline-offset-2 hover:underline"
               href="https://github.com/mblode/matts-experiments"
-              rel="noopener"
+              rel="noopener noreferrer"
               target="_blank"
             >
               View Source

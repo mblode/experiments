@@ -2,10 +2,11 @@
 
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
+
 import { Item } from "./item";
 import { List } from "./list";
 
-export const ios = () => {
+export const Ios = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (

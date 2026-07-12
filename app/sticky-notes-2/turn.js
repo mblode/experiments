@@ -2054,7 +2054,7 @@
           Array.prototype.slice.call(args, 1)
         );
       }
-      throw `${args[0]} is an invalid value`;
+      throw new Error(`${args[0]} is an invalid value`);
     };
 
   $.extend($.fn, {

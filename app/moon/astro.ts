@@ -196,7 +196,7 @@ const getWaxingStatus = (time: ReturnType<typeof MakeTime>, date: Date) => {
     elongationDeg = ((elongationDeg % 360) + 360) % 360;
     const moonAgeDays = (elongationDeg / 360) * SYNODIC_MONTH_DAYS;
     return moonAgeDays <= SYNODIC_MONTH_DAYS / 2;
-  } catch (_error) {
+  } catch {
     const cyclePosition = getCyclePosition(date);
     return cyclePosition <= SYNODIC_MONTH_DAYS / 2;
   }

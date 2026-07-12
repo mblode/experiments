@@ -3,7 +3,9 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { observer } from "mobx-react-lite";
+
 import { cn } from "@/lib/utils";
+
 import type { BlockData } from "./block";
 import { CardInner } from "./card-inner";
 import { useStore } from "./stores/store";
@@ -53,6 +55,7 @@ export const ContentCard = observer(({ block }: ContentCardProps) => {
         data-sortable-item
         ref={setNodeRef}
         style={style}
+        type="button"
       >
         <div
           className={cn({
