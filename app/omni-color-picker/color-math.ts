@@ -101,21 +101,18 @@ export const cellTheme = (h: number, s: number): DemoTheme => {
 };
 
 /*
- * Fish-eye lens geometry, in fixed design coordinates matching the source
- * recording's 685×470 panel.
- *
- * Dot centres measured off the video sit at 115, 203, 268 and 313px from the
- * centre (gaps of 115 → 88 → 63 → 45), which an arctangent lens fits to within
- * a couple of px; a spherical R·sin(θu) cannot, since it peaks and folds back
- * before reaching the panel edge. The axes are tuned separately because the
- * panel is wider than it is tall.
+ * Fish-eye lens geometry in fixed design coordinates. The panel is square, so
+ * the lens is radially symmetric: both axes reuse the arctangent fit measured
+ * off the source recording's horizontal axis (dot centres at 115, 203, 268 and
+ * 313px from centre, gaps 115 → 88 → 63 → 45). An arctangent fits these to
+ * within a couple of px; a spherical R·sin(θu) folds back before the edge.
  */
 export const PANEL_WIDTH = 685;
-export const PANEL_HEIGHT = 470;
+export const PANEL_HEIGHT = PANEL_WIDTH;
 export const DOT_MAX = 78;
 
 const LENS_X = { amplitude: 316.7, k: 0.38 };
-const LENS_Y = { amplitude: 232.3, k: 0.47 };
+const LENS_Y = LENS_X;
 
 /** px per cell at the centre of the lens — the 1:1 rate for dragging. */
 export const CELL_SPACING_X = LENS_X.amplitude * LENS_X.k;
@@ -141,12 +138,14 @@ export const unprojectX = (px: number) => unproject(px, LENS_X);
 export const unprojectY = (py: number) => unproject(py, LENS_Y);
 
 /*
- * Measured dot diameters fall off as 78, 59, 28, 10 across cells 0-3, which is
- * a Gaussian rather than the linear-ish taper it looks like by eye.
+ * Measured dot diameters fall off as 78, 59, 28, 10 across cells 0-3, roughly a
+ * Gaussian. Sigma is pulled in slightly tighter than the raw fit, and the fade
+ * window sits inside the panel edge (~4.8 cells), so dots fade out before they
+ * shrink to specks crowding the edge.
  */
-const FALLOFF_SIGMA = 1.9;
-const FADE_START = 4;
-const FADE_END = 5.5;
+const FALLOFF_SIGMA = 1.8;
+const FADE_START = 2.6;
+const FADE_END = 3.6;
 
 export const dotScale = (d: number) => Math.exp(-((d / FALLOFF_SIGMA) ** 2));
 
