@@ -71,20 +71,13 @@ export const OmniColorPickerBlock = () => {
           />
           <div>
             <p className="font-semibold">Matt Blode</p>
-            <p className="text-(--demo-muted) text-sm">
-              Product engineer, Melbourne
-            </p>
+            <p className="text-(--demo-muted) text-sm">AI at Linktree</p>
           </div>
         </div>
-        <div className="flex flex-col gap-3 text-sm leading-snug">
-          <p>
-            Two startups, two exits. Forbes 30 Under 30. Now on AI at Linktree.
-          </p>
-          <p className="text-(--demo-muted)">
-            This page is a playground for an omni-directional colour picker.
-            Drag the sphere of dots below to pick a hue and shade.
-          </p>
-        </div>
+        <p className="text-(--demo-muted) text-sm leading-snug">
+          This page is a playground for an omni-directional colour picker. Drag
+          the sphere of dots below to pick a hue and shade.
+        </p>
         <a
           className="rounded-xl bg-(--demo-accent) px-4 py-2.5 text-center font-medium text-(--demo-accent-fg) text-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
           href="https://matthewblode.com"
