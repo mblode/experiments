@@ -41,8 +41,14 @@ const CORE_SCALE = 0.36;
 /** Cell distance over which a core fades as its row leaves the centre line. */
 const CORE_ROW_REACH = 0.5;
 const TAP_THRESHOLD_PX = 5;
-const MOMENTUM_SECONDS = 0.08;
-const MAX_FLING_CELLS = 3;
+
+// Apple scroll-momentum falloff for Motion's inertia generator: the value
+// decays as target - power*velocity·e^(-t/τ), the same exponential curve Apple
+// ships in Designing Fluid Interfaces. power scales throw distance (kept high
+// for a macOS-trackpad-style reach); timeConstant scales how long it keeps
+// gliding (kept shorter so it decelerates to rest quickly).
+const FLING_POWER = 0.9;
+const FLING_TIME_CONSTANT = 500;
 
 const SNAP_SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
 /** Looser than the snap spring so held arrow keys carry momentum and accelerate. */
@@ -64,7 +70,13 @@ interface DragState {
   startOx: number;
   startOy: number;
   moved: boolean;
+  // Recent (time, value) samples for measuring release velocity ourselves —
+  // MotionValue.getVelocity() is frame-timed and reads ~0 at pointer-up.
+  samples: { t: number; x: number; y: number }[];
 }
+
+/** Window over which release velocity is averaged, in ms. */
+const VELOCITY_WINDOW_MS = 100;
 
 interface Props {
   ox: MotionValue<number>;
@@ -289,6 +301,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       startOx: ox.get(),
       startOy: oy.get(),
       moved: false,
+      samples: [{ t: performance.now(), x: ox.get(), y: oy.get() }],
     };
   };
 
@@ -303,8 +316,19 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       state.moved = true;
     }
     // The grid follows the pointer 1:1 — no easing during direct manipulation.
-    ox.set(state.startOx - dx / scale / CELL_SPACING_X);
-    oy.set(state.startOy - dy / scale / CELL_SPACING_Y);
+    const nextX = state.startOx - dx / scale / CELL_SPACING_X;
+    const nextY = state.startOy - dy / scale / CELL_SPACING_Y;
+    ox.set(nextX);
+    oy.set(nextY);
+
+    const now = performance.now();
+    state.samples.push({ t: now, x: nextX, y: nextY });
+    while (
+      state.samples.length > 2 &&
+      now - state.samples[0].t > VELOCITY_WINDOW_MS
+    ) {
+      state.samples.shift();
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -323,23 +347,37 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       return;
     }
 
-    // Project momentum, clamp the fling, then spring to the nearest cell.
-    const vx = ox.getVelocity();
-    const vy = oy.getVelocity();
-    const flingX = Math.min(
-      Math.max(vx * MOMENTUM_SECONDS, -MAX_FLING_CELLS),
-      MAX_FLING_CELLS
-    );
-    const flingY = Math.min(
-      Math.max(vy * MOMENTUM_SECONDS, -MAX_FLING_CELLS),
-      MAX_FLING_CELLS
-    );
-    snapTo(
-      Math.round(ox.get() + flingX),
-      Math.round(oy.get() + flingY),
-      vx,
-      vy
-    );
+    if (reducedMotion) {
+      ox.set(Math.round(ox.get()));
+      oy.set(Math.round(oy.get()));
+      return;
+    }
+
+    // Release velocity (cells/sec), averaged over the last samples.
+    const now = performance.now();
+    const oldest = state.samples[0];
+    const dt = (now - oldest.t) / 1000;
+    const vx = dt > 0 ? (ox.get() - oldest.x) / dt : 0;
+    const vy = dt > 0 ? (oy.get() - oldest.y) / dt : 0;
+
+    // Coast with iOS scroll-deceleration momentum, landing on the cell nearest
+    // the projected resting point. Pass the projected cell as the target (not
+    // the current value) so Motion doesn't skip an equal-keyframes animation.
+    const inertiaOptions = {
+      type: "inertia" as const,
+      power: FLING_POWER,
+      timeConstant: FLING_TIME_CONSTANT,
+      restDelta: 0.001,
+      modifyTarget: Math.round,
+    };
+    animate(ox, Math.round(ox.get() + FLING_POWER * vx), {
+      ...inertiaOptions,
+      velocity: vx,
+    });
+    animate(oy, Math.round(oy.get() + FLING_POWER * vy), {
+      ...inertiaOptions,
+      velocity: vy,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
