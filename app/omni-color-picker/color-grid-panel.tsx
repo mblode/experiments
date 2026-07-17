@@ -426,6 +426,8 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
           width: PANEL_WIDTH,
           height: PANEL_HEIGHT,
           transform: `scale(${scale})`,
+          // Hidden until measured so it never flashes at the unscaled 685px size.
+          visibility: bounds.width > 0 ? undefined : "hidden",
         }}
       >
         <div className="absolute inset-0 rounded-3xl border border-black/10 bg-white shadow-black/10 shadow-xl" />
