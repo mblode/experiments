@@ -12,7 +12,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from "motion/react";
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import useMeasure from "react-use-measure";
 
 import {
@@ -45,6 +45,17 @@ const MOMENTUM_SECONDS = 0.08;
 const MAX_FLING_CELLS = 3;
 
 const SNAP_SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
+/** Looser than the snap spring so held arrow keys carry momentum and accelerate. */
+const KEY_SPRING = { type: "spring", stiffness: 260, damping: 26 } as const;
+
+const KEY_VECTORS: Record<string, [number, number]> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+};
+/** Cadence at which held keys advance a cell; the spring smooths between them. */
+const KEY_STEP_MS = 90;
 
 interface DragState {
   pointerId: number;
@@ -132,6 +143,14 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const dotEls = useRef(new Map<string, HTMLDivElement>());
   const drag = useRef<DragState | null>(null);
+  // Integer target the arrow keys chase; stays ahead of the value while a key
+  // is held so the pan builds velocity. Cleared when a pointer takes over.
+  const keyTarget = useRef<{ h: number; s: number } | null>(null);
+  // Arrow keys currently held. Driven by a rAF loop rather than OS key-repeat
+  // so multiple keys combine (e.g. Down+Left pans diagonally).
+  const heldKeys = useRef(new Set<string>());
+  const keyRaf = useRef<number | null>(null);
+  const lastKeyStep = useRef(0);
   const reducedMotion = useReducedMotion();
 
   const scale = bounds.width > 0 ? bounds.width / PANEL_WIDTH : 1;
@@ -187,9 +206,81 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
     [scale]
   );
 
+  // Push the target ahead of the value; repeated steps stack so the pan
+  // accelerates, then springs to rest carrying the velocity it built up.
+  const stepKey = useCallback(
+    (dh: number, ds: number) => {
+      const base = keyTarget.current ?? {
+        h: Math.round(ox.get()),
+        s: Math.round(oy.get()),
+      };
+      keyTarget.current = { h: base.h + dh, s: base.s + ds };
+      if (dh !== 0) {
+        animate(ox, keyTarget.current.h, {
+          ...KEY_SPRING,
+          velocity: ox.getVelocity(),
+        });
+      }
+      if (ds !== 0) {
+        animate(oy, keyTarget.current.s, {
+          ...KEY_SPRING,
+          velocity: oy.getVelocity(),
+        });
+      }
+    },
+    [ox, oy]
+  );
+
+  const runKeys = useCallback(
+    (time: number) => {
+      if (heldKeys.current.size === 0) {
+        keyRaf.current = null;
+        return;
+      }
+      if (time - lastKeyStep.current >= KEY_STEP_MS) {
+        lastKeyStep.current = time;
+        let dh = 0;
+        let ds = 0;
+        for (const key of heldKeys.current) {
+          const vec = KEY_VECTORS[key];
+          if (vec) {
+            dh += vec[0];
+            ds += vec[1];
+          }
+        }
+        // Opposite keys cancel; only step when there's a net direction.
+        if (dh !== 0 || ds !== 0) {
+          stepKey(dh, ds);
+        }
+      }
+      keyRaf.current = requestAnimationFrame(runKeys);
+    },
+    [stepKey]
+  );
+
+  const stopKeys = useCallback(() => {
+    heldKeys.current.clear();
+    if (keyRaf.current !== null) {
+      cancelAnimationFrame(keyRaf.current);
+      keyRaf.current = null;
+    }
+    keyTarget.current = null;
+  }, []);
+
+  useEffect(() => stopKeys, [stopKeys]);
+
+  const nudge = useCallback(
+    (dh: number, ds: number) => {
+      stopKeys();
+      snapTo(Math.round(ox.get()) + dh, Math.round(oy.get()) + ds);
+    },
+    [ox, oy, snapTo, stopKeys]
+  );
+
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     ox.stop();
     oy.stop();
+    stopKeys();
     surfaceRef.current?.setPointerCapture(e.pointerId);
     drag.current = {
       pointerId: e.pointerId,
@@ -252,22 +343,38 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const step: Record<string, [number, number]> = {
-      ArrowLeft: [-1, 0],
-      ArrowRight: [1, 0],
-      ArrowUp: [0, -1],
-      ArrowDown: [0, 1],
-    };
-    const move = step[e.key];
-    if (!move) {
+    const vec = KEY_VECTORS[e.key];
+    if (!vec) {
       return;
     }
     e.preventDefault();
-    // Keyboard moves are instant — animating repeated key presses feels slow.
-    ox.stop();
-    oy.stop();
-    ox.set(Math.round(ox.get()) + move[0]);
-    oy.set(Math.round(oy.get()) + move[1]);
+
+    if (reducedMotion) {
+      ox.set(Math.round(ox.get()) + vec[0]);
+      oy.set(Math.round(oy.get()) + vec[1]);
+      return;
+    }
+
+    // Ignore OS auto-repeat; the rAF loop drives our own cadence so held keys
+    // combine into diagonals instead of the OS repeating just the last key.
+    if (e.repeat) {
+      return;
+    }
+    const wasIdle = heldKeys.current.size === 0;
+    heldKeys.current.add(e.key);
+    if (wasIdle) {
+      stepKey(vec[0], vec[1]); // respond on the initiating press, even a fast tap
+      lastKeyStep.current = performance.now();
+      keyRaf.current = requestAnimationFrame(runKeys);
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    heldKeys.current.delete(e.key);
+  };
+
+  const handleBlur = () => {
+    stopKeys();
   };
 
   const dots = [];
@@ -343,7 +450,9 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
           aria-valuenow={wrap(center.s, SHADES)}
           aria-valuetext={`hue ${wrap(center.h, HUES) + 1} of ${HUES}, shade ${wrap(center.s, SHADES) + 1} of ${SHADES}`}
           className="absolute inset-0 cursor-grab touch-none overflow-hidden rounded-3xl focus-visible:outline-2 focus-visible:outline-blue-500 active:cursor-grabbing"
+          onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -359,9 +468,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
             aria-label={label}
             className={`${NUDGE_BUTTON_CLASS} ${position}`}
             key={label}
-            onClick={() =>
-              snapTo(Math.round(ox.get()) + dh, Math.round(oy.get()) + ds)
-            }
+            onClick={() => nudge(dh, ds)}
             onPointerDown={(e) => e.stopPropagation()}
             type="button"
           >
@@ -374,9 +481,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
             aria-label={label}
             className={`${NUDGE_BUTTON_CLASS} ${position}`}
             key={label}
-            onClick={() =>
-              snapTo(Math.round(ox.get()) + dh, Math.round(oy.get()) + ds)
-            }
+            onClick={() => nudge(dh, ds)}
             onPointerDown={(e) => e.stopPropagation()}
             type="button"
           >
