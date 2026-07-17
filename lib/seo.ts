@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { blocks } from "@/lib/blocks";
 
 export const SITE_URL = "https://experiments.blode.co";
@@ -6,7 +7,7 @@ export const SITE_NAME = "Matt's experiments";
 
 const DESCRIPTION_MAX = 158;
 const DESCRIPTION_SUFFIX =
-  " An interactive UI experiment by Matthew Blode — live demo and source at experiments.blode.co.";
+  " An interactive UI experiment by Matthew Blode. Live demo and source at experiments.blode.co.";
 
 const clampDescription = (value: string): string => {
   if (value.length <= DESCRIPTION_MAX) {
@@ -25,7 +26,7 @@ const buildDescription = (description: string): string => {
 export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
   const block = blocks[id];
   const url = `${SITE_URL}/${id}`;
-  const title = `${block.name} — ${SITE_NAME}`;
+  const title = `${block.name} · ${SITE_NAME}`;
   const description = buildDescription(block.description);
 
   return {
