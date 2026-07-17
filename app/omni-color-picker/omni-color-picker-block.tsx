@@ -60,68 +60,39 @@ export const OmniColorPickerBlock = () => {
       ref={rootRef}
       style={{ backgroundColor: "var(--demo-bg)", ...initialVars.current }}
     >
-      <div className="grid w-full max-w-3xl gap-4 md:grid-cols-2">
-        <div className="flex flex-col justify-between gap-8 rounded-2xl border border-(--demo-border) bg-(--demo-card) p-6">
-          <p className="font-semibold text-lg leading-snug">
-            Hey, I&rsquo;m Matt. I design and build internet things.
-            <br />
-            <br />
-            This page is a playground for an omni-directional background color
-            picker — drag the sphere of dots below to pick a hue and shade.
-          </p>
-          <a
-            className="rounded-xl bg-(--demo-accent) px-4 py-2.5 text-center font-medium text-(--demo-accent-fg) text-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            href="https://blode.co"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Say hello
-          </a>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-(--demo-border) bg-(--demo-card) p-6">
-            <div className="flex items-center gap-3">
-              <Image
-                alt="Matt Blode's avatar"
-                className="rounded-full"
-                height={48}
-                src="/avatar-sm.png"
-                width={48}
-              />
-              <div>
-                <p className="font-semibold">Matt Blode</p>
-                <p className="text-(--demo-muted) text-sm">@mblode</p>
-              </div>
-            </div>
-            <p className="mt-3 text-(--demo-muted) text-sm">
-              design engineer — building experiments like this one
+      <div className="flex w-full max-w-md flex-col gap-6 rounded-2xl border border-(--demo-border) bg-(--demo-card) p-6">
+        <div className="flex items-center gap-3">
+          <Image
+            alt="Matt Blode's avatar"
+            className="rounded-full"
+            height={48}
+            src="/avatar-sm.png"
+            width={48}
+          />
+          <div>
+            <p className="font-semibold">Matt Blode</p>
+            <p className="text-(--demo-muted) text-sm">
+              Product engineer, Melbourne
             </p>
           </div>
-
-          <div className="grid grow grid-cols-2 gap-4">
-            {[
-              {
-                title: "Matt's experiments",
-                url: "experiments.blode.co",
-              },
-              {
-                title: "Original by Mackenzie Child",
-                url: "x.com/mackenziechild",
-              },
-            ].map((link) => (
-              <div
-                className="flex flex-col justify-between gap-2 rounded-2xl border border-(--demo-border) bg-(--demo-card) p-4"
-                key={link.url}
-              >
-                <p className="font-semibold text-sm leading-tight">
-                  {link.title}
-                </p>
-                <p className="text-(--demo-muted) text-xs">{link.url}</p>
-              </div>
-            ))}
-          </div>
         </div>
+        <div className="flex flex-col gap-3 text-sm leading-snug">
+          <p>
+            Two startups, two exits. Forbes 30 Under 30. Now on AI at Linktree.
+          </p>
+          <p className="text-(--demo-muted)">
+            This page is a playground for an omni-directional colour picker.
+            Drag the sphere of dots below to pick a hue and shade.
+          </p>
+        </div>
+        <a
+          className="rounded-xl bg-(--demo-accent) px-4 py-2.5 text-center font-medium text-(--demo-accent-fg) text-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          href="https://matthewblode.com"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Say hello
+        </a>
       </div>
 
       <div className="flex w-full flex-col items-center gap-4">

@@ -144,8 +144,8 @@ export const blocks: Record<
       "Stacked SVG copies of the Linktree mark with progressively wider strokes build a retro onion-ring outline effect",
   },
   "omni-color-picker": {
-    name: "Omni-directional color picker",
+    name: "Omni-directional colour picker",
     description:
-      "Drag a fish-eye sphere of dots to recolor the page — hue on x, shade on y",
+      "Drag a fish-eye sphere of dots to recolour the page: hue on x, shade on y",
   },
 };
