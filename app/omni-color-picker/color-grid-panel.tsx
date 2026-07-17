@@ -136,7 +136,7 @@ const CORNER_NUDGES = [
 ];
 
 const NUDGE_BUTTON_CLASS =
-  "absolute flex size-9 items-center justify-center rounded-lg bg-white text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] transition-colors hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-blue-500";
+  "absolute flex size-9 items-center justify-center rounded-xl bg-white/80 text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] backdrop-blur-md transition-colors hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-blue-500";
 
 export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   const [measureRef, bounds] = useMeasure();
@@ -416,7 +416,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
 
   return (
     <div
-      className="relative w-full max-w-[685px]"
+      className="relative w-full max-w-md"
       ref={measureRef}
       style={{ aspectRatio: `${PANEL_WIDTH} / ${PANEL_HEIGHT}` }}
     >
@@ -430,16 +430,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       >
         <div className="absolute inset-0 rounded-3xl border border-black/10 bg-white shadow-black/10 shadow-xl" />
 
-        {/* Dotted texture + crosshair */}
-        <div
-          className="absolute inset-0 rounded-3xl"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, rgb(0 0 0 / 0.09) 1.1px, transparent 1.1px)",
-            backgroundSize: "24px 24px",
-            backgroundPosition: "center",
-          }}
-        />
+        {/* Crosshair */}
         <div className="-translate-y-1/2 absolute top-1/2 right-6 left-6 h-px bg-black/5" />
         <div className="-translate-x-1/2 absolute top-6 bottom-6 left-1/2 w-px bg-black/5" />
 
