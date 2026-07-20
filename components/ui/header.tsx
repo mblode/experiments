@@ -2,6 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { blocks } from "@/lib/blocks";
@@ -13,8 +14,18 @@ interface Props {
 }
 
 export const Header = ({ id, className }: Props) => {
+  // `?hideHeader` renders the demo on its own — used for OG screenshots
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    setHidden(new URLSearchParams(window.location.search).has("hideHeader"));
+  }, []);
+
+  if (hidden) {
+    return null;
+  }
+
   return (
-    <div className={cn("mb-8", className)} data-experiment-header>
+    <div className={cn("mb-8", className)}>
       <div className="flex items-center gap-2">
         <Button
           asChild
