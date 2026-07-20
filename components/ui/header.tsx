@@ -2,6 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { blocks } from "@/lib/blocks";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ interface Props {
 
 export const Header = ({ id, className }: Props) => {
   return (
-    <div className={cn("mb-8", className)}>
+    <div className={cn("mb-8", className)} data-experiment-header>
       <div className="flex items-center gap-2">
         <Button
           asChild
