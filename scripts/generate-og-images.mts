@@ -62,13 +62,11 @@ const capture = async (
   slug: string
 ): Promise<void> => {
   const page: Page = await context.newPage();
-  await page.goto(`${BASE_URL}/${slug}`, { waitUntil: "load" });
-  // Screenshot the demo alone, without the title/description/back-arrow chrome
-  let css = "[data-experiment-header]{display:none!important}";
+  // ?hideHeader drops the title/description/back-arrow so only the demo shows
+  await page.goto(`${BASE_URL}/${slug}?hideHeader=1`, { waitUntil: "load" });
   if (CENTER.has(slug)) {
-    css += CENTER_CSS;
+    await page.addStyleTag({ content: CENTER_CSS });
   }
-  await page.addStyleTag({ content: css });
   // Best-effort: some demos stream assets forever and never go network-idle
   await page
     .waitForLoadState("networkidle", { timeout: IDLE_TIMEOUT_MS })
