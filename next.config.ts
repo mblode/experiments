@@ -14,11 +14,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.mapbox.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "images.unsplash.com",
         pathname: "/**",
       },

@@ -39,7 +39,7 @@ export function useGridInteractions(
 
   const handleDragStart = useCallback(
     ({ previousItem }: GridDragEvent) => {
-      const id = previousItem?.i ?? null;
+      const id = previousItem?.id ?? null;
       setHoveredId(id);
       setDragId(id);
       if (id) {
@@ -56,8 +56,8 @@ export function useGridInteractions(
   const handleDragStop = useCallback(
     ({ item }: GridDragEvent) => {
       setDragId(null);
-      if (item?.i) {
-        options.onDragStop?.(item.i);
+      if (item?.id) {
+        options.onDragStop?.(item.id);
       }
     },
     [options]
@@ -65,12 +65,12 @@ export function useGridInteractions(
 
   const handleResizeStart = useCallback(
     ({ item }: GridResizeEvent) => {
-      const id = item?.i ?? null;
+      const id = item?.id ?? null;
       setHoveredId(id);
       setSelectedId(id);
       if (item) {
-        setResizeState({ id: item.i, w: item.w, h: item.h });
-        options.onResizeStart?.(item.i);
+        setResizeState({ id: item.id, w: item.w, h: item.h });
+        options.onResizeStart?.(item.id);
       }
     },
     [options]
@@ -78,15 +78,15 @@ export function useGridInteractions(
 
   const handleResize = useCallback(({ item }: GridResizeEvent) => {
     if (item) {
-      setResizeState({ id: item.i, w: item.w, h: item.h });
+      setResizeState({ id: item.id, w: item.w, h: item.h });
     }
   }, []);
 
   const handleResizeStop = useCallback(
     ({ item }: GridResizeEvent) => {
       setResizeState(null);
-      if (item?.i) {
-        options.onResizeStop?.(item.i);
+      if (item?.id) {
+        options.onResizeStop?.(item.id);
       }
     },
     [options]
