@@ -21,9 +21,41 @@ const SETTLE_OVERRIDES: Record<string, number> = {
   sky: 5000,
 };
 
+// Demos whose interesting UI only appears after interaction. Each triggers the
+// demo's characteristic state so the screenshot shows more than a lone button.
+const PREPARE: Record<string, (page: Page) => Promise<void>> = {
+  "animated-button": (page) =>
+    page.getByRole("button", { name: "Follow" }).click(),
+  "dynamic-island": (page) =>
+    page.getByRole("button", { name: "Timer" }).click(),
+  // Progress rail and chapter markers only appear once scrolled past a threshold
+  markers: (page) =>
+    page.evaluate(() => window.scrollTo({ top: window.innerHeight * 1.6 })),
+  "password-strength": (page) =>
+    page.locator("#password").fill("Str0ng!Pass22"),
+  sheet: (page) =>
+    page.getByRole("button", { name: "Open multi-stage sheet" }).click(),
+  // Label is rendered as per-character spans (StaggeredText), so match the
+  // sole button directly rather than by accessible name.
+  "timed-undo": (page) => page.locator("button").first().click(),
+};
+
+// Small single-element demos that otherwise sit in the top-left corner with a
+// lot of empty space — center them in the frame so they read as intentional.
+const CENTER = new Set(["animated-button", "staggered-fade", "timed-undo"]);
+
+const CENTER_CSS = `
+  .min-h-screen{display:flex!important;align-items:center!important;justify-content:center!important;min-height:100vh!important}
+  .min-h-screen > .mx-auto{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:100%!important}
+`;
+
+// Optional ONLY=slug1,slug2 to regenerate a subset (handy when tuning one demo)
+const only = process.env.ONLY?.split(",").map((s) => s.trim());
+
 const slugs = Object.entries(blocks)
   .filter(([, block]) => !block.hidden)
-  .map(([slug]) => slug);
+  .map(([slug]) => slug)
+  .filter((slug) => !only || only.includes(slug));
 
 const capture = async (
   context: BrowserContext,
@@ -32,9 +64,11 @@ const capture = async (
   const page: Page = await context.newPage();
   await page.goto(`${BASE_URL}/${slug}`, { waitUntil: "load" });
   // Screenshot the demo alone, without the title/description/back-arrow chrome
-  await page.addStyleTag({
-    content: "[data-experiment-header]{display:none!important}",
-  });
+  let css = "[data-experiment-header]{display:none!important}";
+  if (CENTER.has(slug)) {
+    css += CENTER_CSS;
+  }
+  await page.addStyleTag({ content: css });
   // Best-effort: some demos stream assets forever and never go network-idle
   await page
     .waitForLoadState("networkidle", { timeout: IDLE_TIMEOUT_MS })
@@ -47,6 +81,10 @@ const capture = async (
       { timeout: IDLE_TIMEOUT_MS }
     )
     .catch(() => undefined);
+  // Best-effort: a failed interaction shouldn't abort the whole batch
+  await PREPARE[slug]?.(page).catch((error: unknown) =>
+    console.warn(`  prepare(${slug}) failed: ${String(error).split("\n")[0]}`)
+  );
   await page.waitForTimeout(SETTLE_OVERRIDES[slug] ?? DEFAULT_SETTLE_MS);
   await page.screenshot({ path: path.join(OUTPUT_DIR, `${slug}.png`) });
   await page.close();
