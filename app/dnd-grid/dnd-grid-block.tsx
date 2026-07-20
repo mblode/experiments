@@ -22,14 +22,14 @@ const DEFAULT_GRID_HEIGHT =
   BLOCK_GAP * 2;
 
 const initialLayout: Layout = [
-  { i: "a", x: 0, y: 0, w: 2, h: 6 },
-  { i: "b", x: 2, y: 0, w: 1, h: 3 },
-  { i: "c", x: 3, y: 0, w: 1, h: 3 },
-  { i: "d", x: 2, y: 3, w: 2, h: 4 },
-  { i: "e", x: 0, y: 6, w: 1, h: 4 },
-  { i: "f", x: 1, y: 6, w: 1, h: 4 },
-  { i: "g", x: 2, y: 7, w: 2, h: 3 },
-  { i: "h", x: 0, y: 10, w: 4, h: 2 },
+  { id: "a", x: 0, y: 0, w: 2, h: 6 },
+  { id: "b", x: 2, y: 0, w: 1, h: 3 },
+  { id: "c", x: 3, y: 0, w: 1, h: 3 },
+  { id: "d", x: 2, y: 3, w: 2, h: 4 },
+  { id: "e", x: 0, y: 6, w: 1, h: 4 },
+  { id: "f", x: 1, y: 6, w: 1, h: 4 },
+  { id: "g", x: 2, y: 7, w: 2, h: 3 },
+  { id: "h", x: 0, y: 10, w: 4, h: 2 },
 ];
 
 export const DndGridBlock = () => {
@@ -134,15 +134,15 @@ export const DndGridBlock = () => {
           {layout.map((item: LayoutItem) => {
             return (
               <button
-                aria-label={`Block ${item.i}`}
+                aria-label={`Block ${item.id}`}
                 className="select-none p-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                key={item.i}
-                onClick={() => handlers.handleSelect(item.i)}
-                onPointerEnter={() => handlers.handleHover(item.i)}
+                key={item.id}
+                onClick={() => handlers.handleSelect(item.id)}
+                onPointerEnter={() => handlers.handleHover(item.id)}
                 onPointerLeave={() => handlers.handleHover(null)}
                 type="button"
               >
-                {item.i}
+                {item.id}
               </button>
             );
           })}

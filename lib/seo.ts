@@ -39,15 +39,13 @@ export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
       siteName: SITE_NAME,
       title,
       description,
-      images: [
-        { url: "/opengraph-image.png", width: 2400, height: 1260, alt: title },
-      ],
+      images: [{ url: `/og/${id}.png`, width: 2400, height: 1260, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/twitter-image.png"],
+      images: [`/og/${id}.png`],
     },
   };
 };

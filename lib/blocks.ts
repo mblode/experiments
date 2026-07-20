@@ -38,11 +38,6 @@ export const blocks: Record<
     description:
       "iPhone-style dynamic island with expandable states and morphing animations",
   },
-  map: {
-    name: "Interactive map",
-    description:
-      "Mapbox-powered map with custom markers and navigation controls",
-  },
   "card-stack": {
     name: "Stacked cards",
     description: "Three-card stack that expands into a grid layout on click",
