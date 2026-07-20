@@ -31,6 +31,10 @@ const capture = async (
 ): Promise<void> => {
   const page: Page = await context.newPage();
   await page.goto(`${BASE_URL}/${slug}`, { waitUntil: "load" });
+  // Screenshot the demo alone, without the title/description/back-arrow chrome
+  await page.addStyleTag({
+    content: "[data-experiment-header]{display:none!important}",
+  });
   // Best-effort: some demos stream assets forever and never go network-idle
   await page
     .waitForLoadState("networkidle", { timeout: IDLE_TIMEOUT_MS })
