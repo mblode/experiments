@@ -21,7 +21,8 @@ export const Header = ({ id, className }: Props) => {
   }, []);
 
   if (hidden) {
-    return null;
+    // Also drop attribution/reference links so only the demo remains
+    return <style>{".link{display:none!important}"}</style>;
   }
 
   return (
