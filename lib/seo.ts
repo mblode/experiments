@@ -18,16 +18,19 @@ const clampDescription = (value: string): string => {
   return `${truncated.slice(0, lastSpace > 0 ? lastSpace : DESCRIPTION_MAX).trimEnd()}…`;
 };
 
-const buildDescription = (description: string): string => {
-  const base = description.endsWith(".") ? description : `${description}.`;
-  return clampDescription(`${base}${DESCRIPTION_SUFFIX}`);
-};
+const asSentence = (description: string): string =>
+  description.endsWith(".") ? description : `${description}.`;
 
 export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
   const block = blocks[id];
   const url = `${SITE_URL}/${id}`;
   const title = `${block.name} · ${SITE_NAME}`;
-  const description = buildDescription(block.description);
+  // Search results have room for the boilerplate suffix; social cards don't —
+  // they truncate near 125 chars and already show the domain and site name.
+  const description = clampDescription(
+    `${asSentence(block.description)}${DESCRIPTION_SUFFIX}`
+  );
+  const socialDescription = asSentence(block.description);
 
   return {
     title,
@@ -38,13 +41,13 @@ export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
       url,
       siteName: SITE_NAME,
       title,
-      description,
+      description: socialDescription,
       images: [{ url: `/og/${id}.png`, width: 2400, height: 1260, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description,
+      description: socialDescription,
       images: [`/og/${id}.png`],
     },
   };
