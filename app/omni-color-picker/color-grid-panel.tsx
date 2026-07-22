@@ -50,9 +50,30 @@ const TAP_THRESHOLD_PX = 5;
 const FLING_POWER = 0.9;
 const FLING_TIME_CONSTANT = 500;
 
-const SNAP_SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
-/** Looser than the snap spring so held arrow keys carry momentum and accelerate. */
+/**
+ * Snapping is soft (ωn≈9.5) and overshoots on purpose (ζ≈0.65). Both halves
+ * matter: dropping stiffness alone just delays a dead stop, and dropping
+ * damping alone speeds the approach up rather than slowing it. Measured in the
+ * browser, the cell arrives at ~310ms (vs ~265ms critically damped), swings
+ * ~7% of a cell past it — about 5px on screen at the default panel width — at
+ * ~435ms, and is home by ~700ms. A landing with weight, rather than a cut.
+ */
+const SNAP_SPRING = { type: "spring", stiffness: 90, damping: 12.3 } as const;
+/**
+ * Keyboard stepping stays tight (ζ≈0.81, ~1% overshoot) and quicker than the
+ * snap spring. Arrow keys repeat, and a bounce per press reads as lag; the
+ * momentum that lets held keys accelerate comes from handing the live velocity
+ * to each step, not from under-damping.
+ */
 const KEY_SPRING = { type: "spring", stiffness: 260, damping: 26 } as const;
+/**
+ * Release speed (cells/sec) below which there's no throw left to feel, so the
+ * snap spring lands the cell instead of inertia — the exponential coast eases
+ * in asymptotically and can never bump. Kept low: the overshoot is a fraction
+ * of the distance travelled, so handing the spring a real throw would scale a
+ * tasteful 8px bump up into a wobble.
+ */
+const SNAP_MAX_VELOCITY = 1;
 
 const KEY_VECTORS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 0],
@@ -201,6 +222,33 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       animate(oy, targetS, { ...SNAP_SPRING, velocity: velocityY });
     },
     [ox, oy, reducedMotion]
+  );
+
+  /**
+   * A release either coasts or snaps. A real throw keeps the iOS
+   * scroll-deceleration momentum; anything gentler hands over to the snap
+   * spring so the cell lands with a bump instead of creeping in.
+   */
+  const releaseAxis = useCallback(
+    (value: MotionValue<number>, velocity: number) => {
+      // Land on the cell nearest the projected resting point. Pass that cell as
+      // the target (not the current value) so Motion doesn't skip an
+      // equal-keyframes animation.
+      const target = Math.round(value.get() + FLING_POWER * velocity);
+      if (Math.abs(velocity) < SNAP_MAX_VELOCITY) {
+        animate(value, target, { ...SNAP_SPRING, velocity });
+        return;
+      }
+      animate(value, target, {
+        type: "inertia",
+        power: FLING_POWER,
+        timeConstant: FLING_TIME_CONSTANT,
+        restDelta: 0.001,
+        modifyTarget: Math.round,
+        velocity,
+      });
+    },
+    []
   );
 
   /** Pointer position (design px, relative to panel center). */
@@ -360,24 +408,8 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
     const vx = dt > 0 ? (ox.get() - oldest.x) / dt : 0;
     const vy = dt > 0 ? (oy.get() - oldest.y) / dt : 0;
 
-    // Coast with iOS scroll-deceleration momentum, landing on the cell nearest
-    // the projected resting point. Pass the projected cell as the target (not
-    // the current value) so Motion doesn't skip an equal-keyframes animation.
-    const inertiaOptions = {
-      type: "inertia" as const,
-      power: FLING_POWER,
-      timeConstant: FLING_TIME_CONSTANT,
-      restDelta: 0.001,
-      modifyTarget: Math.round,
-    };
-    animate(ox, Math.round(ox.get() + FLING_POWER * vx), {
-      ...inertiaOptions,
-      velocity: vx,
-    });
-    animate(oy, Math.round(oy.get() + FLING_POWER * vy), {
-      ...inertiaOptions,
-      velocity: vy,
-    });
+    releaseAxis(ox, vx);
+    releaseAxis(oy, vy);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
