@@ -21,8 +21,9 @@ export const Header = ({ id, className }: Props) => {
   }, []);
 
   if (hidden) {
-    // Also drop attribution/reference links so only the demo remains
-    return <style>{".link{display:none!important}"}</style>;
+    // Also drop attribution links and any chrome-only wrapper — an emptied
+    // wrapper still renders its padding as a band above the demo.
+    return <style>{".link,[data-chrome]{display:none!important}"}</style>;
   }
 
   return (

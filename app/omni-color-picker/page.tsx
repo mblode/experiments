@@ -8,7 +8,7 @@ export const metadata = getExperimentMetadata("omni-color-picker");
 export default function Page() {
   return (
     <>
-      <div className="bg-background p-8">
+      <div className="bg-background p-8" data-chrome>
         <div className="mx-auto max-w-4xl">
           <Header id="omni-color-picker" />
           <a
