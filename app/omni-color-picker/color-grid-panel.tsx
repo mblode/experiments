@@ -168,17 +168,25 @@ const CORNER_NUDGES = [
   },
 ];
 
+/*
+ * `before:-inset-1` grows the hit area from the 36px visual to the 44px WCAG
+ * 2.5.5 target without changing how the button looks.
+ */
 const NUDGE_BUTTON_CLASS =
-  "absolute flex size-9 items-center justify-center rounded-xl bg-white/80 text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] backdrop-blur-md transition-colors hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-blue-500";
+  "absolute flex size-9 items-center justify-center rounded-xl bg-white/80 text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] backdrop-blur-md transition-colors before:absolute before:-inset-1 before:content-[''] hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-blue-500";
 
 export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   const [measureRef, bounds] = useMeasure();
   const surfaceRef = useRef<HTMLDivElement>(null);
   const dotEls = useRef(new Map<string, HTMLDivElement>());
   const drag = useRef<DragState | null>(null);
-  // Integer target the arrow keys chase; stays ahead of the value while a key
-  // is held so the pan builds velocity. Cleared when a pointer takes over.
-  const keyTarget = useRef<{ h: number; s: number } | null>(null);
+  // Integer cell every discrete move heads for — arrow keys, nudge buttons and
+  // taps alike. Kept ahead of the live value so repeated steps stack instead of
+  // re-rounding a value that is still in flight; two fast nudges inside the
+  // first frames of a spring would otherwise round back to the same cell and
+  // the second would be swallowed. Cleared when a drag takes the value
+  // continuous.
+  const stepTarget = useRef<{ h: number; s: number } | null>(null);
   // Arrow keys currently held. Driven by a rAF loop rather than OS key-repeat
   // so multiple keys combine (e.g. Down+Left pans diagonally).
   const heldKeys = useRef(new Set<string>());
@@ -213,6 +221,7 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
 
   const snapTo = useCallback(
     (targetH: number, targetS: number, velocityX = 0, velocityY = 0) => {
+      stepTarget.current = { h: targetH, s: targetS };
       if (reducedMotion) {
         ox.set(targetH);
         oy.set(targetS);
@@ -237,16 +246,17 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
       const target = Math.round(value.get() + FLING_POWER * velocity);
       if (Math.abs(velocity) < SNAP_MAX_VELOCITY) {
         animate(value, target, { ...SNAP_SPRING, velocity });
-        return;
+      } else {
+        animate(value, target, {
+          type: "inertia",
+          power: FLING_POWER,
+          timeConstant: FLING_TIME_CONSTANT,
+          restDelta: 0.001,
+          modifyTarget: Math.round,
+          velocity,
+        });
       }
-      animate(value, target, {
-        type: "inertia",
-        power: FLING_POWER,
-        timeConstant: FLING_TIME_CONSTANT,
-        restDelta: 0.001,
-        modifyTarget: Math.round,
-        velocity,
-      });
+      return target;
     },
     []
   );
@@ -270,19 +280,19 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   // accelerates, then springs to rest carrying the velocity it built up.
   const stepKey = useCallback(
     (dh: number, ds: number) => {
-      const base = keyTarget.current ?? {
+      const base = stepTarget.current ?? {
         h: Math.round(ox.get()),
         s: Math.round(oy.get()),
       };
-      keyTarget.current = { h: base.h + dh, s: base.s + ds };
+      stepTarget.current = { h: base.h + dh, s: base.s + ds };
       if (dh !== 0) {
-        animate(ox, keyTarget.current.h, {
+        animate(ox, stepTarget.current.h, {
           ...KEY_SPRING,
           velocity: ox.getVelocity(),
         });
       }
       if (ds !== 0) {
-        animate(oy, keyTarget.current.s, {
+        animate(oy, stepTarget.current.s, {
           ...KEY_SPRING,
           velocity: oy.getVelocity(),
         });
@@ -318,13 +328,14 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
     [stepKey]
   );
 
+  // Only stops the held-key loop; the pending target outlives it so a button
+  // click that steals focus mid-spring still steps from where the grid is going.
   const stopKeys = useCallback(() => {
     heldKeys.current.clear();
     if (keyRaf.current !== null) {
       cancelAnimationFrame(keyRaf.current);
       keyRaf.current = null;
     }
-    keyTarget.current = null;
   }, []);
 
   useEffect(() => stopKeys, [stopKeys]);
@@ -332,15 +343,29 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   const nudge = useCallback(
     (dh: number, ds: number) => {
       stopKeys();
-      snapTo(Math.round(ox.get()) + dh, Math.round(oy.get()) + ds);
+      const base = stepTarget.current ?? {
+        h: Math.round(ox.get()),
+        s: Math.round(oy.get()),
+      };
+      // Hand over the live velocity so a rapid series of clicks reads as one
+      // accelerating pan rather than a stack of restarts.
+      snapTo(base.h + dh, base.s + ds, ox.getVelocity(), oy.getVelocity());
     },
     [ox, oy, snapTo, stopKeys]
   );
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Ignore extra touches: a second finger would rebase the gesture on its own
+    // start point and make the grid jump.
+    if (drag.current) {
+      return;
+    }
     ox.stop();
     oy.stop();
     stopKeys();
+    // The value goes continuous from here, so any pending discrete target is
+    // stale the moment the drag starts.
+    stepTarget.current = null;
     surfaceRef.current?.setPointerCapture(e.pointerId);
     drag.current = {
       pointerId: e.pointerId,
@@ -408,8 +433,24 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
     const vx = dt > 0 ? (ox.get() - oldest.x) / dt : 0;
     const vy = dt > 0 ? (oy.get() - oldest.y) / dt : 0;
 
-    releaseAxis(ox, vx);
-    releaseAxis(oy, vy);
+    // Record where the coast lands so a nudge during it steps from the landing
+    // cell rather than from a value still in motion.
+    stepTarget.current = {
+      h: releaseAxis(ox, vx),
+      s: releaseAxis(oy, vy),
+    };
+  };
+
+  // A cancelled gesture (a system edge swipe, say) never reaches pointerup, so
+  // without this the grid is left parked between cells until the next touch.
+  // There is no meaningful release velocity, so just settle on the nearest one.
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    const state = drag.current;
+    if (!state || state.pointerId !== e.pointerId) {
+      return;
+    }
+    drag.current = null;
+    snapTo(Math.round(ox.get()), Math.round(oy.get()));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -420,8 +461,8 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
     e.preventDefault();
 
     if (reducedMotion) {
-      ox.set(Math.round(ox.get()) + vec[0]);
-      oy.set(Math.round(oy.get()) + vec[1]);
+      // Via snapTo so the pending target stays in step with the value.
+      snapTo(Math.round(ox.get()) + vec[0], Math.round(oy.get()) + vec[1]);
       return;
     }
 
@@ -506,16 +547,24 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
         <div className="-translate-y-1/2 absolute top-1/2 right-6 left-6 h-px bg-black/5" />
         <div className="-translate-x-1/2 absolute top-6 bottom-6 left-1/2 w-px bg-black/5" />
 
+        {/*
+         * select-none: pointer capture already keeps the drag alive once the
+         * pointer leaves the panel, but without this the browser starts a text
+         * selection on whatever is underneath — the readout and footer
+         * highlight and the cursor turns into an I-beam, so a drag that is in
+         * fact still tracking reads as broken.
+         */}
         <div
           aria-label="Background color grid. Drag to pan, arrow keys to step hue and shade."
           aria-valuemax={SHADES - 1}
           aria-valuemin={0}
           aria-valuenow={wrap(center.s, SHADES)}
           aria-valuetext={`hue ${wrap(center.h, HUES) + 1} of ${HUES}, shade ${wrap(center.s, SHADES) + 1} of ${SHADES}`}
-          className="absolute inset-0 cursor-grab touch-none overflow-hidden rounded-3xl focus-visible:outline-2 focus-visible:outline-blue-500 active:cursor-grabbing"
+          className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl focus-visible:outline-2 focus-visible:outline-blue-500 active:cursor-grabbing"
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}
+          onPointerCancel={handlePointerCancel}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -525,33 +574,40 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
         >
           {dots}
         </div>
+      </div>
 
-        {EDGE_NUDGES.map(({ dh, ds, label, Icon, position }) => (
+      {/*
+       * The nudges sit outside the scaled layer: they are chrome, not part of
+       * the fish-eye artwork, so they keep their real size instead of shrinking
+       * with the panel (at max-w-md the scale is ~0.65, and on a phone ~0.52,
+       * which rendered a 36px button at 19px). Held back until the panel is
+       * measured so they never paint alone.
+       */}
+      {bounds.width > 0 &&
+        EDGE_NUDGES.map(({ dh, ds, label, Icon, position }) => (
           <button
             aria-label={label}
             className={`${NUDGE_BUTTON_CLASS} ${position}`}
             key={label}
             onClick={() => nudge(dh, ds)}
-            onPointerDown={(e) => e.stopPropagation()}
             type="button"
           >
             <Icon size={16} />
           </button>
         ))}
 
-        {CORNER_NUDGES.map(({ dh, ds, label, position, bracket }) => (
+      {bounds.width > 0 &&
+        CORNER_NUDGES.map(({ dh, ds, label, position, bracket }) => (
           <button
             aria-label={label}
             className={`${NUDGE_BUTTON_CLASS} ${position}`}
             key={label}
             onClick={() => nudge(dh, ds)}
-            onPointerDown={(e) => e.stopPropagation()}
             type="button"
           >
             <span className={`size-2.5 border-current ${bracket}`} />
           </button>
         ))}
-      </div>
     </div>
   );
 };
