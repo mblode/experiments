@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+
 import { ThemeBackground } from "@/components/theme/theme-background";
 import { ThemeFont } from "@/components/theme/theme-font";
 import { ThemeStyle } from "@/components/theme/theme-style";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
 import { themes } from "@/lib/themes";
 import type { VenueThemeSchema } from "@/lib/types";
+
 import { CardBlock } from "./card-block";
 
 export default function Page() {
@@ -32,7 +34,7 @@ export default function Page() {
 
   return (
     <>
-      <div className="bg-background p-8">
+      <div className="bg-background p-8" data-chrome>
         <div className="mx-auto max-w-4xl">
           <Header id="shuffle-theme" />
           <Button onClick={handleShuffleClick}>Shuffle theme</Button>
