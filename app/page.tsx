@@ -13,7 +13,7 @@ import { SITE_NAME, SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: SITE_NAME,
   description:
-    "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js. Explore live demos and source code.",
+    "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js. Live demos and source.",
   alternates: { canonical: SITE_URL },
   openGraph: {
     type: "website",
