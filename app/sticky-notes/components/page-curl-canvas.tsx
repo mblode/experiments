@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import type * as THREE from "three";
+
 import type { AnimationState, Vec2 } from "../store";
 import { CurlingNoteMesh } from "./curling-note-mesh";
 

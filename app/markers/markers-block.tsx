@@ -1,7 +1,9 @@
 "use client";
 
 import { type MouseEvent, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
+
 import styles from "./markers.module.css";
 
 const SCROLL_THRESHOLD = 120;

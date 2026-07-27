@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { type CSSProperties, type ReactElement, useMemo } from "react";
+
 import type { Media } from "@/lib/types";
 import { cn, imageLoader, unsplashLoader } from "@/lib/utils";
 

@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { StatusBlock } from "./status-block";
 
 export const metadata = getExperimentMetadata("status");

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+
 import { blocks } from "@/lib/blocks";
 import { SITE_URL } from "@/lib/seo";
 

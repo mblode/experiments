@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { DitherBlock } from "./dither-block";
 
 export const metadata = getExperimentMetadata("dither");

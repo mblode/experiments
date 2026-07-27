@@ -2,6 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import { Euler, Vector2 } from "three";
 import { PointerLockControls as PointerLockControlsImpl } from "three-stdlib";
+
 import { useGame } from "../game";
 
 const TOUCH_SENSITIVITY = 0.002;

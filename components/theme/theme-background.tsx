@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+
 import { MediaImage } from "@/components/ui/media-image";
 import type { VenueThemeSchema } from "@/lib/types";
 

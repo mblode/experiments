@@ -10,6 +10,7 @@ import {
   type Texture,
   Vector2,
 } from "three";
+
 import {
   CURL_MAX_RADIUS,
   CURL_MIN_RADIUS,

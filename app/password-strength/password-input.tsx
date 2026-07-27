@@ -9,11 +9,14 @@ import {
   useEffect,
   useState,
 } from "react";
+
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface PasswordInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface PasswordInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> {
   showStrength?: boolean;
 }
 

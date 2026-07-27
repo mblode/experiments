@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+
 import type { FoldGeometry, PageTransforms, Point2D } from "../types";
 
 // ============================================================================

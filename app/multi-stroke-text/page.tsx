@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { MultiStrokeTextBlock } from "./multi-stroke-text-block";
 
 export const metadata = getExperimentMetadata("multi-stroke-text");

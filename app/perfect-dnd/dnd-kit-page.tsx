@@ -21,6 +21,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { observer } from "mobx-react-lite";
+
 import { ContentCard } from "./content-card";
 import { DragSwingOverlay } from "./drag-swing-overlay";
 import { SettlingOverlay } from "./settling-overlay";

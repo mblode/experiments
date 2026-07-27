@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
+
 import { items } from "./data";
 
 interface ItemProps {

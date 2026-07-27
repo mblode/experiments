@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
+
 import { getDefaultPageTheme } from "@/components/theme/theme.utils";
 import { useGoogleFonts } from "@/hooks/use-google-fonts";
 import type { VenueThemeSchema } from "@/lib/types";
