@@ -2,7 +2,7 @@
 
 A playground of interactive UI/UX experiments — animations, 3D scenes, and polished components built with Next.js and React.
 
-**Live demo:** [experiments.blode.co](https://experiments.blode.co)
+**Live demo:** [experiments.blode.co](https://blode.co/experiments)
 
 ## Experiments
 
@@ -79,4 +79,4 @@ npm run format   # Format with Biome
 
 ---
 
-Crafted by [<img src="https://matthewblode.com/avatar-circle.png" width="20" align="top" />](https://matthewblode.com) [Matthew Blode](https://matthewblode.com)
+Crafted by [<img src="https://blode.co/avatar-circle.png" width="20" align="top" />](https://blode.co) [Matthew Blode](https://blode.co)

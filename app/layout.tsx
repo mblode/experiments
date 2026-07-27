@@ -1,4 +1,3 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
@@ -18,7 +17,7 @@ const glide = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://experiments.blode.co"),
+  metadataBase: new URL("https://blode.co"),
   title: "Matt's experiments",
   description: "A collection of Matthew Blode's UI experiments",
   verification: {
@@ -37,13 +36,16 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
+      <head>
+        <link href="https://us.i.posthog.com" rel="preconnect" />
+        <link href="https://us-assets.i.posthog.com" rel="dns-prefetch" />
+      </head>
       <body className="flex min-h-screen flex-col bg-page-background">
         <div className="flex-1">{children}</div>
         <footer className="flex justify-center p-6">
           <CraftedBy />
         </footer>
       </body>
-      <GoogleAnalytics gaId="G-FW4LDY9GCD" />
       <Toaster />
     </html>
   );

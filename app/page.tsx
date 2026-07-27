@@ -59,7 +59,7 @@ export default function Page() {
             © 2026{" "}
             <a
               className="text-foreground underline-offset-2 hover:underline"
-              href="https://matthewblode.com"
+              href="https://blode.co"
               rel="noopener noreferrer"
               target="_blank"
             >

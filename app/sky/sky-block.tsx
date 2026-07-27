@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "motion/react";
+
 import { Header } from "@/components/ui/header";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 
@@ -50,7 +51,7 @@ export const SkyBlock = () => {
           <Header className="mb-0!" id="sky" />
           <a
             className="link"
-            href="https://matthewblode.com"
+            href="https://blode.co"
             rel="noreferrer"
             target="_blank"
           >
@@ -101,8 +102,9 @@ export const SkyBlock = () => {
           className="absolute inset-0"
           id="home-footer-clouds-gradient"
           style={{
-            mask: 'url("/footer-clouds.png") center/cover no-repeat',
-            WebkitMask: 'url("/footer-clouds.png") center/cover no-repeat',
+            mask: 'url("/experiments/footer-clouds.png") center/cover no-repeat',
+            WebkitMask:
+              'url("/experiments/footer-clouds.png") center/cover no-repeat',
             background: cloudsGradient,
           }}
         />
@@ -111,7 +113,7 @@ export const SkyBlock = () => {
           className="absolute inset-0 -bottom-120 bg-repeat"
           id="home-footer-stars"
           style={{
-            backgroundImage: 'url("/footer-stars.png")',
+            backgroundImage: 'url("/experiments/footer-stars.png")',
             opacity: starsOpacity,
             y: starsY,
           }}

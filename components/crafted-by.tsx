@@ -2,7 +2,7 @@ export const CraftedBy = () => {
   return (
     <a
       className="inline-flex items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
-      href="https://matthewblode.com"
+      href="https://blode.co"
       rel="author noopener noreferrer"
       target="_blank"
     >
@@ -13,7 +13,7 @@ export const CraftedBy = () => {
         className="rounded-full"
         height={20}
         loading="lazy"
-        src="/avatar-sm.png"
+        src="/experiments/avatar-sm.png"
         width={20}
       />
       <span>Matthew Blode</span>

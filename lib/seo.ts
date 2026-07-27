@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 
 import { blocks } from "@/lib/blocks";
 
-export const SITE_URL = "https://experiments.blode.co";
+export const SITE_URL = "https://blode.co/experiments";
 export const SITE_NAME = "Matt's experiments";
 
 const DESCRIPTION_MAX = 158;
 const DESCRIPTION_SUFFIX =
-  " An interactive UI experiment by Matthew Blode. Live demo and source at experiments.blode.co.";
+  " An interactive UI experiment by Matthew Blode. Live demo and source at blode.co/experiments.";
 
 const clampDescription = (value: string): string => {
   if (value.length <= DESCRIPTION_MAX) {
@@ -42,13 +42,20 @@ export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
       siteName: SITE_NAME,
       title,
       description: socialDescription,
-      images: [{ url: `/og/${id}.png`, width: 2400, height: 1260, alt: title }],
+      images: [
+        {
+          url: `/experiments/og/${id}.png`,
+          width: 2400,
+          height: 1260,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: socialDescription,
-      images: [`/og/${id}.png`],
+      images: [`/experiments/og/${id}.png`],
     },
   };
 };
