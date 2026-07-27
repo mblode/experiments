@@ -40,8 +40,8 @@ A playground of interactive UI/UX experiments — animations, 3D scenes, and pol
 ## Getting Started
 
 ```bash
-git clone https://github.com/mblode/matts-experiments.git
-cd matts-experiments
+git clone https://github.com/mblode/experiments.git
+cd experiments
 npm install
 npm run dev
 ```
