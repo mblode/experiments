@@ -13,6 +13,7 @@ import {
   type WebGLRenderer,
   type WebGLRenderTarget,
 } from "three";
+
 import { fragmentShader } from "../shaders/dither.frag";
 
 // Custom Dither Effect class
@@ -95,7 +96,7 @@ const DitherEffect = forwardRef<typeof DitherEffectImpl, DitherEffectProps>(
     // Load blue noise texture
     const blueNoiseTexture = useMemo(() => {
       const loader = new TextureLoader();
-      return loader.load("/blue-noise.png");
+      return loader.load("/experiments/blue-noise.png");
     }, []);
 
     // Create effect instance with camera

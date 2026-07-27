@@ -167,7 +167,7 @@ export const DocumentShadowBlock = () => {
           fill
           priority
           sizes="100vw"
-          src={`/shadows/${String(shadowNumber).padStart(3, "0")}.png`}
+          src={`/experiments/shadows/${String(shadowNumber).padStart(3, "0")}.png`}
         />
       </div>
 

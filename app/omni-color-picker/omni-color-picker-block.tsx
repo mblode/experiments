@@ -66,7 +66,7 @@ export const OmniColorPickerBlock = () => {
             alt="Matt Blode's avatar"
             className="rounded-full"
             height={48}
-            src="/avatar-sm.png"
+            src="/experiments/avatar-sm.png"
             width={48}
           />
           <div>
@@ -80,7 +80,7 @@ export const OmniColorPickerBlock = () => {
         </p>
         <a
           className="rounded-xl bg-(--demo-accent) px-4 py-2.5 text-center font-medium text-(--demo-accent-fg) text-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
-          href="https://matthewblode.com"
+          href="https://blode.co"
           rel="noopener noreferrer"
           target="_blank"
         >

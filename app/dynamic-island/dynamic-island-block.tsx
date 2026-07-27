@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -403,7 +404,7 @@ function ListeningView() {
           alt="Anniversary's album cover"
           className="rounded-lg"
           height={52}
-          src="/album.png"
+          src="/experiments/album.png"
           width={52}
         />
         <div className="flex flex-col gap-1 pr-12">

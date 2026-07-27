@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import "./styles.css";
 
 export const LightingBlock = () => {
@@ -178,7 +179,7 @@ export const LightingBlock = () => {
                         loop
                         muted
                         playsInline
-                        src="/videos/clouds.mp4"
+                        src="/experiments/videos/clouds.mp4"
                       />
                       <video
                         autoPlay
@@ -186,7 +187,7 @@ export const LightingBlock = () => {
                         loop
                         muted
                         playsInline
-                        src="/videos/window.mp4"
+                        src="/experiments/videos/window.mp4"
                       />
                       <div className="verticalBeams" />
                     </div>

@@ -322,8 +322,8 @@ body {
   top: -5%;
   left: -30%;
   transform: rotate3d(0, -1, -0.7, -12deg) skew(-4deg) skewY(0);
-  -webkit-mask-image: url("/window-mask.svg");
-  mask-image: url("/window-mask.svg");
+  -webkit-mask-image: url("/experiments/window-mask.svg");
+  mask-image: url("/experiments/window-mask.svg");
   -webkit-mask-position: 3% 30%;
   mask-position: 3% 30%;
   -webkit-mask-size: 104% 52%;
@@ -543,7 +543,7 @@ body {
   mix-blend-mode: plus-lighter;
   transform-origin: top;
   opacity: 0;
-  background-image: url("/light-beams.svg");
+  background-image: url("/experiments/light-beams.svg");
   background-repeat: no-repeat;
   background-size: contain;
   width: 800px;

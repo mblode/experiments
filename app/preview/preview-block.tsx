@@ -86,7 +86,7 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
               className="object-cover"
               fill
               sizes={isExpanded ? "280px" : "86px"}
-              src="/jamie-kettle-3t-j09n_pYo-unsplash.jpg"
+              src="/experiments/jamie-kettle-3t-j09n_pYo-unsplash.jpg"
             />
           </motion.div>
 

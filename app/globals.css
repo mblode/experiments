@@ -312,29 +312,23 @@
   /* Control dimensions - scales with --control-scale */
   --control-scale: 1;
   --control-outer-size: calc(
-    204px *
-    var(--control-scale)
+    204px * var(--control-scale)
   ); /* 204px -> 102px (fixed rounding) */
   --control-padding: var(--spacing-fluid-4); /* 16px -> 8px */
   --control-marker-size: var(--spacing-fluid-6); /* 24px -> 12px */
   --control-marker-dot-size: calc(
-    14px *
-    var(--control-scale)
+    14px * var(--control-scale)
   ); /* 14px -> 7px */
   --control-marker-border-width: calc(
-    2.5px *
-    var(--control-scale)
+    2.5px * var(--control-scale)
   ); /* 2.5px -> 1.25px */
   --control-inner-size: calc(
-    var(--control-outer-size) -
-    2 *
-    var(--control-padding)
+    var(--control-outer-size) - 2 * var(--control-padding)
   );
   --control-container-padding: var(--spacing-fluid-4); /* 16px -> 8px */
   --control-bottom-spacing: var(--spacing-fluid-8); /* 32px -> 16px */
   --control-container-max-width: calc(
-    676px *
-    var(--control-scale)
+    676px * var(--control-scale)
   ); /* 676px -> 338px */
 
   /* Color control dimensions - using Tailwind spacing scale */
@@ -352,24 +346,19 @@
   --border-radius-fluid-0: 0px;
   --border-radius-fluid-16: calc(16px * var(--control-scale)); /* 16px -> 8px */
   --border-radius-fluid-32: calc(
-    32px *
-    var(--control-scale)
+    32px * var(--control-scale)
   ); /* 32px -> 16px */
   --border-radius-fluid-34: calc(
-    34px *
-    var(--control-scale)
+    34px * var(--control-scale)
   ); /* 34px -> 17px */
   --border-radius-fluid-48: calc(
-    48px *
-    var(--control-scale)
+    48px * var(--control-scale)
   ); /* 48px -> 24px */
   --border-radius-fluid-50: calc(
-    50px *
-    var(--control-scale)
+    50px * var(--control-scale)
   ); /* 50px -> 25px */
   --border-radius-fluid-64: calc(
-    64px *
-    var(--control-scale)
+    64px * var(--control-scale)
   ); /* 64px -> 32px */
 
   /* Icon sizing - scales with --control-scale */
@@ -660,7 +649,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("/bkg-noise.webp");
+    background-image: url("/experiments/bkg-noise.webp");
     background-repeat: repeat;
     background-size: 200px 200px;
     opacity: 0.1;
