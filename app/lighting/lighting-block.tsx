@@ -81,8 +81,6 @@ export const LightingBlock = () => {
 
   // Second effect: Setup mouse movement handler (depends on dimensions)
   useEffect(() => {
-    console.log("Setting up mouse handler with dimensions:", dimensions);
-
     const handleMouseMove = (e: MouseEvent) => {
       if (
         !(
@@ -106,7 +104,6 @@ export const LightingBlock = () => {
 
       // Update perspective (750px ± 100px based on X position)
       const perspective = 750 + (mouseX - 0.5) * 100;
-      console.log("Setting perspective to:", perspective);
       lightingContainerRef.current.style.setProperty(
         "--perspective",
         `${perspective}px`

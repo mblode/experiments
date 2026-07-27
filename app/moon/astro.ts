@@ -371,8 +371,7 @@ export async function getLocationName(
       }
     }
     return `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-  } catch (err) {
-    console.warn("Geocoding failed:", err);
+  } catch {
     return `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
   }
 }

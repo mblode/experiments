@@ -1,5 +1,5 @@
 import { motion, useInView } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FormControl } from "@/components/ui/form-control";
@@ -14,10 +14,6 @@ interface Props {
 export const CardBlock = ({ item, index = 0 }: Props) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    console.log("Element is in view: ", isInView);
-  }, [isInView]);
 
   const inputClassName =
     "bg-page-input-background text-page-input-text rounded-page-widget-block border-page-input-border shadow-page-input placeholder:text-page-input-placeholder! h-12! text-base";

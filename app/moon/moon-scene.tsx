@@ -140,19 +140,6 @@ function MoonMesh(props: Props) {
     const [x, y, z] = currentSol.sunDir;
     const lightDistance = 100;
 
-    // DEBUG: Log sun direction to verify it's rotating over orbital cycle
-    if (Math.random() < 0.03) {
-      // Log occasionally to avoid spam
-      const angle = (Math.atan2(z, x) * 180) / Math.PI; // Angle in XZ plane
-      console.log("🌙 Moon Phase Debug:", {
-        sunDir: `[${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}]`,
-        sunAngle: `${angle.toFixed(1)}°`,
-        phase: currentSol.phaseName,
-        illum: `${(currentSol.illumFraction * 100).toFixed(1)}%`,
-        phaseAngle: `${currentSol.phaseAngleDeg.toFixed(1)}°`,
-      });
-    }
-
     // Position directional light to simulate sun's position relative to Moon-Earth system
     // The sunDir vector represents where the Sun appears from the Moon's perspective
     light.current.position.set(
