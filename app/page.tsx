@@ -68,7 +68,7 @@ export default function Page() {
             {" · "}
             <a
               className="text-foreground underline-offset-2 hover:underline"
-              href="https://github.com/mblode/matts-experiments"
+              href="https://github.com/mblode/experiments"
               rel="noopener noreferrer"
               target="_blank"
             >
