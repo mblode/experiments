@@ -2,6 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+
 import { SPRING_DAMPING, SPRING_MASS, SPRING_STIFFNESS } from "../constants";
 
 export interface SpringConfig {

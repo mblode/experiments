@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import type * as THREE from "three";
+
 import { Asteroid } from "./components/asteroid";
 import { Explosions } from "./components/explosion";
 import type { Asteroid as AsteroidType } from "./game";

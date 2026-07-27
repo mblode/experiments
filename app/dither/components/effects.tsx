@@ -1,4 +1,5 @@
 import { EffectComposer } from "@react-three/postprocessing";
+
 import DitherEffect from "./dither-effect";
 
 interface EffectsProps {

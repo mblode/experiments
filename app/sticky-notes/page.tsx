@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+
 import { Header } from "@/components/ui/header";
+
 import { StickyNotesBlock } from "./sticky-notes-block";
 
 export const metadata: Metadata = {

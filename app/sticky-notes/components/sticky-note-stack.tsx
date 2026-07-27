@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREE from "three";
+
 import {
   EDGE_ZONE_PERCENT,
   MOMENTUM_PROGRESS_MIN,

@@ -2,6 +2,7 @@
 
 import type { HTMLAttributes } from "react";
 import { Children, useMemo } from "react";
+
 import { useFlipbook } from "./hooks/use-flipbook";
 import type { FlipbookProps } from "./types";
 import { calculateWrapperHeight } from "./utils/geometry";

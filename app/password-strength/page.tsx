@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { PasswordStrengthBlock } from "./password-strength-block";
 
 export const metadata = getExperimentMetadata("password-strength");

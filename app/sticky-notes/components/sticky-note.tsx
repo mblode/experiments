@@ -9,7 +9,9 @@ import {
   useRef,
   useState,
 } from "react";
+
 import { getSvgPathFromStroke } from "@/lib/utils";
+
 import { NOTE_SIZE } from "../constants";
 import type { PathData, Point, StickyNote as StickyNoteType } from "../store";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+
 import type {
   AnimationConfig,
   Point2D,

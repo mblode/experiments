@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
 import { type Object3D, Raycaster, Vector2, Vector3 } from "three";
+
 import { INITIAL_CAMERA_POSITION, useGame } from "../game";
 
 // Movement constants

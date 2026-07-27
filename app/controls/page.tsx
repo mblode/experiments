@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { ControlsBlock } from "./controls-block";
 
 export const metadata = getExperimentMetadata("controls");

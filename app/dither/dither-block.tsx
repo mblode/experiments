@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+
 import { CameraControls } from "./components/camera-controls";
 import Effects from "./components/effects";
 import { GameControls } from "./components/game-controls";

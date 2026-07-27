@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+
 import { PASTEL_COLORS, useStickyNotesStore } from "../store";
 
 const colors = Object.values(PASTEL_COLORS);

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import { getExperimentMetadata } from "@/lib/seo";
 
 export const metadata = getExperimentMetadata("shuffle-theme");

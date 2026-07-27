@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { DynamicIslandBlock } from "./dynamic-island-block";
 
 export const metadata = getExperimentMetadata("dynamic-island");

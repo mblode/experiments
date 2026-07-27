@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { create } from "zustand";
+
 import { getCachedLocationName } from "./actions";
 import { type Inputs, solveMoon } from "./astro";
 import { MoonScene } from "./moon-scene";
@@ -145,7 +146,8 @@ export const MoonBlock = () => {
                 return `-${scrubDays}d ${scrubHours}h`;
               }
               return `${scrubHours}h`;
-            })()})
+            })()}
+            )
           </label>
           <input
             id="time-travel-input"

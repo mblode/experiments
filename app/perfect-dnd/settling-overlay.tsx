@@ -2,6 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useLayoutEffect, useRef } from "react";
+
 import type { BlockData } from "./block";
 import { CardInner } from "./card-inner";
 import { useStore } from "./stores/store";

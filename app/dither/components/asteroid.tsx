@@ -1,4 +1,5 @@
 import { memo } from "react";
+
 import type { Asteroid as AsteroidType } from "../game";
 import { AsteroidMaterial } from "./asteroid-material";
 import { AsteroidGeometry } from "./asteroid-mesh";

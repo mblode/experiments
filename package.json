@@ -10,7 +10,7 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
-    "format:check": "oxfmt .",
+    "format:check": "oxfmt --check .",
     "og:generate": "node scripts/generate-og-images.mts",
     "check-types": "tsc --noEmit"
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart3, Receipt, Users, Wallet } from "lucide-react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const TabsBlock = () => {

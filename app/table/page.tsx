@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { TableBlock } from "./table-block";
 
 export const metadata = getExperimentMetadata("table");

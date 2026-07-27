@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { TimedUndoBlock } from "./timed-undo-block";
 
 export const metadata = getExperimentMetadata("timed-undo");

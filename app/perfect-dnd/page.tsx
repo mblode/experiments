@@ -1,5 +1,6 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
+
 import { EditorPage } from "./dnd-kit-page";
 import { StoreProvider } from "./stores/store";
 
