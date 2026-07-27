@@ -37,8 +37,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link href="https://us.i.posthog.com" rel="preconnect" />
-        <link href="https://us-assets.i.posthog.com" rel="dns-prefetch" />
+        <link href="https://r.blode.co" rel="preconnect" />
       </head>
       <body className="flex min-h-screen flex-col bg-page-background">
         <div className="flex-1">{children}</div>
