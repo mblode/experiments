@@ -9,7 +9,6 @@ export function StickyNotes2Block() {
       duration={600}
       gradients={true}
       height={300}
-      onPageChange={(page) => console.log("Page changed to:", page)}
       width={400}
     >
       {/* Page 1 */}

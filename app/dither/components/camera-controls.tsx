@@ -55,9 +55,8 @@ export const CameraControls = () => {
       if (controls.isLocked) {
         try {
           controls.unlock();
-        } catch (e) {
+        } catch {
           // Ignore unlock errors - happens when pointer lock not supported
-          console.warn("Failed to unlock pointer:", e);
         }
       }
       controls.dispose();

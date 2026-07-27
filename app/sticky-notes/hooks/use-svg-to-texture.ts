@@ -82,8 +82,7 @@ export function useSvgToTexture(options: UseSvgToTextureOptions) {
 
         textureRef.current = texture;
         return texture;
-      } catch (error) {
-        console.error("Error capturing SVG to texture:", error);
+      } catch {
         return null;
       }
     },

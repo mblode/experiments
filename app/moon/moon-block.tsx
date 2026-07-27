@@ -81,8 +81,7 @@ export const MoonBlock = () => {
           locationName: name,
         });
       },
-      (error) => {
-        console.warn("Geolocation error:", error.message);
+      () => {
         set({ locationStatus: "denied" });
       },
       {
@@ -114,8 +113,7 @@ export const MoonBlock = () => {
   const sol = useMemo(() => {
     try {
       return solveMoon(inputs);
-    } catch (error) {
-      console.error("Astronomy calculation error:", error);
+    } catch {
       // Return fallback values
       return {
         sunDir: [1, 0, 0] as [number, number, number],
