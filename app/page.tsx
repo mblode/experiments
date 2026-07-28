@@ -11,7 +11,9 @@ import { blocks } from "@/lib/blocks";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: SITE_NAME,
+  // Not bare SITE_NAME: the h1 already says that, and a title tag that repeats
+  // the h1 verbatim spends the one line search results give you on nothing.
+  title: `${SITE_NAME}: interactive UI and animation demos`,
   description:
     "A gallery of interactive UI and animation experiments by Matthew Blode, built with Next.js, React, Tailwind, Motion, and Three.js. Live demos and source.",
   alternates: { canonical: SITE_URL },
@@ -35,24 +37,31 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl">
-        <h1 className="mb-8 font-bold text-4xl">Matt's experiments</h1>
+        <header>
+          <h1 className="mb-8 font-bold text-4xl">Matt's experiments</h1>
+        </header>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {Object.entries(blocks)
-            .filter(([, block]) => !block.hidden)
-            .reverse()
-            .map(([key, block]) => (
-              <Link className="flex w-full" href={`/${key}`} key={key}>
-                <Card className="flex-1">
-                  <CardHeader>
-                    <CardTitle>{block.name}</CardTitle>
+        {/* A list, marked up as one, so it is announced with its length. */}
+        <main>
+          <ul className="grid list-none gap-4 md:grid-cols-2">
+            {Object.entries(blocks)
+              .filter(([, block]) => !block.hidden)
+              .reverse()
+              .map(([key, block]) => (
+                <li className="flex" key={key}>
+                  <Link className="flex w-full" href={`/${key}`}>
+                    <Card className="flex-1">
+                      <CardHeader>
+                        <CardTitle>{block.name}</CardTitle>
 
-                    <CardDescription>{block.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
-        </div>
+                        <CardDescription>{block.description}</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        </main>
 
         <footer className="mt-8 border-border border-t px-4 py-8 text-center">
           <div className="text-sm">
