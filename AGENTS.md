@@ -1,39 +1,55 @@
-# Repository Guidelines
+# AGENTS.md — experiments
 
-## Project Structure & Module Organization
-- `app/` is the Next.js App Router. Each experiment lives in its own route folder (e.g., `app/sky/`) and typically includes `page.tsx` plus a feature component like `sky-block.tsx`.
-- `lib/` holds shared logic and registries. Update `lib/blocks.ts` when adding or hiding experiments (name, description, flags).
-- `components/ui/` contains reusable UI primitives (Radix UI + Tailwind CSS).
-- `public/` stores static assets (images, textures, fonts).
-- `hooks/` includes shared hooks when needed.
+A gallery of standalone UI and animation experiments at <https://blode.co/experiments>.
+Next.js 16, React 19, Tailwind 4, Motion, Three.js + React Three Fiber, Radix UI.
 
-## Build, Test, and Development Commands
-- `npm run dev` — start the local dev server on `http://localhost:3000`.
-- `npm run build` — create a production build.
-- `npm run start` — run the production server from `.next/`.
-- `npm run lint` — run Biome checks.
-- `npm run lint:fix` — auto-fix Biome lint issues.
-- `npm run format` — format code with Biome.
-- `npm run format:check` — verify formatting.
-- `npm run check-types` — TypeScript typecheck without emit.
+## Commands
 
-## Coding Style & Naming Conventions
-- Indentation is 2 spaces (Biome). Format before committing.
-- File names are kebab-case (e.g., `my-component.tsx`); components are PascalCase.
-- Prefer `type` over `interface`, avoid `any` and `// @ts-ignore`, and keep one component per file.
-- Imports: React/Next → third-party → internal `@/` → relative; use `import type` for types.
-- Use `next/image` for images with `alt` and explicit sizing; remove `console.*`/`debugger`.
+```bash
+npm run dev           # localhost:3000
+npm run build         # production build
+npm run lint          # oxlint
+npm run lint:fix      # oxlint --fix
+npm run format        # oxfmt --write .
+npm run check-types   # tsc --noEmit
+npm run og:generate   # regenerate OG images (scripts/generate-og-images.mts)
+```
 
-## Testing Guidelines
-- No dedicated test runner is configured. Use `npm run check-types`, `npm run lint`, and `npm run build` as quality gates.
-- Manually verify UI changes by visiting the relevant route (e.g., `/sky`, `/dnd-grid`) during `npm run dev`.
-- If you introduce tests, add scripts and document the framework in this file.
+There is no test runner. The gates are `lint`, `check-types` and `build`, plus
+opening the route you changed during `npm run dev` — most of what breaks here is
+visual or motion, which none of those catch.
 
-## Commit & Pull Request Guidelines
-- Git history favors short, present-tense messages (e.g., “Fix”, “Update”, “opengraph”). Keep commits concise; no conventional prefix required.
-- PRs should include: summary, list of routes/experiments touched, and screenshots or short clips for UI changes.
-- Call out updates to `lib/blocks.ts` and any new assets added under `public/`.
+## Adding an experiment
 
-## Motion & UX Guidelines
-- Follow `ANIMATION.md`: use short durations (0.2–0.3s), `ease-out` for entrances, and stick to `opacity`/`transform`.
-- Respect `prefers-reduced-motion` and ensure focus states and keyboard navigation work.
+```
+app/[name]/
+  page.tsx           route component
+  [name]-block.tsx   the experiment itself
+```
+
+**Register it in `lib/blocks.ts`** — name, description, and the `hidden` flag. The
+gallery index reads that file, so an unregistered experiment exists at its URL and
+appears nowhere.
+
+## Conventions
+
+- **Don't "fix" style the linter deliberately ignores.** `oxlint.config.ts` turns
+  off a long list of mechanical preferences (`func-style`, `prefer-const`,
+  `sort-keys`, `no-nested-ternary`, `prefer-template`, and more) because this repo
+  is full of shader math, canvas ports and generated primitives where they fight
+  the code. Correctness and accessibility rules stay on. If `npm run lint` passes,
+  the style is correct for this repo.
+- **Motion**: follow `ANIMATION.md`. 0.2–0.3s by default and never over 1s,
+  `ease-out` for entrances, `ease-in-out` for movement within the screen, animate
+  `opacity` and `transform` only, and honour `prefers-reduced-motion`.
+- **One source of truth for state.** `useState` for local UI state; never mirror
+  one piece of state into another with `useEffect`. The lint rules do not catch
+  this and it is the most common bug in these routes.
+- Files are kebab-case, components PascalCase, imports ordered React/Next →
+  third-party → `@/` → relative.
+
+## Commits
+
+Short, present-tense, no conventional-commit prefix — matching the existing history
+("Fix", "Update", "opengraph"). Call out changes to `lib/blocks.ts` and new assets
+under `public/`.
