@@ -116,7 +116,7 @@ export const blocks: Record<
     description: "3D moon with accurate lunar phases and NASA textures",
     about: [
       "Tonight's moon, rendered from real ephemeris data. astronomy-engine works out the Sun's direction, the illuminated fraction, the phase angle, the position angle of the bright limb and the libration for your location and time. Those numbers place a single directional light around a sphere wearing NASA Lunar Reconnaissance Orbiter colour, normal, roughness and displacement maps.",
-      "The moon never rotates to make a phase. The sphere stays put and only the light direction moves, which is how phases actually happen, and it means the terminator falls across real craters instead of across a texture that has been spun to fit the shape you wanted. The page asks for your location because the moon's tilt in the sky depends on where you are standing, and a waxing crescent in Melbourne leans the other way to one in London. Melbourne is the fallback if you decline. Scrub the time forward in two-hour steps to watch the phase and the libration wobble together.",
+      "The moon never rotates to make a phase. The sphere stays put and only the light direction moves, which is how phases actually happen, and it means the terminator falls across real craters instead of across a texture that has been spun to fit the shape you wanted. The page asks for your location because the moon's tilt in the sky depends on where you are standing, and a waxing crescent in Melbourne leans the other way to one in London. Melbourne is the fallback if you decline. Scrub the time forward in two-hour steps and watch the terminator sweep across the craters rather than around them.",
     ],
   },
   "staggered-fade": {
