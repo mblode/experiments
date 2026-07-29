@@ -168,7 +168,7 @@ export const blocks: Record<
       "3D asteroid shooter game with Obra Dinn-style dithering effects",
     about: [
       "A first-person asteroid shooter rendered in exactly two colours. You fly forward through a field of procedurally generated rocks, steer with the mouse or by dragging on touch, and click to shoot. Every hit is 100 points, and the game leans on you as your score climbs: asteroids spawn from one every 1.2 seconds down to one every 0.3, and they move faster with it.",
-      "The look comes from a post-processing pass that copies the technique from Return of the Obra Dinn. Dithering in screen space is the obvious approach and it is wrong: the pattern crawls across surfaces whenever the camera moves. Instead each pixel's view direction is reconstructed and projected onto a sphere, and the noise is sampled in that spherical space, so the pattern is pinned to the world rather than to your screen. The last step is a hard step() against luminance, which gives one bit per pixel: either #333319 or white, with no greys anywhere in the output at all.",
+      "The look comes from a post-processing pass that copies the technique from Return of the Obra Dinn. Dithering in screen space is the obvious approach and it is wrong: the pattern crawls across surfaces whenever the camera moves. Instead each pixel's view direction is reconstructed and sampled against a sphere centred on the camera, which buys two things at once: the pattern holds still against the geometry while you look around, and it still shifts when you actually travel. The last step is a hard step() against luminance, which gives one bit per pixel: either #333319 or white, with no greys anywhere in the output at all.",
     ],
   },
   "timed-undo": {
