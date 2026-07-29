@@ -27,9 +27,14 @@ app/[name]/
   [name]-block.tsx   the experiment itself
 ```
 
-**Register it in `lib/blocks.ts`** — name, description, and the `hidden` flag. The
-gallery index reads that file, so an unregistered experiment exists at its URL and
-appears nowhere.
+**Register it in `lib/blocks.ts`** with a name, description, `hidden` flag and
+`about`. The gallery index reads that file, so an unregistered experiment exists at
+its URL and appears nowhere.
+
+`about` is the two paragraphs `Header` renders under the description: what the demo
+is, then what is actually interesting in how it works. Write it from the code, not
+from the name. Without it the page is a heading, one line and a demo, which is a
+thin page to everything that can't run the demo.
 
 ## Conventions
 

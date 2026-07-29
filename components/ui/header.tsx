@@ -70,6 +70,15 @@ export const Header = ({ id, className }: Props) => {
 
       <p className="text-lg text-muted-foreground">{blocks[id].description}</p>
 
+      {blocks[id].about?.map((paragraph) => (
+        <p
+          className="mt-4 max-w-[65ch] text-muted-foreground text-sm leading-relaxed"
+          key={paragraph.slice(0, 40)}
+        >
+          {paragraph}
+        </p>
+      ))}
+
       {(previous || next) && (
         // data-chrome so `?hideHeader` drops this too, via the style above.
         <nav
