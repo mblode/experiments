@@ -2,7 +2,7 @@
 
 import { makeAutoObservable } from "mobx";
 import { isHydrated, makePersistable } from "mobx-persist-store";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect } from "react";
 
 import type { BlockData, DropPosition } from "../block";
 
@@ -76,12 +76,6 @@ export class Store {
 
   constructor() {
     makeAutoObservable(this, undefined, { autoBind: true });
-
-    makePersistable(this, {
-      name: "perfect-dnd-store",
-      properties: ["blocksData"],
-      storage: typeof window !== "undefined" ? window.localStorage : undefined,
-    });
   }
 
   get isHydrated() {
@@ -154,8 +148,20 @@ export function useStore(): Store {
   return useContext(StoreContext);
 }
 
+// Persist after mount so the first client render matches SSR mock data.
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 // Provider
 export function StoreProvider({ children }: React.PropsWithChildren) {
+  useIsomorphicLayoutEffect(() => {
+    void makePersistable(store, {
+      name: "perfect-dnd-store",
+      properties: ["blocksData"],
+      storage: window.localStorage,
+    });
+  }, []);
+
   return (
     <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
   );
