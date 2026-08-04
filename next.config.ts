@@ -7,9 +7,6 @@ const nextConfig: NextConfig = {
   // Prefetch only the static shell of a route, never its dynamic data. Requires
   // cacheComponents, which is already on.
   partialPrefetching: true,
-  // TypeScript 7's compiler API moved; `check-types` remains the authoritative
-  // gate while Next's redundant inline validation is skipped.
-  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
       {
