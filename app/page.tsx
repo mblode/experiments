@@ -72,12 +72,16 @@ export default function Page() {
                   {/* The caption sits outside the frame, so the whole cell is
                       the link rather than the preview being one target and the
                       title another. */}
-                  <Link className="group block" href={`/${key}`}>
+                  <Link
+                    className="group block rounded-2xl focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4"
+                    href={`/${key}`}
+                  >
                     <BlockPreview hasClip={clips.has(key)} slug={key} />
 
                     {/* One 24px line each, both at the body size: the caption
-                        is a label under a picture, not a heading over a card. */}
-                    <h2 className="mt-4 font-normal text-base/6">
+                        is a label under a picture, not a heading over a card.
+                        The underline on hover is the part that says link. */}
+                    <h2 className="mt-4 font-normal text-base/6 underline-offset-2 group-hover:underline">
                       {block.name}
                     </h2>
 

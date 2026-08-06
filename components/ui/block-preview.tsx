@@ -61,6 +61,12 @@ export const BlockPreview = ({ slug, hasClip, className }: Props) => {
         // survives dark mode, where a fixed rgba halo disappears.
         "relative aspect-square overflow-hidden rounded-2xl bg-card",
         "shadow-[0_0_0_6px_color-mix(in_oklch,var(--foreground)_3%,transparent),0_0_0.5px_1px_color-mix(in_oklch,var(--foreground)_8%,transparent)]",
+        // Hover deepens the halo and lifts the tile a little. A picture that
+        // links somewhere has to say so with something other than the cursor,
+        // and tone is the design system's first lever before shadow.
+        "transition-[box-shadow,transform] duration-150 ease-out",
+        "group-hover:shadow-[0_0_0_8px_color-mix(in_oklch,var(--foreground)_6%,transparent),0_0_0.5px_1px_color-mix(in_oklch,var(--foreground)_16%,transparent)]",
+        "group-hover:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover:scale-100",
         className
       )}
       ref={ref}
