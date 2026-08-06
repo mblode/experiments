@@ -488,12 +488,20 @@ const CHOREOGRAPH: Record<string, Routine> = {
     await cursor.wait(1400);
   },
 
-  "shuffle-theme": async (cursor) => {
-    await cursor.wait(600);
-    await cursor.scrollTo(700, 2600);
-    await cursor.wait(700);
-    await cursor.scrollTo(0, 2300);
-    await cursor.wait(500);
+  // The whole demo is the Shuffle theme button, and `?hideHeader` drops it
+  // along with the rest of the page chrome — without putting it back, the clip
+  // is six cards scrolling past on one colour scheme.
+  "shuffle-theme": async (cursor, page) => {
+    await page.addStyleTag({
+      content: "div[data-chrome]{display:block!important}",
+    });
+    const shuffle = page.getByRole("button", { name: "Shuffle theme" });
+    await cursor.click(shuffle);
+    await cursor.wait(1600);
+    await cursor.click(shuffle, 200);
+    await cursor.wait(1600);
+    await cursor.click(shuffle, 200);
+    await cursor.wait(1800);
   },
 
   sky: async (cursor) => {

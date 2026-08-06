@@ -224,6 +224,7 @@ export const blocks: Record<
     name: "Multi-stroke text",
     description:
       "Stacked SVG copies of the Linktree mark with progressively wider strokes build a retro onion-ring outline effect",
+    hidden: true,
   },
   "omni-color-picker": {
     name: "Omni-directional colour picker",
