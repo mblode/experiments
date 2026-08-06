@@ -80,4 +80,9 @@ export const items = [
   },
 ];
 
-export const openSpring = { type: "spring", stiffness: 200, damping: 30 };
+/** Firm enough to feel physical, damped enough not to wobble on the way open. */
+export const openSpring = {
+  type: "spring",
+  stiffness: 200,
+  damping: 30,
+} as const;

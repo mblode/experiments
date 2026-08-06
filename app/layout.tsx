@@ -39,7 +39,13 @@ export default function RootLayout({
       <head>
         <link href={process.env.NEXT_PUBLIC_POSTHOG_HOST} rel="preconnect" />
       </head>
-      <body className="flex min-h-screen flex-col bg-page-background">
+      {/* No `bg-page-background` here. That utility reads
+          `--page-background-color`, which only the theme shuffler ever sets,
+          and it sets it on `:root`. The variable outlives a client-side
+          navigation away from that route, so every other page ended up wearing
+          a random theme colour in the strip of body the content did not cover.
+          The theme shuffler paints its own fixed, full-viewport background. */}
+      <body className="flex min-h-screen flex-col">
         <div className="flex-1">{children}</div>
         <footer className="flex justify-center p-6">
           <CraftedBy />

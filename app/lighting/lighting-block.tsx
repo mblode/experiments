@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useMediaQuery } from "usehooks-ts";
 
 import "./styles.css";
 
@@ -11,18 +12,32 @@ export const LightingBlock = () => {
   const bumpContainerRef = useRef<HTMLDivElement>(null);
   const windowFrameRef = useRef<HTMLDivElement>(null);
   const windowFrameHighlightRef = useRef<HTMLDivElement>(null);
+  const cloudsRef = useRef<HTMLVideoElement>(null);
+  const skyRef = useRef<HTMLVideoElement>(null);
 
-  // Track window dimensions for mouse position calculations
-  const [dimensions, setDimensions] = useState([0, 0]);
+  // Viewport size lives in a ref, not state: only the pointer handler reads it,
+  // so putting it in state would re-render the scene on every resize frame and
+  // tear the listener down and back up with it.
+  const dimensionsRef = useRef<[number, number]>([0, 0]);
+
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)", {
+    initializeWithValue: false,
+  });
 
   // First effect: Setup resize listener and bump animation
   useEffect(() => {
     // Initialize and track window dimensions
     const handleResize = () => {
-      setDimensions([window.innerWidth, window.innerHeight]);
+      dimensionsRef.current = [window.innerWidth, window.innerHeight];
     };
     handleResize();
     window.addEventListener("resize", handleResize);
+
+    if (reduced) {
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }
 
     // Perlin noise function using multi-octave sine waves
     const perlinNoise = (x: number) => {
@@ -77,11 +92,14 @@ export const LightingBlock = () => {
       window.removeEventListener("resize", handleResize);
       clearInterval(bumpInterval);
     };
-  }, []);
+  }, [reduced]);
 
-  // Second effect: Setup mouse movement handler (depends on dimensions)
+  // Second effect: the scene follows the pointer. No easing on the properties
+  // written here — the perspective and shadow track the cursor directly.
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    // pointermove rather than mousemove, so a pen or a finger moves the light
+    // too instead of leaving the scene parked.
+    const handlePointerMove = (e: PointerEvent) => {
       if (
         !(
           lightingContainerRef.current &&
@@ -93,7 +111,7 @@ export const LightingBlock = () => {
         return;
       }
 
-      const [width, height] = dimensions;
+      const [width, height] = dimensionsRef.current;
       if (width === 0 || height === 0) {
         return;
       }
@@ -102,7 +120,7 @@ export const LightingBlock = () => {
       const mouseX = e.clientX / width;
       const mouseY = e.clientY / height;
 
-      // Update perspective (750px ± 100px based on X position)
+      // Update perspective (750px ± 50px based on X position)
       const perspective = 750 + (mouseX - 0.5) * 100;
       lightingContainerRef.current.style.setProperty(
         "--perspective",
@@ -139,16 +157,28 @@ export const LightingBlock = () => {
       );
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("pointermove", handlePointerMove);
 
     // Cleanup
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("pointermove", handlePointerMove);
     };
-  }, [dimensions]);
+  }, []);
+
+  // Looping video is motion nobody asked for. The paused first frame still
+  // reads as sky through the window.
+  useEffect(() => {
+    if (!reduced) {
+      return;
+    }
+    cloudsRef.current?.pause();
+    skyRef.current?.pause();
+  }, [reduced]);
 
   return (
-    <div>
+    // The whole scene is decoration: what it is and how it works is in the
+    // prose above it, so there is nothing here for a screen reader to walk.
+    <div aria-hidden="true">
       <div className="lighting-container" ref={lightingContainerRef}>
         <div className="transformContainer">
           <div className="bumpContainer" ref={bumpContainerRef}>
@@ -176,6 +206,7 @@ export const LightingBlock = () => {
                         loop
                         muted
                         playsInline
+                        ref={cloudsRef}
                         src="/experiments/videos/clouds.mp4"
                       />
                       <video
@@ -184,6 +215,7 @@ export const LightingBlock = () => {
                         loop
                         muted
                         playsInline
+                        ref={skyRef}
                         src="/experiments/videos/window.mp4"
                       />
                       <div className="verticalBeams" />

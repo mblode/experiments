@@ -1,7 +1,9 @@
 "use client";
-import { LayoutGroup, motion } from "motion/react";
+import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 interface RabbitCardProps {
   id: number;
@@ -15,22 +17,31 @@ const springConfig = {
   damping: 30,
 };
 
-const smoothEasing: [number, number, number, number] = [0.43, 0.13, 0.23, 0.96];
+// ease-out-quart. Height, type, margins and radius all ride this one curve so
+// they arrive together; a card whose height and type land at different moments
+// reads as two animations.
+const smoothEasing: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 
 const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
+  const reduced = useReducedMotion();
+  const duration = reduced ? 0 : 0.42;
+  const layoutTransition = reduced ? { duration: 0 } : springConfig;
+  const sizeTransition = { duration, ease: smoothEasing };
+
   return (
-    <motion.div
+    <motion.li
       className="w-full"
       initial={false}
       layout="position"
-      transition={springConfig}
+      transition={layoutTransition}
     >
-      <motion.div
-        animate={{
-          height: isExpanded ? 400 : 120,
-          backgroundColor: isExpanded ? "#ffffff" : "#f3f4f6",
-        }}
-        className="relative cursor-pointer overflow-hidden border border-border"
+      <motion.button
+        animate={{ height: isExpanded ? 400 : 120 }}
+        aria-expanded={isExpanded}
+        className={cn(
+          "relative flex w-full cursor-pointer overflow-hidden border border-border text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+          isExpanded ? "bg-card" : "bg-muted hover:bg-muted-foreground/10"
+        )}
         initial={false}
         onClick={onToggle}
         style={{
@@ -40,64 +51,66 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
           backfaceVisibility: "hidden",
         }}
         transition={{
-          height: { duration: 0.5, ease: smoothEasing },
-          backgroundColor: { duration: 0.5, ease: smoothEasing },
-          scale: { duration: 0.15, ease: "easeOut" },
+          height: sizeTransition,
+          scale: { duration: reduced ? 0 : 0.15, ease: smoothEasing },
         }}
-        whileHover={isExpanded ? { scale: 1 } : { scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        type="button"
+        whileHover={reduced || isExpanded ? undefined : { scale: 1.02 }}
+        whileTap={reduced ? undefined : { scale: 0.98 }}
       >
-        {/* Content wrapper */}
-        <motion.div
-          className="h-full p-4"
+        {/* Content wrapper. The order swap below is instant; Motion's layout
+            animation interpolates the positions that fall out of it. */}
+        <motion.span
+          className="flex h-full w-full p-4"
           initial={false}
           layout="position"
           style={{
-            display: "flex",
             flexDirection: isExpanded ? "column" : "row",
             justifyContent: isExpanded ? "center" : "flex-start",
-            alignItems: isExpanded ? "center" : "center",
+            alignItems: "center",
           }}
-          transition={springConfig}
+          transition={layoutTransition}
         >
           {/* Image */}
-          <motion.div
+          <motion.span
             animate={{
               width: isExpanded ? 280 : 86,
               height: isExpanded ? 280 : 86,
+              borderRadius: isExpanded ? 24 : 12,
             }}
-            className="relative select-none overflow-hidden"
+            className="relative block shrink-0 select-none overflow-hidden"
             initial={false}
             layout="position"
             style={{
-              borderRadius: isExpanded ? 24 : 12,
               order: isExpanded ? 2 : 1,
+              // Safari otherwise shimmers the image while it scales
               WebkitBackfaceVisibility: "hidden",
               backfaceVisibility: "hidden",
               transform: "translate3d(0, 0, 0)",
             }}
             transition={{
-              width: { duration: 0.5, ease: smoothEasing },
-              height: { duration: 0.5, ease: smoothEasing },
+              width: sizeTransition,
+              height: sizeTransition,
+              borderRadius: sizeTransition,
             }}
           >
             <Image
-              alt={`Rabbit ${id}`}
+              alt=""
               className="object-cover"
               fill
               sizes={isExpanded ? "280px" : "86px"}
               src="/experiments/jamie-kettle-3t-j09n_pYo-unsplash.jpg"
             />
-          </motion.div>
+          </motion.span>
 
           {/* Text */}
-          <motion.h2
+          <motion.span
             animate={{
               fontSize: isExpanded ? "1.5rem" : "1.125rem",
               marginLeft: isExpanded ? 0 : 16,
               marginBottom: isExpanded ? 16 : 0,
             }}
-            className="select-none whitespace-nowrap font-semibold"
+            className="block select-none whitespace-nowrap font-semibold text-foreground tracking-tight"
             initial={false}
             layout="position"
             style={{
@@ -105,21 +118,22 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
               textAlign: isExpanded ? "center" : "left",
             }}
             transition={{
-              fontSize: { duration: 0.5, ease: smoothEasing },
-              marginLeft: { duration: 0.5, ease: smoothEasing },
-              marginBottom: { duration: 0.5, ease: smoothEasing },
+              fontSize: sizeTransition,
+              marginLeft: sizeTransition,
+              marginBottom: sizeTransition,
             }}
           >
             Rabbit #{id}
-          </motion.h2>
-        </motion.div>
-      </motion.div>
-    </motion.div>
+          </motion.span>
+        </motion.span>
+      </motion.button>
+    </motion.li>
   );
 };
 
 export const PreviewBlock = () => {
   const [expandedCard, setExpandedCard] = useState<number | undefined>();
+  const reduced = useReducedMotion();
   const rabbitIds = [1, 2, 3, 4, 5];
 
   const handleToggle = (id: number) => {
@@ -128,11 +142,11 @@ export const PreviewBlock = () => {
 
   return (
     <LayoutGroup>
-      <motion.div
+      <motion.ul
         className="flex flex-col items-center gap-3"
         initial={false}
         layout="position"
-        transition={springConfig}
+        transition={reduced ? { duration: 0 } : springConfig}
       >
         {rabbitIds.map((id) => (
           <Card
@@ -142,7 +156,7 @@ export const PreviewBlock = () => {
             onToggle={() => handleToggle(id)}
           />
         ))}
-      </motion.div>
+      </motion.ul>
     </LayoutGroup>
   );
 };

@@ -1,29 +1,25 @@
 "use client";
 
-import { forwardRef } from "react";
+import type { RefObject } from "react";
 
 import type { BlockData } from "./block";
 import { CardInner } from "./card-inner";
 
 interface DragOverlayCardProps {
   block: BlockData;
+  ref?: RefObject<HTMLDivElement | null>;
 }
 
-export const DragOverlayCard = forwardRef<HTMLDivElement, DragOverlayCardProps>(
-  ({ block }, ref) => {
-    return (
-      <div
-        className="rounded-xl border border-border bg-white p-4 transition-shadow"
-        data-overlay-card
-        ref={ref}
-        style={{
-          cursor: "grabbing",
-        }}
-      >
-        <CardInner block={block} />
-      </div>
-    );
-  }
-);
-
-DragOverlayCard.displayName = "DragOverlayCard";
+export function DragOverlayCard({ block, ref }: DragOverlayCardProps) {
+  return (
+    // The lift shadow is animated imperatively by useDragSwing, so there is no
+    // resting shadow and nothing to transition here.
+    <div
+      className="cursor-grabbing rounded-xl border border-border bg-card p-4"
+      data-overlay-card
+      ref={ref}
+    >
+      <CardInner block={block} />
+    </div>
+  );
+}

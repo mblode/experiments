@@ -1,100 +1,210 @@
+/*
+ * This route is always dark — the scene is a near-black sky — so the control
+ * surface is written against that rather than against the light/dark tokens,
+ * which would invert underneath a background that never does.
+ */
 .controls {
   position: fixed;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(20, 20, 20, 0.95);
-  padding: 16px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  z-index: 1000;
+
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 90%;
+  gap: 16px;
+  width: calc(100% - 32px);
   max-width: 400px;
-  z-index: 1000;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  padding: 16px;
+
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 18px;
+  background: rgb(12 13 18 / 0.82);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.45);
+  color: rgb(255 255 255 / 0.92);
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Label left, the value and its undo together on the right. */
+.controls-row label {
+  margin-right: auto;
 }
 
 .controls label {
-  font-size: 14px;
-  opacity: 0.9;
-  display: block;
-  margin-bottom: 8px;
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: -0.01em;
+  color: rgb(255 255 255 / 0.7);
 }
 
-.controls input[type="number"],
-.controls input[type="datetime-local"] {
-  width: 100%;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #121212;
-  color: #ddd;
+.controls-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.95);
+}
+
+/* Only offered once there is something to undo, so it is never dead chrome. */
+.controls-reset {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 10px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.7);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.controls-reset:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.controls-reset:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.85);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .controls-reset:not(:disabled):hover {
+    color: #fff;
+    border-color: rgb(255 255 255 / 0.4);
+    background: rgb(255 255 255 / 0.08);
+  }
+}
+
+.controls-reset:not(:disabled):active {
+  background: rgb(255 255 255 / 0.16);
 }
 
 .controls input[type="range"] {
+  display: block;
   width: 100%;
-  height: 10px;
-  background: #333;
-  border-radius: 5px;
+  height: 6px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.16);
   outline: none;
   -webkit-appearance: none;
-  margin: 8px 0;
+  appearance: none;
+  cursor: pointer;
+}
+
+.controls input[type="range"]:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.85);
+  outline-offset: 6px;
 }
 
 .controls input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   background: #fff;
   border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+  /* 100–150ms per the hover-transform rule; the thumb tracks the pointer 1:1,
+     so only the affordance animates, never the position. */
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .controls input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   background: #fff;
-  border-radius: 50%;
-  cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .controls input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+
+  .controls input[type="range"]:hover::-moz-range-thumb {
+    transform: scale(1.12);
+  }
+}
+
+.controls input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(0.94);
+  cursor: grabbing;
+}
+
+.controls input[type="range"]:active::-moz-range-thumb {
+  transform: scale(0.94);
+  cursor: grabbing;
+}
+
+.controls-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgb(255 255 255 / 0.45);
 }
 
 .readout {
-  font-size: 14px;
-  opacity: 0.9;
-  margin-top: 8px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  font-size: 13px;
 }
 
-.footer {
-  position: absolute;
-  bottom: 10px;
-  left: 12px;
-  opacity: 0.7;
-  font-size: 12px;
-  z-index: 1000;
+.readout-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Mobile responsive adjustments */
+.readout-label {
+  color: rgb(255 255 255 / 0.55);
+}
+
+.readout-value {
+  font-weight: 500;
+  text-align: right;
+  color: rgb(255 255 255 / 0.95);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 640px) {
   .controls {
-    bottom: 10px;
-    width: 95%;
+    bottom: 16px;
     padding: 12px;
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls-reset,
+  .controls input[type="range"]::-webkit-slider-thumb,
+  .controls input[type="range"]::-moz-range-thumb {
+    transition: none;
   }
 
-  .controls label {
-    font-size: 13px;
-  }
-
-  .readout {
-    font-size: 13px;
+  .controls input[type="range"]:hover::-webkit-slider-thumb,
+  .controls input[type="range"]:active::-webkit-slider-thumb,
+  .controls input[type="range"]:hover::-moz-range-thumb,
+  .controls input[type="range"]:active::-moz-range-thumb {
+    transform: none;
   }
 }

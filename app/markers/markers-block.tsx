@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "motion/react";
 import { type MouseEvent, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -18,8 +19,14 @@ interface ChapterMarker {
 // Progress Bar Component
 function ProgressBar({ show, progress }: { show: boolean; progress: number }) {
   return (
-    <div className={cn(styles.progress, show && styles.progressShow)}>
-      <div className={styles.progressBar} style={{ height: `${progress}vh` }} />
+    <div
+      aria-hidden="true"
+      className={cn(styles.progress, show && styles.progressShow)}
+    >
+      <div
+        className={styles.progressBar}
+        style={{ transform: `scaleY(${progress / 100})` }}
+      />
     </div>
   );
 }
@@ -32,11 +39,13 @@ function ChapterIndicator({
   marker: ChapterMarker;
   show: boolean;
 }) {
+  const reduced = useReducedMotion() ?? false;
+
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById(marker.id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     }
   };
 
@@ -50,12 +59,103 @@ function ChapterIndicator({
       href={`#${marker.id}`}
       onClick={handleClick}
       style={{ top: `${marker.position}vh` }}
+      tabIndex={show ? undefined : -1}
     >
-      <div className={styles.dot} />
+      <div aria-hidden="true" className={styles.dot} />
       <div className={styles.text}>
         <span>{marker.title}</span>
       </div>
     </a>
+  );
+}
+
+/**
+ * Owns everything that changes on scroll. Kept as its own component so a
+ * scroll event re-renders two fixed elements rather than the whole article
+ * sitting next to it.
+ */
+function ScrollMarkers() {
+  const [show, setShow] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [chapterMarkers, setChapterMarkers] = useState<ChapterMarker[]>([]);
+
+  // Show/hide based on scroll position and calculate progress
+  useEffect(() => {
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const scrollTop = window.scrollY;
+      setShow(scrollTop > SCROLL_THRESHOLD);
+
+      // 100 * pixels / (docHeight - windowHeight)
+      const pageHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(pageHeight > 0 ? (100 * scrollTop) / pageHeight : 0);
+    };
+
+    const handleScroll = () => {
+      // Coalesce to one measurement per frame; scroll fires far faster.
+      frame ||= requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // Calculate chapter positions on mount and resize
+  useEffect(() => {
+    const calculatePositions = () => {
+      const docHeight = document.documentElement.scrollHeight;
+
+      setChapterMarkers(
+        sections.flatMap((section) => {
+          const element = document.getElementById(section.id);
+          if (!element) {
+            return [];
+          }
+
+          const absoluteTop =
+            element.getBoundingClientRect().top + window.scrollY;
+
+          return [
+            {
+              id: section.id,
+              title: section.title,
+              position: (absoluteTop / docHeight) * 100,
+            },
+          ];
+        })
+      );
+    };
+
+    // Initial calculation after render (double rAF for reliable timing)
+    let rafId: number;
+    requestAnimationFrame(() => {
+      rafId = requestAnimationFrame(calculatePositions);
+    });
+    window.addEventListener("resize", calculatePositions);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", calculatePositions);
+    };
+  }, []);
+
+  return (
+    <>
+      <ProgressBar progress={progress} show={show} />
+
+      <nav aria-label="Chapters" className={styles.chapterIndicators}>
+        {chapterMarkers.map((marker) => (
+          <ChapterIndicator key={marker.id} marker={marker} show={show} />
+        ))}
+      </nav>
+    </>
   );
 }
 
@@ -131,79 +231,12 @@ Suspendisse potenti. Sed sagittis nulla in nisl sollicitudin, ac rutrum augue fr
 
 // Main Component
 export const MarkersBlock = () => {
-  const [show, setShow] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [chapterMarkers, setChapterMarkers] = useState<ChapterMarker[]>([]);
-
-  // Show/hide based on scroll position and calculate progress
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setShow(scrollTop > SCROLL_THRESHOLD);
-
-      // Calculate progress like jQuery version: 100 * pixels / (docHeight - windowHeight)
-      const docHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const pageHeight = docHeight - windowHeight;
-      const progressValue = pageHeight > 0 ? (100 * scrollTop) / pageHeight : 0;
-      setProgress(progressValue);
-    };
-
-    handleScroll(); // Initial call
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Calculate chapter positions on mount and resize
-  useEffect(() => {
-    const calculatePositions = () => {
-      const markers: ChapterMarker[] = [];
-      const docHeight = document.documentElement.scrollHeight;
-
-      for (const section of sections) {
-        const element = document.getElementById(section.id);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const absoluteTop = rect.top + window.scrollY;
-          const position = (absoluteTop / docHeight) * 100;
-          markers.push({
-            id: section.id,
-            title: section.title,
-            position,
-          });
-        }
-      }
-
-      setChapterMarkers(markers);
-    };
-
-    // Initial calculation after render (double rAF for reliable timing)
-    let rafId: number;
-    requestAnimationFrame(() => {
-      rafId = requestAnimationFrame(calculatePositions);
-    });
-    window.addEventListener("resize", calculatePositions);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", calculatePositions);
-    };
-  }, []);
-
   return (
     <div className={cn("relative", styles.scope)}>
-      {/* Progress Bar */}
-      <ProgressBar progress={progress} show={show} />
-
-      {/* Chapter Indicators */}
-      <div className={styles.chapterIndicators}>
-        {chapterMarkers.map((marker) => (
-          <ChapterIndicator key={marker.id} marker={marker} show={show} />
-        ))}
-      </div>
+      <ScrollMarkers />
 
       {/* Article Content */}
-      <article className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-20">
+      <article className="prose prose-neutral dark:prose-invert max-w-[68ch] prose-headings:scroll-mt-20 prose-headings:tracking-tight prose-p:leading-relaxed">
         {sections.map((section) => (
           <section
             data-section-id={section.id}

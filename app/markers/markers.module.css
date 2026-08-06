@@ -12,16 +12,23 @@
   z-index: 10;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s ease-out;
+  border-right: 1px solid var(--border);
+  transition: opacity 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .progressShow {
   opacity: 1;
 }
 
+/*
+ * A full-height block scaled down from the top rather than a height that grows.
+ * Scroll writes this on every frame, so it has to stay on the compositor.
+ */
 .progressBar {
-  width: 100%;
-  background-color: var(--chart-1);
+  position: absolute;
+  inset: 0;
+  transform-origin: top center;
+  background-color: color-mix(in oklch, var(--foreground) 14%, transparent);
 }
 
 .bookmark {
@@ -29,39 +36,58 @@
   position: fixed;
   left: 0;
   display: flex;
+  align-items: center;
   z-index: 50;
   cursor: pointer;
   text-decoration: none;
   border-bottom: none;
-  color: var(--foreground);
+  color: var(--muted-foreground);
+  visibility: hidden;
   transform: translateX(-100%);
-  transition: transform 0.2s ease-out;
+  transition:
+    transform 0.24s cubic-bezier(0.25, 1, 0.5, 1),
+    color 0.2s ease,
+    visibility 0.24s;
+}
+
+/* Revealing the label on focus matters more than on hover: without it a
+   keyboard user lands on an unlabelled 46px line. */
+.bookmark:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  border-radius: 2px;
+  color: var(--foreground);
+}
+
+.bookmark:focus-visible .text {
+  opacity: 1;
 }
 
 .bookmarkShow {
+  visibility: visible;
   transform: translateX(0);
 }
 
 .dot {
   height: 1px;
-  transition: transform 0.2s ease-in;
+  transition: border-color 0.2s ease;
 }
 
 .chaptermark .dot {
   width: 46px;
   height: 12px;
-  border-bottom: 1px solid var(--foreground);
+  border-bottom: 1px solid currentColor;
   opacity: 1;
 }
 
 .text {
-  margin-left: 5px;
-  transition: opacity 0.2s ease-in;
+  margin-left: 8px;
+  transition: opacity 0.2s ease;
   width: 200px;
 }
 
 .text span {
-  color: var(--foreground);
+  color: inherit;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -72,11 +98,15 @@
   opacity: 0;
 }
 
-.bookmark:hover .text,
-.bookmark.flash .text,
-.chaptermark:hover .text,
-.chaptermark.flash .text {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .bookmark:hover {
+    color: var(--foreground);
+  }
+
+  .bookmark:hover .text,
+  .chaptermark:hover .text {
+    opacity: 1;
+  }
 }
 
 .chapterIndicators {
@@ -115,5 +145,25 @@
 
   .chapterIndicators {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress,
+  .dot,
+  .text {
+    transition-duration: 0.01ms;
+  }
+
+  .bookmark {
+    transform: none;
+    opacity: 0;
+    transition:
+      opacity 0.01ms,
+      visibility 0.01ms;
+  }
+
+  .bookmarkShow {
+    opacity: 1;
   }
 }

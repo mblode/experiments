@@ -1,5 +1,5 @@
+import { CheckIcon, TriangleAlertIcon } from "blode-icons-react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -11,9 +11,9 @@ export const validationVariants = cva(
   {
     variants: {
       variant: {
-        error: "text-destructive-foreground",
-        warning: "text-warning-foreground",
-        success: "text-success-foreground",
+        error: "text-destructive",
+        warning: "text-yellow-600",
+        success: "text-green-600",
         loading: "text-muted-foreground",
       },
     },
@@ -32,9 +32,15 @@ export const Validation = ({ children, className, variant }: Props) => {
   return (
     <div className={cn(validationVariants({ variant, className }))}>
       {children}
-      {variant === "error" && <TriangleAlertIcon className="ml-1 size-4" />}
-      {variant === "success" && <CheckIcon className="ml-1 size-4" />}
-      {variant === "warning" && <TriangleAlertIcon className="ml-1 size-4" />}
+      {variant === "error" && (
+        <TriangleAlertIcon aria-hidden className="ml-1 size-4" />
+      )}
+      {variant === "success" && (
+        <CheckIcon aria-hidden className="ml-1 size-4" />
+      )}
+      {variant === "warning" && (
+        <TriangleAlertIcon aria-hidden className="ml-1 size-4" />
+      )}
       {variant === "loading" && (
         <span className="ml-1">
           <Spinner size={16} />

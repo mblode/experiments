@@ -1,0 +1,24 @@
+/*
+ * Local to this route rather than a global utility because the spin has to sit
+ * on its own element: the record's open/close transition moves `transform`
+ * (translate + scale), and a keyframe writing `transform: rotate()` to the same
+ * element wins over it outright, so the two have to be on separate layers.
+ */
+@keyframes album-record-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.album-record-spin {
+  animation: album-record-spin 3s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .album-record-spin {
+    animation: none;
+  }
+}

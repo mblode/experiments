@@ -222,7 +222,9 @@ export const MoonScene = (props: Props) => {
         gl.shadowMap.needsUpdate = true;
       }} // Enable shadow rendering
       shadows
-      style={{ width: "100%", height: "100vh" }}
+      // dvh, not vh: on mobile the browser chrome makes 100vh taller than what
+      // you can see, which pushes the moon below the centre of the visible area.
+      style={{ width: "100%", height: "100dvh" }}
     >
       <color args={["#05060a"]} attach="background" />
       <Suspense fallback={null}>

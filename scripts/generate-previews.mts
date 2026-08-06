@@ -302,13 +302,11 @@ const CHOREOGRAPH: Record<string, Routine> = {
   },
 
   controls: async (cursor, page) => {
-    await cursor.click(page.getByRole("button", { name: "Hue 202.5" }));
+    await cursor.click(page.getByRole("button", { name: "Sky", exact: true }));
     await cursor.wait(1200);
-    await cursor.click(
-      page.getByRole("button", { name: "Corner radius control" }).last()
-    );
+    await cursor.click(page.getByRole("button", { name: /^Corner radius:/ }));
     await cursor.wait(1100);
-    await cursor.click(page.getByRole("button", { name: "Hue 0" }));
+    await cursor.click(page.getByRole("button", { name: "Red", exact: true }));
     await cursor.wait(1400);
   },
 
@@ -341,7 +339,9 @@ const CHOREOGRAPH: Record<string, Routine> = {
   },
 
   "document-shadow": async (cursor, page) => {
-    const dice = page.getByRole("button", { name: "Roll dice to randomize" });
+    const dice = page.getByRole("button", {
+      name: "Roll the dice for a new shadow",
+    });
     await cursor.click(dice);
     await cursor.wait(1800);
     await cursor.click(dice, 200);
@@ -358,10 +358,8 @@ const CHOREOGRAPH: Record<string, Routine> = {
     await cursor.wait(1300);
   },
 
-  // No accessible role on the cards: the click handler sits on the motion.div
-  // that owns the layout animation.
   expand: async (cursor, page) => {
-    const card = page.locator("div.cursor-pointer").first();
+    const card = page.locator("button[aria-expanded]").first();
     await cursor.click(card);
     await cursor.wait(2300);
     await cursor.click(card);
@@ -459,7 +457,7 @@ const CHOREOGRAPH: Record<string, Routine> = {
   },
 
   preview: async (cursor, page) => {
-    const row = page.locator("div.cursor-pointer").first();
+    const row = page.locator("button[aria-expanded]").first();
     await cursor.click(row);
     await cursor.wait(2500);
     await cursor.click(row);
@@ -467,11 +465,15 @@ const CHOREOGRAPH: Record<string, Routine> = {
   },
 
   "qr-code": async (cursor, page) => {
-    await cursor.click(page.getByRole("button", { name: "Hue 225" }));
+    await cursor.click(
+      page.getByRole("button", { name: "Indigo", exact: true })
+    );
     await cursor.wait(1500);
-    await cursor.click(page.getByRole("button", { name: "Hue 90" }));
+    await cursor.click(
+      page.getByRole("button", { name: "Green", exact: true })
+    );
     await cursor.wait(1500);
-    await cursor.click(page.getByRole("button", { name: "Hue 0" }));
+    await cursor.click(page.getByRole("button", { name: "Red", exact: true }));
     await cursor.wait(1600);
   },
 
@@ -524,8 +526,9 @@ const CHOREOGRAPH: Record<string, Routine> = {
     await cursor.wait(1600);
   },
 
+  // Category toggle is a tablist, not a row of buttons
   table: async (cursor, page) => {
-    const button = (name: string) => page.getByRole("button", { name });
+    const button = (name: string) => page.getByRole("tab", { name });
     await cursor.click(button("SaaS startups"));
     await cursor.wait(1700);
     await cursor.click(button("Investors"));

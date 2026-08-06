@@ -7,8 +7,6 @@ import {
   type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
-  type DropAnimation,
-  defaultDropAnimationSideEffects,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -21,6 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { observer } from "mobx-react-lite";
+import { useCallback } from "react";
 
 import { ContentCard } from "./content-card";
 import { DragSwingOverlay } from "./drag-swing-overlay";
@@ -48,14 +47,6 @@ export const EditorPage = observer(() => {
     }),
     useSensor(KeyboardSensor)
   );
-
-  const _dropAnimation: DropAnimation = {
-    duration: 350,
-    easing: "cubic-bezier(0.22, 1.5, 0.36, 1)",
-    sideEffects: defaultDropAnimationSideEffects({
-      styles: { active: { opacity: "0" } },
-    }),
-  };
 
   const handleDragStart = (event: DragStartEvent) => {
     store.startDrag(event.active.id as string);
@@ -103,9 +94,11 @@ export const EditorPage = observer(() => {
     store.endDrag();
   };
 
-  const handleSettlingComplete = () => {
+  // Stable: SettlingOverlay keys its animation off this, so a re-render mid
+  // settle would otherwise restart the spring from the top.
+  const handleSettlingComplete = useCallback(() => {
     store.endDrag();
-  };
+  }, [store]);
 
   // Get the settling block data
   const settlingBlock = store.settlingBlockId
@@ -121,27 +114,19 @@ export const EditorPage = observer(() => {
       onDragStart={handleDragStart}
       sensors={sensors}
     >
-      <div className="flex min-h-screen w-full flex-col">
-        <main className="flex-1">
-          <div className="mx-auto">
-            <div className="flex gap-4 p-4">
-              <div className="min-w-0 flex-1 overflow-auto">
-                <div className="mx-auto max-w-lg py-2">
-                  <SortableContext
-                    items={sortedBlocks.map((b) => b.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {sortedBlocks.map((block) => (
-                      <ContentCard block={block} key={block.id} />
-                    ))}
-                  </SortableContext>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
+      <div className="mx-auto mt-8 max-w-lg">
+        <SortableContext
+          items={sortedBlocks.map((b) => b.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {sortedBlocks.map((block) => (
+            <ContentCard block={block} key={block.id} />
+          ))}
+        </SortableContext>
       </div>
 
+      {/* The drop animation is ours: the card springs out of the angle it was
+          released at, which dnd-kit's own drop animation cannot express. */}
       <DragOverlay dropAnimation={null}>
         {activeBlock && <DragSwingOverlay block={activeBlock} />}
       </DragOverlay>

@@ -10,6 +10,28 @@ import {
 export const INITIAL_CAMERA_POSITION: [number, number, number] = [0, 0, 10];
 export const POINTS_PER_KILL = 100;
 
+const BASE_SPEED = 30; // Starting forward speed (units per second)
+const SPEED_SCALE_POINTS = 500; // Points needed for each speed tier
+const SPEED_SCALE_MULTIPLIER = 1.2; // Speed multiplier per tier (20% increase)
+const MAX_SPEED = 150; // Maximum speed cap (units per second)
+
+/**
+ * Forward speed at a given score. The mover, the kill multiplier and the HUD
+ * readout each used to carry their own copy of this formula, so a change to
+ * the curve had to be made in three places to stay honest.
+ */
+export const speedAtScore = (score: number) =>
+  Math.min(
+    MAX_SPEED,
+    BASE_SPEED *
+      SPEED_SCALE_MULTIPLIER ** (Math.max(0, score) / SPEED_SCALE_POINTS)
+  );
+
+/** The same curve expressed against the starting speed, which is what scoring
+ *  multiplies by and what the HUD shows. */
+export const speedMultiplierAtScore = (score: number) =>
+  speedAtScore(score) / BASE_SPEED;
+
 const INITIAL_GAME_STATE = {
   isPlaying: true,
   isGameOver: false,

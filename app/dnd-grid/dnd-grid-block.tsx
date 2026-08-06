@@ -10,16 +10,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useGridInteractions } from "@/hooks/use-grid-interactions";
 
-export const BLOCK_GAP = 16;
-export const BLOCK_HEIGHT = 24;
-export const BLOCK_COLUMNS = 4;
-export const DEFAULT_WIDTH = 480;
-export const MAX_WIDTH = 643;
+import "./styles.css";
+
+const BLOCK_GAP = 16;
+const BLOCK_HEIGHT = 24;
+const BLOCK_COLUMNS = 4;
+const DEFAULT_WIDTH = 480;
+const MAX_WIDTH = 643;
+/* The board's own padding, on the 8px rhythm. It is the only inset now:
+   containerPadding is 0 below, so the grid does not add a second one. */
+const BOARD_PADDING = 16;
 const DEFAULT_GRID_ROWS = 12;
 const DEFAULT_GRID_HEIGHT =
-  DEFAULT_GRID_ROWS * BLOCK_HEIGHT +
-  (DEFAULT_GRID_ROWS - 1) * BLOCK_GAP +
-  BLOCK_GAP * 2;
+  DEFAULT_GRID_ROWS * BLOCK_HEIGHT + (DEFAULT_GRID_ROWS - 1) * BLOCK_GAP;
 
 const initialLayout: Layout = [
   { id: "a", x: 0, y: 0, w: 2, h: 6 },
@@ -110,49 +113,58 @@ export const DndGridBlock = () => {
 
   return (
     <div
-      className="mx-auto w-full"
-      ref={containerRef}
-      style={{ maxWidth: MAX_WIDTH }}
+      className="dnd-grid-demo mx-auto w-full"
+      style={{ maxWidth: MAX_WIDTH + BOARD_PADDING * 2 }}
     >
-      {containerWidth !== null && containerWidth > 0 ? (
-        <DndGrid
-          cols={BLOCK_COLUMNS}
-          compactor={{ ...verticalCompactor }}
-          layout={layout}
-          gap={margin}
-          onDrag={handlers.handleDrag}
-          onDragStart={handlers.handleDragStart}
-          onDragEnd={handlers.handleDragStop}
-          onLayoutChange={setLayout}
-          onResize={handlers.handleResize}
-          onResizeStart={handleResizeStart}
-          onResizeEnd={handleResizeStop}
-          resizeHandles={["ne", "nw", "se", "sw"]}
-          rowHeight={BLOCK_HEIGHT * scaleFactor}
-          width={containerWidth}
-        >
-          {layout.map((item: LayoutItem) => {
-            return (
-              <button
-                aria-label={`Block ${item.id}`}
-                className="select-none p-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                key={item.id}
-                onClick={() => handlers.handleSelect(item.id)}
-                onPointerEnter={() => handlers.handleHover(item.id)}
-                onPointerLeave={() => handlers.handleHover(null)}
-                type="button"
-              >
-                {item.id}
-              </button>
-            );
-          })}
-        </DndGrid>
-      ) : (
-        <div
-          className="w-full rounded-3xl border border-border/60 bg-muted/40"
-          style={{ height: DEFAULT_GRID_HEIGHT }}
-        />
-      )}
+      {/* Recessed board. The blocks read as raised tiles against it, which is
+          what the white-on-white default never gave them. */}
+      <div className="dnd-grid-board">
+        <div ref={containerRef}>
+          {containerWidth !== null && containerWidth > 0 ? (
+            <DndGrid
+              cols={BLOCK_COLUMNS}
+              compactor={{ ...verticalCompactor }}
+              containerPadding={0}
+              gap={margin}
+              layout={layout}
+              onDrag={handlers.handleDrag}
+              onDragEnd={handlers.handleDragStop}
+              onDragStart={handlers.handleDragStart}
+              onLayoutChange={setLayout}
+              onResize={handlers.handleResize}
+              onResizeEnd={handleResizeStop}
+              onResizeStart={handleResizeStart}
+              reducedMotion="system"
+              resizeHandles={["ne", "nw", "se", "sw"]}
+              rowHeight={BLOCK_HEIGHT * scaleFactor}
+              width={containerWidth}
+            >
+              {layout.map((item: LayoutItem) => {
+                // A plain element, not a button: the grid clones this node and
+                // owns `role="gridcell"`, `tabIndex` and the arrow-key move and
+                // resize handler on it. A nested button would have had its
+                // role overwritten and its click do nothing.
+                return (
+                  <div
+                    aria-label={`Block ${item.id}`}
+                    className="select-none uppercase"
+                    key={item.id}
+                    onPointerEnter={() => handlers.handleHover(item.id)}
+                    onPointerLeave={() => handlers.handleHover(null)}
+                  >
+                    {item.id}
+                  </div>
+                );
+              })}
+            </DndGrid>
+          ) : (
+            <div
+              className="dnd-grid-skeleton"
+              style={{ height: DEFAULT_GRID_HEIGHT }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

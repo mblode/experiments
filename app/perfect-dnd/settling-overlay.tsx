@@ -2,15 +2,24 @@
 
 import { observer } from "mobx-react-lite";
 import { useLayoutEffect, useRef } from "react";
+import { useMediaQuery } from "usehooks-ts";
 
 import type { BlockData } from "./block";
 import { CardInner } from "./card-inner";
 import { useStore } from "./stores/store";
+import { LIFT_SCALE } from "./use-drag-swing";
 
 interface SettlingOverlayProps {
   block: BlockData;
   onAnimationComplete: () => void;
 }
+
+const LIFT_SHADOW =
+  "0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 12px 24px -8px rgba(0, 0, 0, 0.1)";
+const NO_SHADOW =
+  "0 25px 50px -12px rgba(0, 0, 0, 0), 0 12px 24px -8px rgba(0, 0, 0, 0)";
+/** Enter curve, matching the lift the card came out of. */
+const SHADOW_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 export const SettlingOverlay = observer(
   ({ block, onAnimationComplete }: SettlingOverlayProps) => {
@@ -18,6 +27,9 @@ export const SettlingOverlay = observer(
     const containerRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
+    const reduced = useMediaQuery("(prefers-reduced-motion: reduce)", {
+      initializeWithValue: false,
+    });
 
     const rect = store.dropAnimationRect;
     const rotation = store.dropAnimationRotation;
@@ -26,6 +38,13 @@ export const SettlingOverlay = observer(
       if (
         !(rect && containerRef.current && wrapperRef.current && cardRef.current)
       ) {
+        return;
+      }
+
+      // The card is already in its new place in the list underneath; without
+      // motion there is nothing to travel, so hand straight back.
+      if (reduced) {
+        onAnimationComplete();
         return;
       }
 
@@ -95,7 +114,7 @@ export const SettlingOverlay = observer(
       });
 
       // Scale and rotation spring keyframes
-      const scaleKeyframes = generateSpringKeyframes(1.04, 1, steps);
+      const scaleKeyframes = generateSpringKeyframes(LIFT_SCALE, 1, steps);
       const rotationKeyframes = generateSpringKeyframes(rotation, 0, steps);
       const transformFrames = scaleKeyframes.map((scale, i) => ({
         transform: `rotate(${rotationKeyframes[i]}deg) scale(${scale})`,
@@ -108,18 +127,9 @@ export const SettlingOverlay = observer(
       });
 
       // Shadow fade (linear, no spring needed)
-      const currentShadow =
-        "0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 12px 24px -8px rgba(0, 0, 0, 0.1)";
-      const noShadow =
-        "0 25px 50px -12px rgba(0, 0, 0, 0), 0 12px 24px -8px rgba(0, 0, 0, 0)";
-
       const shadowAnimation = cardRef.current.animate(
-        [{ boxShadow: currentShadow }, { boxShadow: noShadow }],
-        {
-          duration: 300,
-          easing: "ease-out",
-          fill: "forwards",
-        }
+        [{ boxShadow: LIFT_SHADOW }, { boxShadow: NO_SHADOW }],
+        { duration: 300, easing: SHADOW_EASING, fill: "forwards" }
       );
 
       positionAnimation.onfinish = () => {
@@ -132,7 +142,7 @@ export const SettlingOverlay = observer(
         transformAnimation.cancel();
         shadowAnimation.cancel();
       };
-    }, [rect, rotation, block.id, onAnimationComplete]);
+    }, [rect, rotation, block.id, onAnimationComplete, reduced]);
 
     if (!rect) {
       return null;
@@ -157,12 +167,12 @@ export const SettlingOverlay = observer(
           style={{
             width: "100%",
             height: "100%",
-            transform: `rotate(${rotation}deg) scale(1.04)`,
+            transform: `rotate(${rotation}deg) scale(${LIFT_SCALE})`,
             transformOrigin: "center center",
           }}
         >
           <div
-            className="rounded-xl border border-border bg-white p-4 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15),0_12px_24px_-8px_rgba(0,0,0,0.1)]"
+            className="rounded-xl border border-border bg-card p-4 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15),0_12px_24px_-8px_rgba(0,0,0,0.1)]"
             ref={cardRef}
           >
             <CardInner block={block} />
