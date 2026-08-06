@@ -45,7 +45,7 @@ export default function Page() {
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl">
         <header className="mb-8 flex items-center justify-between gap-4">
-          <h1 className="font-bold text-4xl">Matt's experiments</h1>
+          <h1 className="font-bold text-4xl">{SITE_NAME}</h1>
 
           {/* The only thing the old footer carried that the layout's
               attribution does not. Negative margin keeps the tap target at
@@ -63,7 +63,7 @@ export default function Page() {
 
         {/* A list, marked up as one, so it is announced with its length. */}
         <main>
-          <ul className="grid list-none gap-x-6 gap-y-8 md:grid-cols-2">
+          <ul className="grid list-none gap-12 md:grid-cols-2">
             {Object.entries(blocks)
               .filter(([, block]) => !block.hidden)
               .reverse()
@@ -73,15 +73,15 @@ export default function Page() {
                       the link rather than the preview being one target and the
                       title another. */}
                   <Link className="group block" href={`/${key}`}>
-                    <BlockPreview
-                      className="transition-colors duration-200 ease-out group-hover:border-foreground/25"
-                      hasClip={clips.has(key)}
-                      slug={key}
-                    />
+                    <BlockPreview hasClip={clips.has(key)} slug={key} />
 
-                    <h2 className="mt-3 font-medium">{block.name}</h2>
+                    {/* One 24px line each, both at the body size: the caption
+                        is a label under a picture, not a heading over a card. */}
+                    <h2 className="mt-4 font-normal text-base/6">
+                      {block.name}
+                    </h2>
 
-                    <p className="mt-0.5 line-clamp-1 text-muted-foreground text-sm">
+                    <p className="line-clamp-1 text-base/6 text-muted-foreground">
                       {block.description}
                     </p>
                   </Link>

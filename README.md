@@ -1,6 +1,6 @@
 <div align="center">
 
-# [Matt's experiments](https://blode.co/experiments)
+# [Blode Experiments](https://blode.co/experiments)
 
 **Standalone UI and motion experiments: interactions, 3D scenes, and components built to a finish**
 

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { blocks } from "@/lib/blocks";
 
 export const SITE_URL = "https://blode.co/experiments";
-export const SITE_NAME = "Matt's experiments";
+export const SITE_NAME = "Blode Experiments";
 
 const DESCRIPTION_MAX = 158;
 const DESCRIPTION_SUFFIX =

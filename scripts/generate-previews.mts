@@ -22,12 +22,13 @@ const run = promisify(execFile);
 const OUTPUT_DIR = path.join(PUBLIC_DIR, "previews");
 const WORK_DIR = path.join(os.tmpdir(), "experiments-previews");
 
-// 4:3 to match the card frame on the index. Wide enough that `max-w-4xl`
+// Square, matching the card frame on the index. 1024 wide so `max-w-4xl`
 // demos still lay out at their intended width rather than collapsing to the
-// mobile arrangement.
-const FRAME = { width: 1024, height: 768 };
+// mobile arrangement; the extra height just gives the fit transform more room
+// to centre into.
+const FRAME = { width: 1024, height: 1024 };
 const OUTPUT_WIDTH = 880;
-const OUTPUT_HEIGHT = 660;
+const OUTPUT_HEIGHT = 880;
 
 // A gallery of thumbnails should not cost more than the pages it links to.
 // Demos over budget are re-encoded harder rather than tuned by hand.
@@ -74,10 +75,10 @@ const CURSOR_SCRIPT = `
 
   addEventListener('load', () => {
     root = document.createElement('div');
-    root.style.cssText = 'position:fixed;left:-3px;top:-2px;width:26px;height:26px;z-index:2147483647;pointer-events:none;opacity:0;will-change:transform';
+    root.style.cssText = 'position:fixed;left:-4px;top:-3px;width:34px;height:34px;z-index:2147483647;pointer-events:none;opacity:0;will-change:transform;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28))';
     inner = document.createElement('div');
-    inner.style.cssText = 'width:100%;height:100%;transform-origin:6px 4px;transition:transform .1s cubic-bezier(.22,1,.36,1)';
-    inner.innerHTML = '<svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M6 3.2 19.6 13.4l-6.4.35-3 5.8z" fill="#fff" stroke="#18181b" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    inner.style.cssText = 'width:100%;height:100%;transform-origin:8px 5px;transition:transform .1s cubic-bezier(.22,1,.36,1)';
+    inner.innerHTML = '<svg width="34" height="34" viewBox="0 0 26 26" fill="none"><path d="M6 3.2 19.6 13.4l-6.4.35-3 5.8z" fill="#fff" stroke="#18181b" stroke-width="1.6" stroke-linejoin="round"/></svg>';
     root.appendChild(inner);
     document.documentElement.appendChild(root);
     draw();
@@ -146,7 +147,7 @@ const FIT_SCRIPT = (maxScale: number) => `(() => {
 
   // Capped: the union is measured at rest and several demos grow as they are
   // driven, so a scale that fits the resting state can still overflow.
-  const fit = 0.86 * Math.min(innerWidth / (right - left), innerHeight / (bottom - top));
+  const fit = 0.92 * Math.min(innerWidth / (right - left), innerHeight / (bottom - top));
   const scale = Math.min(${maxScale}, Math.max(1, Number(fit.toFixed(3))));
 
   const box = root.getBoundingClientRect();
@@ -570,7 +571,21 @@ const CHOREOGRAPH: Record<string, Routine> = {
 // Demos with no routine still need long enough on camera to show a cycle
 const AMBIENT_MS = 7000;
 
-const DEFAULT_MAX_ZOOM = 1.8;
+/**
+ * Demos whose content fills the whole `max-w-4xl` column have nothing for the
+ * fit transform to scale into: the union is already as wide as the frame.
+ * Narrowing the column during capture gives them room to be scaled up, and a
+ * narrower measure is what these look like on a phone anyway.
+ */
+const CAPTURE_WIDTH: Record<string, number> = {
+  faq: 620,
+  "password-strength": 560,
+  preview: 600,
+  table: 760,
+  tabs: 620,
+};
+
+const DEFAULT_MAX_ZOOM = 3;
 
 /**
  * Ceilings for demos the automatic fit gets wrong, in either direction: some
@@ -578,16 +593,22 @@ const DEFAULT_MAX_ZOOM = 1.8;
  * back, and some are a single small control that can take far more.
  */
 const MAX_ZOOM: Record<string, number> = {
-  "animated-button": 2.6,
-  "card-stack": 1.3,
+  "animated-button": 3.6,
+  // Spreads to roughly three times its resting width
+  "card-stack": 1.6,
   dither: 1,
-  expand: 1.4,
+  // Grows downward when a date opens
+  expand: 2,
   moon: 1,
-  preview: 1.15,
+  // A 120px row becomes 400px
+  preview: 1.5,
   sheet: 1,
-  status: 2.4,
-  "timed-undo": 2.4,
-  toast: 2.4,
+  // The popover opens above the button
+  status: 2.8,
+  // Gains a countdown chip and a longer label
+  "timed-undo": 2.6,
+  // The pill grows taller between states
+  toast: 2.6,
 };
 
 const record = async (
@@ -616,6 +637,12 @@ const record = async (
   );
   if (fits) {
     await page.addStyleTag({ content: CENTER_CSS });
+    const width = CAPTURE_WIDTH[slug];
+    if (width) {
+      await page.addStyleTag({
+        content: `div.min-h-screen > .mx-auto{max-width:${width}px!important}`,
+      });
+    }
     const fit = await page.evaluate<string | null>(
       FIT_SCRIPT(MAX_ZOOM[slug] ?? DEFAULT_MAX_ZOOM)
     );
