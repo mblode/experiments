@@ -1,81 +1,64 @@
-# Matt's Experiments
+<div align="center">
 
-A playground of interactive UI/UX experiments — animations, 3D scenes, and polished components built with Next.js and React.
+# [Matt's experiments](https://blode.co/experiments)
 
-**Live demo:** [experiments.blode.co](https://blode.co/experiments)
+**Standalone UI and motion experiments: interactions, 3D scenes, and components built to a finish**
 
-## Experiments
+Open any one and play with it, then read what is actually interesting in how it works.
 
-| Experiment | Description |
-|---|---|
-| Dynamic island | iPhone-style dynamic island with expandable states and morphing animations |
-| Moon | 3D moon with accurate lunar phases and NASA textures |
-| Lighting | 3D window scene with mouse-controlled light beams and parallax depth |
-| Dither | 3D asteroid shooter with Obra Dinn-style dithering effects |
-| Sky | Scroll-driven sky gradient through sunrise, day, sunset, and night |
-| Album | Interactive vinyl record player toggling between spinning record and album cover |
-| QR code generator | Customisable QR codes with OKLCH colour picker and SVG/PNG export |
-| Perfect drag and drop | Sortable list with spring physics drag animations |
-| Dnd grid | Resizable drag-and-drop grid layout |
-| Bottom sheet | Multi-stage draggable modal with swipe gestures |
-| iOS-style cards | iOS-inspired cards with smooth transitions |
-| Stacked cards | Three-card stack that expands into a grid on click |
-| Expandable date cards | Date cards that expand to reveal additional details |
-| Animated subscribe button | Toggle button transitioning between follow and subscribed states |
-| Staggered fade | Auto-cycling text with letter-by-letter fade animations |
-| Password strength | Password input with animated strength metre and colour-coded feedback |
-| Timed undo | Delete button with animated countdown timer and undo functionality |
-| Document shadow | Document card with ambient shadow and interactive dice button |
-| Article markers | Scroll progress bar with chapter indicators and highlight bookmarks |
-| Theme shuffler | Scroll-animated cards with multiple themed colour schemes |
-| Status | Popover menu to set user status with animated emoji icons |
-| Table | Animated data table with category toggle and staggered cell animations |
-| Controls | Design system playground with colour and layout controls |
-| FAQ accordion | Expandable FAQ section with smooth accordion animations |
-| Tab navigation | Tabbed interface for organising content into sections |
-| Toast notifications | Temporary notifications with customisable styles and animations |
-| Interactive map | Mapbox-powered map with custom markers and navigation controls |
-| Preview block | Preview component that expands to show more content |
+</div>
 
-## Getting Started
+## Demo
 
-```bash
-git clone https://github.com/mblode/experiments.git
-cd experiments
-npm install
-npm run dev
-```
+Every experiment on one index page, each card a looping clip of the thing itself.
 
-Open [http://localhost:3000](http://localhost:3000).
+<p>
+<a href="https://blode.co/experiments">
+<img alt="View demo" src=".github/assets/demo.svg" width="200" />
+</a>
+</p>
 
-## Commands
+## The experiments
 
-```bash
-npm run dev      # Start development server
-npm run build    # Production build
-npm run lint     # Lint with Biome
-npm run format   # Format with Biome
-```
+| Experiment | What it does |
+|------------|--------------|
+| [Dynamic island](https://blode.co/experiments/dynamic-island) | The iPhone island, morphing between idle, timer, now playing, and ring |
+| [Moon](https://blode.co/experiments/moon) | Tonight's moon from real ephemeris data, on NASA LRO surface maps |
+| [Lighting](https://blode.co/experiments/lighting) | A 3D window scene with mouse-controlled light beams and parallax depth |
+| [Dither](https://blode.co/experiments/dither) | A 3D asteroid shooter rendered with Obra Dinn-style dithering |
+| [Sky](https://blode.co/experiments/sky) | Scroll-driven sky through sunrise, day, sunset, and night, with stars |
+| [Album](https://blode.co/experiments/album) | A vinyl record that opens out into its album cover, one image doing both |
+| [QR code generator](https://blode.co/experiments/qr-code) | Customisable codes with an OKLCH colour picker and SVG or PNG export |
+| [Omni-directional colour picker](https://blode.co/experiments/omni-color-picker) | Drag a fish-eye sphere of dots to recolour the page |
+| [Perfect drag and drop](https://blode.co/experiments/perfect-dnd) | A sortable list with spring-physics drag |
+| [Dnd grid](https://blode.co/experiments/dnd-grid) | A resizable drag-and-drop grid layout |
+| [Bottom sheet](https://blode.co/experiments/sheet) | A multi-stage sheet that resizes per stage, with swipe to dismiss |
+| [iOS-style cards](https://blode.co/experiments/ios-cards) | iOS-inspired cards with smooth transitions |
+| [Stacked cards](https://blode.co/experiments/card-stack) | A shuffled pile of three that straightens and spreads into a row |
+| [Expandable date cards](https://blode.co/experiments/expand) | Date cards that expand to reveal their details |
+| [Preview block](https://blode.co/experiments/preview) | A list row that grows into a full preview, one open at a time |
+| [Animated subscribe button](https://blode.co/experiments/animated-button) | A follow button that swaps to subscribed without losing focus |
+| [Staggered fade](https://blode.co/experiments/staggered-fade) | Auto-cycling text that fades letter by letter |
+| [Password strength](https://blode.co/experiments/password-strength) | A password input with an animated three-bar strength metre |
+| [Timed undo](https://blode.co/experiments/timed-undo) | A destructive action with a countdown and an undo |
+| [Document shadow](https://blode.co/experiments/document-shadow) | A document card with an ambient shadow and a dice button |
+| [Article markers](https://blode.co/experiments/markers) | A scroll progress bar with chapter indicators and bookmarks |
+| [Theme shuffler](https://blode.co/experiments/shuffle-theme) | Scroll-animated cards across several colour schemes |
+| [Status](https://blode.co/experiments/status) | A popover for setting your status, with animated emoji |
+| [Table](https://blode.co/experiments/table) | A data table with category toggles and staggered cell animation |
+| [Controls](https://blode.co/experiments/controls) | A design system playground with colour and layout controls |
+| [FAQ accordion](https://blode.co/experiments/faq) | An accordion whose answers are revealed top down by a mask |
+| [Tab navigation](https://blode.co/experiments/tabs) | Pill tabs with a highlight that clips across the labels as it slides |
+| [Toast notifications](https://blode.co/experiments/toast) | A pill moving between loading, success, and error on a derived spring |
 
-## Adding an Experiment
+## Notes
 
-1. Create `app/[name]/page.tsx` and `app/[name]/[name]-block.tsx`
-2. Register it in `lib/blocks.ts` with a name and description
-3. Set `hidden: true` to keep it off the index while in development
-
-## Tech Stack
-
-- [Next.js 16](https://nextjs.org/) — framework
-- [React 19](https://react.dev/) — UI
-- [Tailwind CSS 4](https://tailwindcss.com/) — styling
-- [Motion](https://motion.dev/) — animations
-- [Three.js](https://threejs.org/) + [React Three Fiber](https://r3f.docs.pmnd.rs/) — 3D rendering
-- [Radix UI](https://www.radix-ui.com/) — accessible primitives
-- [Biome](https://biomejs.dev/) — linting and formatting
+- Motion follows the rules in [ANIMATION.md](ANIMATION.md), including honouring `prefers-reduced-motion`.
+- The 3D experiments (Moon, Lighting, Dither) need WebGL.
 
 ## License
 
-[MIT](LICENSE.md)
+MIT
 
 ---
 
