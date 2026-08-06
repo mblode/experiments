@@ -24,9 +24,10 @@ const nextConfig: NextConfig = {
   headers() {
     return Promise.resolve([
       {
-        // The clips are decorative scenery inside the lighting demo, not
-        // watchable content — keep them out of Google's video index.
-        source: "/videos/:path*",
+        // Scenery inside the lighting demo and silent gallery previews of the
+        // demos themselves — neither is watchable content, so keep both out of
+        // Google's video index.
+        source: "/:dir(videos|previews)/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
     ]);

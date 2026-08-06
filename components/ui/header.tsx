@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -81,19 +81,34 @@ export const Header = ({ id, className }: Props) => {
 
       {(previous || next) && (
         // data-chrome so `?hideHeader` drops this too, via the style above.
+        // The rule and `justify-between` are what stop this reading as another
+        // line of the prose above it: previous and next sit at opposite ends,
+        // which is the only cue that says which direction each one goes.
         <nav
           aria-label="Other experiments"
-          className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-muted-foreground text-sm"
+          className="mt-6 flex items-center justify-between gap-4 border-border border-t pt-4 text-sm"
           data-chrome
         >
-          {previous && (
-            <Link className="hover:text-foreground" href={`/${previous}`}>
-              &larr; {blocks[previous].name}
+          {previous ? (
+            <Link
+              className="group inline-flex min-w-0 items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              href={`/${previous}`}
+            >
+              <ArrowLeft className="size-4 shrink-0 transition-transform duration-200 ease-out group-hover:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
+              <span className="truncate">{blocks[previous].name}</span>
             </Link>
+          ) : (
+            // Placeholder keeps `next` pinned right on the first experiment
+            <span />
           )}
+
           {next && (
-            <Link className="hover:text-foreground" href={`/${next}`}>
-              {blocks[next].name} &rarr;
+            <Link
+              className="group inline-flex min-w-0 items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              href={`/${next}`}
+            >
+              <span className="truncate">{blocks[next].name}</span>
+              <ArrowRight className="size-4 shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
             </Link>
           )}
         </nav>

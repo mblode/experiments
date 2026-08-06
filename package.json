@@ -12,6 +12,7 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "og:generate": "node scripts/generate-og-images.mts",
+    "previews:generate": "node scripts/generate-previews.mts",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,14 +1,20 @@
+import { readdirSync } from "node:fs";
+import path from "node:path";
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { BlockPreview } from "@/components/ui/block-preview";
 import { blocks } from "@/lib/blocks";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
+
+// Read once at build rather than keeping a generated manifest in sync: a card
+// whose clip has not been recorded yet still renders, just without the video.
+const clips = new Set(
+  readdirSync(path.join(process.cwd(), "public", "previews"))
+    .filter((file) => file.endsWith(".mp4"))
+    .map((file) => file.replace(/\.mp4$/, ""))
+);
 
 export const metadata: Metadata = {
   // Not bare SITE_NAME: the h1 already says that, and a title tag that repeats
@@ -43,20 +49,27 @@ export default function Page() {
 
         {/* A list, marked up as one, so it is announced with its length. */}
         <main>
-          <ul className="grid list-none gap-4 md:grid-cols-2">
+          <ul className="grid list-none gap-x-6 gap-y-8 md:grid-cols-2">
             {Object.entries(blocks)
               .filter(([, block]) => !block.hidden)
               .reverse()
               .map(([key, block]) => (
-                <li className="flex" key={key}>
-                  <Link className="flex w-full" href={`/${key}`}>
-                    <Card className="flex-1">
-                      <CardHeader>
-                        <CardTitle>{block.name}</CardTitle>
+                <li key={key}>
+                  {/* The caption sits outside the frame, so the whole cell is
+                      the link rather than the preview being one target and the
+                      title another. */}
+                  <Link className="group block" href={`/${key}`}>
+                    <BlockPreview
+                      className="transition-colors duration-200 ease-out group-hover:border-foreground/25"
+                      hasClip={clips.has(key)}
+                      slug={key}
+                    />
 
-                        <CardDescription>{block.description}</CardDescription>
-                      </CardHeader>
-                    </Card>
+                    <h2 className="mt-3 font-medium">{block.name}</h2>
+
+                    <p className="mt-0.5 line-clamp-1 text-muted-foreground text-sm">
+                      {block.description}
+                    </p>
                   </Link>
                 </li>
               ))}
