@@ -55,7 +55,12 @@ export const BlockPreview = ({ slug, hasClip, className }: Props) => {
   return (
     <div
       className={cn(
-        "relative aspect-[4/3] overflow-hidden rounded-xl border bg-card",
+        // Square, 16px radius, and a halo rather than a border: a 6px spread at
+        // 3% plus a hairline at 8%, which reads as the card lifting off the
+        // page instead of being drawn onto it. Mixed off `--foreground` so it
+        // survives dark mode, where a fixed rgba halo disappears.
+        "relative aspect-square overflow-hidden rounded-2xl bg-card",
+        "shadow-[0_0_0_6px_color-mix(in_oklch,var(--foreground)_3%,transparent),0_0_0.5px_1px_color-mix(in_oklch,var(--foreground)_8%,transparent)]",
         className
       )}
       ref={ref}

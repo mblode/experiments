@@ -18,7 +18,7 @@ const glide = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://blode.co"),
-  title: "Matt's experiments",
+  title: "Blode Experiments",
   description: "A collection of Matthew Blode's UI experiments",
   verification: {
     google: "mFwyBIbXTaKK4uF_NA0MzVWFyY40hPgBjFObg3rje04",
