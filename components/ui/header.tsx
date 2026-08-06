@@ -49,8 +49,14 @@ const getNeighbours = (id: keyof typeof blocks) => {
  */
 const CHROME_CSS = ".link,[data-chrome]{display:none!important}";
 
-const previewCss = (width: number | undefined) =>
+const previewCss = ({
+  width,
+  zoom,
+}: NonNullable<(typeof blocks)[string]["preview"]>) =>
   `${CHROME_CSS}body>footer{display:none!important}` +
+  // Zoom rather than a transform: it shrinks the effective viewport, so
+  // anything pinned to it or portalled out of the column scales too.
+  (zoom ? `html{zoom:${zoom}}` : "") +
   // `div.` matters: <body> also carries min-h-screen, and centring a column
   // flex body stops its children stretching, which shrink-wraps the page.
   "div.min-h-screen{display:flex!important;align-items:center!important;min-height:100dvh!important}" +
@@ -73,9 +79,7 @@ export const Header = ({ id, className }: Props) => {
     // so the chrome is hidden rather than merely unpopulated.
     return (
       <style>
-        {mode === "preview"
-          ? previewCss(blocks[id].preview?.width)
-          : CHROME_CSS}
+        {mode === "preview" ? previewCss(blocks[id].preview ?? {}) : CHROME_CSS}
       </style>
     );
   }

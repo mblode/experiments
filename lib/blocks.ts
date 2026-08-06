@@ -20,8 +20,15 @@ export const blocks: Record<
      * `max-w-4xl` has nothing for the recorder to scale into, and its clip
      * comes out looking like a distant screenshot; a narrower measure is also
      * closer to how it reads on a phone.
+     *
+     * `zoom` is for demos the recorder's own scaling cannot help: anything
+     * pinned to the viewport or portalled out of the column, where scaling the
+     * column would leave the pinned part at life size. Zoom changes the
+     * effective viewport instead, so the whole page comes with it. Above 1 it
+     * pulls a small demo closer; below 1 it pulls back from one laid out wider
+     * than the square frame.
      */
-    preview?: { width: number };
+    preview?: { width?: number; zoom?: number };
   }
 > = {
   "animated-button": {
@@ -33,6 +40,7 @@ export const blocks: Record<
     ],
   },
   "shuffle-theme": {
+    preview: { zoom: 1.35 },
     name: "Theme shuffler",
     description: "Six cards that fade in and restyle to a random theme",
   },
@@ -46,6 +54,7 @@ export const blocks: Record<
     ],
   },
   sheet: {
+    preview: { zoom: 1.45 },
     name: "Bottom sheet",
     description: "Bottom sheet that resizes as you move between stages",
     about: [
@@ -71,6 +80,7 @@ export const blocks: Record<
     ],
   },
   "ios-cards": {
+    preview: { zoom: 1.35 },
     name: "iOS-style cards",
     description: "Photo cards that expand into a modal on click",
   },
@@ -150,6 +160,7 @@ export const blocks: Record<
     description: "Tabbed data table with cells that roll in as a wave",
   },
   lighting: {
+    preview: { zoom: 0.72 },
     name: "Lighting",
     description: "Light through a window, built from CSS layers",
     about: [
@@ -167,6 +178,7 @@ export const blocks: Record<
     ],
   },
   controls: {
+    preview: { zoom: 0.78 },
     name: "Controls",
     description: "Retheme a page live: hue, saturation, radius, gap",
   },
@@ -209,10 +221,12 @@ export const blocks: Record<
     hidden: true,
   },
   markers: {
+    preview: { zoom: 1.35 },
     name: "Article markers",
     description: "Vertical scroll progress with clickable chapter markers",
   },
   "perfect-dnd": {
+    preview: { zoom: 1.3 },
     name: "Perfect drag and drop",
     description: "Sortable list where the card swings with drag velocity",
   },
@@ -231,6 +245,7 @@ export const blocks: Record<
     hidden: true,
   },
   "omni-color-picker": {
+    preview: { zoom: 1.15 },
     name: "Omni-directional colour picker",
     description: "Drag a fish-eye sphere of dots to recolour the page",
   },
