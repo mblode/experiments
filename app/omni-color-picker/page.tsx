@@ -11,14 +11,6 @@ export default function Page() {
       <div className="bg-background p-8" data-chrome>
         <div className="mx-auto max-w-4xl">
           <Header id="omni-color-picker" />
-          <a
-            className="link"
-            href="https://x.com/mackenziechild"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Original concept by Mackenzie Child
-          </a>
         </div>
       </div>
       <OmniColorPickerBlock />

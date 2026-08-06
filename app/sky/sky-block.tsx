@@ -79,15 +79,6 @@ export const SkyBlock = () => {
       <div className="relative z-10 bg-background p-8">
         <div className="mx-auto max-w-4xl">
           <Header className="mb-0!" id="sky" />
-          <a
-            className="link"
-            href="https://blode.co"
-            rel="noreferrer"
-            target="_blank"
-          >
-            See a real-world example
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
         </div>
       </div>
 
