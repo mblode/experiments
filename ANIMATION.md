@@ -53,9 +53,10 @@
 - Do not animate drag gestures using CSS variables.
 - Do not animate blur values higher than 20px.
 - Use `will-change` to optimize your animation, but use it only for: `transform`, `opacity`, `clipPath`, `filter`.
-- When using Motion/Framer Motion use `transform` instead of `x` or `y` if you need animations to be hardware accelerated.
+- In Motion, prefer `x` and `y` over a `transform` string. Both compile to a hardware-accelerated transform, and `x`/`y` update without a React re-render. Reach for a full `transform` string only when one owner has to combine several transform functions or interoperate with non-Motion code.
 
 ## Spring animations
 
 - Default to spring animations when using Framer Motion.
-- Avoid using bouncy spring animations unless you are working with drag gestures.
+- Default to no bounce. Add it when the motion has implied mass: a gesture the user flicked, or a container they watched physically grow.
+- When something does bounce, bounce on the way in only. The close is critically damped and roughly half the duration of the open. A container morph measured at 60fps opened to 121% of its travel over 284ms and closed to ~102% in 185ms.
