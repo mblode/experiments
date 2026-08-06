@@ -46,7 +46,9 @@ export default function RootLayout({
           a random theme colour in the strip of body the content did not cover.
           The theme shuffler paints its own fixed, full-viewport background. */}
       <body className="flex min-h-screen flex-col">
-        <div className="flex-1">{children}</div>
+        <div className="flex-1" data-page>
+          {children}
+        </div>
         <footer className="flex justify-center p-6">
           <CraftedBy />
         </footer>

@@ -107,7 +107,8 @@ const FRAME_CSS = `nextjs-portal{display:none!important}`;
  * has already sized itself to the viewport.
  */
 const FIT_SCRIPT = (maxScale: number) => `(() => {
-  const root = document.querySelector("div.min-h-screen > .mx-auto");
+  // The layout wrapper, so this sees the demo whichever shape the page uses.
+  const root = document.querySelector("body > [data-page]");
   if (!root || root.querySelector('canvas')) return null;
 
   let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
@@ -117,10 +118,22 @@ const FIT_SCRIPT = (maxScale: number) => `(() => {
     // so a demo that pins anything to the viewport has to be left alone.
     if (style.position === 'fixed') return null;
     if (style.visibility === 'hidden' || style.opacity === '0') continue;
+    // Only count what actually paints. A transparent full-width wrapper is not
+    // part of the picture, and measuring one is what kept short, narrow demos
+    // reporting a column-wide union and refusing to scale.
+    const paints = el.children.length === 0
+      || style.backgroundColor !== 'rgba(0, 0, 0, 0)'
+      || style.backgroundImage !== 'none'
+      || parseFloat(style.borderTopWidth) > 0
+      || parseFloat(style.borderLeftWidth) > 0
+      || style.boxShadow !== 'none';
+    if (!paints) continue;
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) continue;
-    // Full-bleed wrappers describe the page, not the demo
-    if (rect.width >= innerWidth * 0.98 && rect.height >= innerHeight * 0.98) continue;
+    // Full-bleed bands describe the page, not the demo. Width alone is the
+    // test: the page wrapper paints a background and spans the viewport, so
+    // counting it pinned every measurement at the full frame width.
+    if (rect.width >= innerWidth * 0.98) continue;
     left = Math.min(left, rect.left);
     top = Math.min(top, rect.top);
     right = Math.max(right, rect.right);
@@ -199,6 +212,14 @@ const makeCursor = (page: Page) => {
   const click = async (target: Target, ms = 560): Promise<void> => {
     await to(target, ms);
     await wait(160);
+    if (isLocator(target)) {
+      // Move the drawn cursor there, then let Playwright do the clicking. A
+      // raw mouse.down at computed coordinates has no actionability check, so
+      // anything that shifts between measuring and pressing lands the click on
+      // nothing and the rest of the routine waits for a state that never comes.
+      await target.click({ delay: 110 });
+      return;
+    }
     await page.mouse.down();
     await wait(110);
     await page.mouse.up();
@@ -502,9 +523,10 @@ const CHOREOGRAPH: Record<string, Routine> = {
     const trigger = page.locator("button").first();
     await cursor.click(trigger);
     await cursor.wait(1100);
-    await cursor.click(
-      page.locator("button[data-slot=tooltip-trigger]").nth(1)
-    );
+    // By accessible name, not nth(): the options gained real labels in the
+    // accessibility pass, and a positional selector broke the moment the
+    // popover markup moved.
+    await cursor.click(page.getByRole("button", { name: "On holiday" }));
     await cursor.wait(2200);
     await cursor.click(trigger);
     await cursor.wait(1600);
@@ -563,6 +585,11 @@ const DEFAULT_MAX_ZOOM = 3;
  */
 const MAX_ZOOM: Record<string, number> = {
   "animated-button": 3.6,
+  // Expanded item is a fixed overlay outside the transformed box
+  "ios-cards": 1,
+  // Its theme background is a fixed, full-viewport layer; a transform on the
+  // page makes that layer's containing block the page, and it stops covering.
+  "shuffle-theme": 1,
   // Spreads to roughly three times its resting width
   "card-stack": 1.6,
   dither: 1,
@@ -572,8 +599,9 @@ const MAX_ZOOM: Record<string, number> = {
   // A 120px row becomes 400px
   preview: 1.5,
   sheet: 1,
-  // The popover opens above the button
-  status: 2.8,
+  // Its popover portals to <body>, so a transform would leave the options
+  // behind the trigger they belong to. Zoomed in `lib/blocks.ts` instead.
+  status: 1,
   // Gains a countdown chip and a longer label
   "timed-undo": 2.6,
   // The pill grows taller between states
@@ -613,8 +641,11 @@ const record = async (
       FIT_SCRIPT(MAX_ZOOM[slug] ?? DEFAULT_MAX_ZOOM)
     );
     if (fit) {
+      // Applied to the element it was measured against. These drifted apart
+      // once, and a scale computed from one box and applied to another is
+      // wrong everywhere and invisible on the demos that have no such box.
       await page.addStyleTag({
-        content: `div.min-h-screen > .mx-auto{${fit}}`,
+        content: `body > [data-page]{${fit}}`,
       });
     }
   }

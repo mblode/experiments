@@ -40,7 +40,6 @@ export const blocks: Record<
     ],
   },
   "shuffle-theme": {
-    preview: { zoom: 1.35 },
     name: "Theme shuffler",
     description: "Six cards that fade in and restyle to a random theme",
   },
@@ -147,6 +146,7 @@ export const blocks: Record<
     ],
   },
   status: {
+    preview: { zoom: 2.2 },
     name: "Status",
     description: "Emoji status picker that rewrites its own label",
     about: [

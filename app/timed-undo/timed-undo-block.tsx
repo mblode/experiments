@@ -91,12 +91,19 @@ const StaggeredText = ({
   const reduced = useReducedMotion();
 
   return (
-    // This position:relative is intentional. It prevents the text from layout shift
-    // The layout prop here ensures that text doesn't stretch too much
-    <motion.span className="relative block" layout>
+    // The width comes from an invisible complete copy of the label, never from
+    // the characters that are animating. `mode="popLayout"` takes the outgoing
+    // letters out of flow at once and brings the incoming ones back on a 12ms
+    // stagger, so anything measuring the animating copy grows letter by letter
+    // and the button chases it the whole way. Against a hidden copy the width
+    // changes exactly once, and the button's own layout animation crosses it
+    // in a single move.
+    <span className="relative block">
+      <span className="invisible whitespace-pre">{text}</span>
+
       {/* The visible copy is one span per character; the readable copy is
           exposed once on the button itself. */}
-      <span aria-hidden="true">
+      <span aria-hidden="true" className="absolute inset-0 whitespace-pre">
         <AnimatePresence initial={initialAnimationEnabled} mode="popLayout">
           {characters.map(({ char, key, order }) => {
             if (char === " ") {
@@ -124,7 +131,7 @@ const StaggeredText = ({
           })}
         </AnimatePresence>
       </span>
-    </motion.span>
+    </span>
   );
 };
 
