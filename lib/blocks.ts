@@ -11,6 +11,17 @@ export const blocks: Record<
      * run the demo, which is every crawler and a fair few readers.
      */
     about?: [string, string];
+    /**
+     * How the demo should present itself at `?preview`, the mode the gallery's
+     * capture script records. Only demos that need something other than the
+     * default need an entry.
+     *
+     * `width` clamps the column. A demo whose content fills the whole
+     * `max-w-4xl` has nothing for the recorder to scale into, and its clip
+     * comes out looking like a distant screenshot; a narrower measure is also
+     * closer to how it reads on a phone.
+     */
+    preview?: { width: number };
   }
 > = {
   "animated-button": {
@@ -26,6 +37,7 @@ export const blocks: Record<
     description: "Six cards that fade in and restyle to a random theme",
   },
   faq: {
+    preview: { width: 620 },
     name: "FAQ accordion",
     description: "Single-open FAQ accordion with a top-down text reveal",
     about: [
@@ -42,6 +54,7 @@ export const blocks: Record<
     ],
   },
   tabs: {
+    preview: { width: 620 },
     name: "Tab navigation",
     description: "Pill tabs with a highlight that slides between them",
     about: [
@@ -82,6 +95,7 @@ export const blocks: Record<
     description: "Date cards that expand one at a time to show details",
   },
   preview: {
+    preview: { width: 600 },
     name: "Preview block",
     description: "List rows that expand into a large image preview",
     about: [
@@ -131,6 +145,7 @@ export const blocks: Record<
     ],
   },
   table: {
+    preview: { width: 760 },
     name: "Table",
     description: "Tabbed data table with cells that roll in as a wave",
   },
@@ -143,6 +158,7 @@ export const blocks: Record<
     ],
   },
   "password-strength": {
+    preview: { width: 560 },
     name: "Password strength",
     description: "Password field with a three-bar strength metre",
     about: [

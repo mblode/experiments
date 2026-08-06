@@ -27,6 +27,23 @@ const WORK_DIR = path.join(os.tmpdir(), "experiments-previews");
 // mobile arrangement; the extra height just gives the fit transform more room
 // to centre into.
 const FRAME = { width: 1024, height: 1024 };
+
+/**
+ * Per-demo capture viewport. The fit transform cannot help a demo that pins
+ * something to the viewport or portals out of the column: a transform makes
+ * its subtree the containing block for fixed children, so the guard bails and
+ * the demo records at life size in a frame it does not fill. Shrinking the
+ * viewport instead scales everything, fixed layers and portals included,
+ * because the browser genuinely believes the screen is that small.
+ */
+const CAPTURE_FRAME: Record<string, number> = {
+  "ios-cards": 760,
+  markers: 760,
+  "omni-color-picker": 720,
+  "perfect-dnd": 620,
+  sheet: 560,
+  "shuffle-theme": 760,
+};
 const OUTPUT_WIDTH = 880;
 const OUTPUT_HEIGHT = 880;
 
@@ -86,27 +103,9 @@ const CURSOR_SCRIPT = `
 })();
 `;
 
-// The layout footer sits below the demo on every route. At 1200x630 (the OG
-// frame) it is off-screen; in a 4:3 frame it is not, and a gallery thumbnail
-// with an attribution link baked into it looks like a mistake. `nextjs-portal`
-// is the dev overlay, which is only present when capturing against `next dev`.
-const FRAME_CSS = `body > footer,nextjs-portal{display:none!important}`;
-
-/**
- * Vertical centring only — deliberately not the OG script's `CENTER_CSS`,
- * which also centres the inner column and so collapses a full-width demo to
- * shrink-to-fit. That is harmless in a screenshot of a resting state and
- * disastrous in a clip: an accordion measured at the width of "Is it fun?"
- * grows to the width of its answer the moment it opens.
- *
- * `div.` is load-bearing. `<body>` carries `min-h-screen` too, and putting
- * `align-items:center` on the column flex body stops its children stretching,
- * which shrink-wraps the entire page to the width of its longest word.
- */
-const CENTER_CSS = `
-  div.min-h-screen{display:flex!important;align-items:center!important;min-height:100vh!important}
-  div.min-h-screen > .mx-auto{width:100%!important}
-`;
+// `?preview` already hides the chrome and the attribution footer. This is the
+// Next dev overlay, which the app cannot know about.
+const FRAME_CSS = `nextjs-portal{display:none!important}`;
 
 /**
  * Every demo is laid out for a full page, so most of them occupy a fraction of
@@ -181,6 +180,9 @@ const easeInOut = (t: number): number =>
 const makeCursor = (page: Page) => {
   const FRAME_MS = 20;
   let at: Point = { x: FRAME.width / 2, y: FRAME.height + 40 };
+  const parkTo = (side: number) => {
+    at = { x: side / 2, y: side + 40 };
+  };
 
   const pointOf = async (target: Target): Promise<Point> => {
     if (!isLocator(target)) {
@@ -262,7 +264,7 @@ const makeCursor = (page: Page) => {
     await page.keyboard.type(text, { delay: 95 });
   };
 
-  return { click, drag, scrollTo, to, type, wait };
+  return { click, drag, parkTo, scrollTo, to, type, wait };
 };
 
 type Cursor = ReturnType<typeof makeCursor>;
@@ -571,20 +573,6 @@ const CHOREOGRAPH: Record<string, Routine> = {
 // Demos with no routine still need long enough on camera to show a cycle
 const AMBIENT_MS = 7000;
 
-/**
- * Demos whose content fills the whole `max-w-4xl` column have nothing for the
- * fit transform to scale into: the union is already as wide as the frame.
- * Narrowing the column during capture gives them room to be scaled up, and a
- * narrower measure is what these look like on a phone anyway.
- */
-const CAPTURE_WIDTH: Record<string, number> = {
-  faq: 620,
-  "password-strength": 560,
-  preview: 600,
-  table: 760,
-  tabs: 620,
-};
-
 const DEFAULT_MAX_ZOOM = 3;
 
 /**
@@ -618,17 +606,31 @@ const record = async (
   const dir = path.join(WORK_DIR, slug);
   await rm(dir, { force: true, recursive: true });
 
+  // Captured at 1024 unless the demo needs a smaller screen. The scale factor
+  // keeps the recorded surface at 1024 physical pixels either way, so a 560px
+  // capture is still downsampled into the output rather than blown up.
+  const side = CAPTURE_FRAME[slug] ?? FRAME.width;
+  const viewport = { height: side, width: side };
+  const scale = Math.max(1, Math.round((FRAME.width / side) * 2) / 2);
+
   const context = await browser.newContext({
     colorScheme: "light",
-    recordVideo: { dir, size: FRAME },
+    deviceScaleFactor: scale,
+    recordVideo: {
+      dir,
+      size: {
+        height: Math.round(side * scale),
+        width: Math.round(side * scale),
+      },
+    },
     reducedMotion: "no-preference",
-    viewport: FRAME,
+    viewport,
   });
   const page = await context.newPage();
   await page.addInitScript(CURSOR_SCRIPT);
 
   const startedAt = Date.now();
-  await openBlock(page, slug);
+  await openBlock(page, slug, "preview");
   await page.addStyleTag({ content: FRAME_CSS });
   // Short demos otherwise sit against the top edge with half a frame of empty
   // page beneath them. Anything taller than the frame is meant to scroll.
@@ -636,13 +638,6 @@ const record = async (
     () => document.documentElement.scrollHeight <= window.innerHeight + 32
   );
   if (fits) {
-    await page.addStyleTag({ content: CENTER_CSS });
-    const width = CAPTURE_WIDTH[slug];
-    if (width) {
-      await page.addStyleTag({
-        content: `div.min-h-screen > .mx-auto{max-width:${width}px!important}`,
-      });
-    }
     const fit = await page.evaluate<string | null>(
       FIT_SCRIPT(MAX_ZOOM[slug] ?? DEFAULT_MAX_ZOOM)
     );
@@ -656,6 +651,7 @@ const record = async (
 
   const headMs = Date.now() - startedAt;
   const cursor = makeCursor(page);
+  cursor.parkTo(side);
   const routine = CHOREOGRAPH[slug];
   // Best-effort: a selector that has drifted shouldn't abort the batch, and
   // the still clip it leaves behind is obvious on review.
