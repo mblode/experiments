@@ -1,15 +1,12 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { type ButtonHTMLAttributes, forwardRef } from "react";
+import type { ButtonHTMLAttributes, Ref } from "react";
 
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
-export const secondaryNavbarClassName =
-  "hover:bg-gray-200 active:bg-gray-300 dark:border-gray-700 dark:hover:bg-gray-750 dark:active:bg-gray-700";
-
 const buttonVariants = cva(
-  "relative inline-flex cursor-pointer select-none items-center justify-center whitespace-nowrap font-bold font-sans text-base transition-[color,background-color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50",
+  "relative inline-flex cursor-pointer select-none items-center justify-center whitespace-nowrap font-bold font-sans text-base transition-[color,background-color,border-color,transform] duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-2 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100",
   {
     variants: {
       variant: {
@@ -22,7 +19,7 @@ const buttonVariants = cva(
         ghost:
           "text-gray-700 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-300 dark:active:bg-gray-700 dark:hover:bg-gray-800",
         input:
-          "border border-input bg-input font-normal! text-base text-foreground focus:border-ring focus:border-ring focus:outline-hidden focus:ring-2 focus:ring-ring/15 focus:ring-offset-1 focus:ring-offset-background",
+          "border border-input bg-input font-normal! text-base text-foreground focus:border-ring focus:outline-hidden focus:ring-2 focus:ring-ring/15 focus:ring-offset-1 focus:ring-offset-background",
         link: "border border-transparent text-primary underline-offset-4 hover:underline",
         destructive:
           "border-red-600 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 dark:bg-red-500 dark:active:bg-red-300 dark:hover:bg-red-400",
@@ -45,11 +42,11 @@ const buttonVariants = cva(
           "border-page-secondary-button bg-page-secondary-button-background font-page-body! font-page-secondary-button-weight text-page-secondary-button-text shadow-page-secondary-button backdrop-blur-page-secondary-button hover:opacity-80",
       },
       size: {
-        lg: "h-12 rounded px-6 py-3",
-        default: "h-10 rounded px-4 py-2",
-        sm: "h-9 rounded px-4 py-2 text-sm",
-        xs: "h-[30px] rounded px-2 text-xs",
-        icon: "size-9",
+        lg: "h-12 rounded-xl px-6 py-3",
+        default: "h-10 rounded-xl px-4 py-2",
+        sm: "h-9 rounded-xl px-4 py-2 text-sm",
+        xs: "h-[30px] rounded-lg px-2 text-xs",
+        icon: "size-9 rounded-xl",
         block: "h-12 shrink-0 rounded-page-widget-block px-4 py-2 text-base",
         blockSm: "h-8 shrink-0 rounded-page-widget-block px-4 py-2 text-base",
       },
@@ -67,57 +64,62 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  ref?: Ref<HTMLButtonElement>;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    { className, variant, size, loading, asChild = false, disabled, ...props },
-    ref
-  ) => {
-    const Comp = asChild ? Slot : "button";
+const Button = ({
+  ref,
+  className,
+  variant,
+  size,
+  loading,
+  asChild = false,
+  disabled,
+  ...props
+}: ButtonProps) => {
+  const Comp = asChild ? Slot : "button";
 
-    if (loading) {
-      const { children, ...restProps } = props;
-
-      return (
-        <button
-          className={cn(
-            buttonVariants({ variant, size, className }),
-            "cursor-wait"
-          )}
-          disabled={true}
-          ref={ref}
-          type="button"
-          {...restProps}
-        >
-          <span
-            className="invisible opacity-0"
-            data-testid="button-is-loading-children"
-          >
-            {children}
-          </span>
-
-          <span
-            className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2"
-            data-testid="button-is-loading"
-          >
-            <Spinner size={20} strokeWidth={4} />
-          </span>
-        </button>
-      );
-    }
+  if (loading) {
+    const { children, ...restProps } = props;
 
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        disabled={disabled}
+      <button
+        aria-busy="true"
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          "cursor-wait"
+        )}
+        disabled={true}
         ref={ref}
-        {...props}
-      />
+        type="button"
+        {...restProps}
+      >
+        <span
+          className="invisible opacity-0"
+          data-testid="button-is-loading-children"
+        >
+          {children}
+        </span>
+
+        <span
+          className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2"
+          data-testid="button-is-loading"
+        >
+          <Spinner size={20} strokeWidth={4} />
+        </span>
+      </button>
     );
   }
-);
-Button.displayName = "Button";
+
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled}
+      ref={ref}
+      {...props}
+    />
+  );
+};
 
 const ButtonDiv = ({
   className,

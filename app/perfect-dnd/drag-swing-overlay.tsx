@@ -11,6 +11,8 @@ interface DragSwingOverlayProps {
 }
 
 export function DragSwingOverlay({ block }: DragSwingOverlayProps) {
+  // The rotation on the inner wrapper is written straight to `transform` by
+  // useDragSwing every frame, so nothing is declared for it here.
   const { overlayRef, scaleRef } = useDragSwing({
     sensitivity: 0.5,
     maxAngle: 20,
@@ -51,11 +53,7 @@ export function DragSwingOverlay({ block }: DragSwingOverlayProps) {
       >
         <div
           ref={overlayRef}
-          style={{
-            width: "100%",
-            transform: "rotate(var(--motion-rotate, 0deg))",
-            transformOrigin: "center center",
-          }}
+          style={{ width: "100%", transformOrigin: "center center" }}
         >
           <DragOverlayCard block={block} ref={measureRef} />
         </div>

@@ -2,13 +2,12 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef } from "react";
 import { type Object3D, Raycaster, Vector2, Vector3 } from "three";
 
-import { INITIAL_CAMERA_POSITION, useGame } from "../game";
-
-// Movement constants
-const BASE_SPEED = 30; // Starting forward speed (units per second)
-const SPEED_SCALE_POINTS = 500; // Points needed for each speed tier
-const SPEED_SCALE_MULTIPLIER = 1.2; // Speed multiplier per tier (20% increase)
-const MAX_SPEED = 150; // Maximum speed cap (units per second)
+import {
+  INITIAL_CAMERA_POSITION,
+  speedAtScore,
+  speedMultiplierAtScore,
+  useGame,
+} from "../game";
 
 // Combat constants
 const SHOT_COOLDOWN_MS = 200; // Milliseconds between shots
@@ -86,20 +85,13 @@ export const GameControls = () => {
       const hitPosition = intersects[0].point;
       const asteroidId = hitMesh.userData.asteroidId;
 
-      // Calculate current speed multiplier for scoring (use ref for latest value)
-      const speedTier = Math.max(0, scoreRef.current) / SPEED_SCALE_POINTS;
-      const currentSpeed = Math.min(
-        MAX_SPEED,
-        BASE_SPEED * SPEED_SCALE_MULTIPLIER ** speedTier
-      );
-      const speedMultiplier = currentSpeed / BASE_SPEED;
-
       // Handle asteroid destruction with batched state update
       handleAsteroidDestroyed(
         asteroidId,
         [hitPosition.x, hitPosition.y, hitPosition.z],
         now,
-        speedMultiplier
+        // Use the ref for the latest score, not the render-time closure
+        speedMultiplierAtScore(scoreRef.current)
       );
     }
   }, [camera, handleAsteroidDestroyed, isPlaying, scene, setLastShotTime]);
@@ -227,11 +219,7 @@ export const GameControls = () => {
     }
 
     // Progressive speed system - gets faster as score increases
-    const speedTier = Math.max(0, score) / SPEED_SCALE_POINTS;
-    const currentSpeed = Math.min(
-      MAX_SPEED,
-      BASE_SPEED * SPEED_SCALE_MULTIPLIER ** speedTier
-    );
+    const currentSpeed = speedAtScore(score);
 
     // Get camera forward direction
     const forward = new Vector3();

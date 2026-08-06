@@ -1,8 +1,13 @@
 "use client";
 
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon } from "blode-icons-react";
 import mergeRefs from "merge-refs";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "motion/react";
 import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import useMeasure from "react-use-measure";
@@ -14,8 +19,14 @@ const texts = [
   "Preface",
 ];
 
+const LETTER_STAGGER = 0.015;
+const CYCLE_MS = 2000;
+const DIM_DURATION_MS = 2000;
+
 /**
- * Hook to cycle through texts automatically
+ * Hook to cycle through texts automatically. The interval only runs while the
+ * pill is on screen, so four timers are not ticking on a page nobody is looking
+ * at.
  */
 function useTextLoop(): [string, React.RefObject<HTMLElement | null>] {
   const [active, setActive] = useState(texts[0]);
@@ -32,7 +43,7 @@ function useTextLoop(): [string, React.RefObject<HTMLElement | null>] {
         const nextIndex = (index + 1) % texts.length;
         return texts[nextIndex];
       });
-    }, 2000);
+    }, CYCLE_MS);
     return () => clearInterval(interval);
   }, [isInView]);
 
@@ -45,25 +56,42 @@ function useTextLoop(): [string, React.RefObject<HTMLElement | null>] {
 export const StaggeredFadeBlock = () => {
   const [measureRef, bounds] = useMeasure();
   const [activeText, loopRef] = useTextLoop();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isDimmed, setIsDimmed] = useState(false);
+  const reduced = useReducedMotion();
+  const dimTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleCollapse = () => {
-    setIsExpanded(false);
-    setTimeout(() => setIsExpanded(true), 2000);
+  useEffect(
+    () => () => {
+      if (dimTimer.current) {
+        clearTimeout(dimTimer.current);
+      }
+    },
+    []
+  );
+
+  const handleDim = () => {
+    if (dimTimer.current) {
+      clearTimeout(dimTimer.current);
+    }
+    setIsDimmed(true);
+    dimTimer.current = setTimeout(() => setIsDimmed(false), DIM_DURATION_MS);
+  };
+
+  const enterSpring = {
+    type: "spring" as const,
+    stiffness: 350,
+    damping: 55,
   };
 
   return (
     <div className="relative">
-      <div className="relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-gray-200 bg-white px-4 py-2 shadow-lg">
-        {/* Container with dynamic width */}
+      <div className="relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-border bg-card px-4 py-2 shadow-sm">
+        {/* Container springs to the measured width of the next phrase, so it
+            never snaps to the new size before the letters arrive. */}
         <motion.div
           animate={{ width: bounds.width > 0 ? bounds.width : "auto" }}
           className="flex items-center gap-3"
-          transition={{
-            type: "spring",
-            stiffness: 350,
-            damping: 55,
-          }}
+          transition={reduced ? { duration: 0 } : enterSpring}
         >
           {/* Content that gets measured */}
           <div
@@ -71,35 +99,45 @@ export const StaggeredFadeBlock = () => {
             ref={mergeRefs(measureRef, loopRef) as React.Ref<HTMLDivElement>}
           >
             {/* Static checkmark */}
-            <div className="flex size-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-white">
-              <CheckIcon className="size-4" />
+            <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <CheckIcon aria-hidden="true" className="size-4" />
             </div>
 
-            {/* Animated text */}
-            <div className="font-medium text-gray-900 text-sm">
+            {/* Animated text. Split into per-letter spans, so the readable copy
+                is exposed once rather than one character at a time. */}
+            <div className="font-medium text-foreground text-sm">
+              <span className="sr-only">{activeText}</span>
               <AnimatePresence initial={false} mode="popLayout">
-                <span className="inline-flex" key={activeText}>
+                <span
+                  aria-hidden="true"
+                  className="inline-flex"
+                  key={activeText}
+                >
                   {activeText.split("").map((letter, index) => (
                     <motion.span
                       animate={{
-                        opacity: isExpanded ? 1 : 0.7,
-                        filter: isExpanded ? "blur(0px)" : "blur(0.5px)",
-                        transition: {
-                          type: "spring",
-                          stiffness: 350,
-                          damping: 55,
-                          delay: index * 0.015,
-                        },
+                        opacity: isDimmed ? 0.7 : 1,
+                        filter: isDimmed ? "blur(0.5px)" : "blur(0px)",
+                        transition: reduced
+                          ? { duration: 0 }
+                          : {
+                              ...enterSpring,
+                              delay: index * LETTER_STAGGER,
+                            },
                       }}
                       className="inline-block"
+                      // Faster and blurrier than the entrance: the outgoing word
+                      // has to clear before the incoming one is legible.
                       exit={{
                         opacity: 0,
                         filter: "blur(2px)",
-                        transition: {
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 55,
-                        },
+                        transition: reduced
+                          ? { duration: 0 }
+                          : {
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 55,
+                            },
                       }}
                       initial={{
                         opacity: 0,
@@ -117,17 +155,19 @@ export const StaggeredFadeBlock = () => {
         </motion.div>
 
         {/* Email section */}
-        <div className="z-10 flex flex-shrink-0 items-center gap-1 text-gray-600 text-sm">
+        <div className="z-10 flex shrink-0 items-center gap-1 text-muted-foreground text-sm">
           <span className="select-none">yo@rauno.me</span>
-          {isExpanded && (
-            <button
-              className="rounded p-0.5 transition-colors hover:bg-gray-100"
-              onClick={handleCollapse}
-              type="button"
-            >
-              <ChevronsUpDownIcon className="size-3 text-gray-400" />
-            </button>
-          )}
+          {/* Kept mounted rather than unmounted while dimmed, so activating it
+              does not throw focus back to the document. */}
+          <button
+            aria-label="Preview the dimmed state"
+            aria-pressed={isDimmed}
+            className="rounded-md p-0.5 text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            onClick={handleDim}
+            type="button"
+          >
+            <ChevronsUpDownIcon aria-hidden="true" className="size-3" />
+          </button>
         </div>
       </div>
     </div>

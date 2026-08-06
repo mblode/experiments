@@ -5,7 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
-} from "lucide-react";
+} from "blode-icons-react";
 import {
   animate,
   type MotionValue,
@@ -173,7 +173,7 @@ const CORNER_NUDGES = [
  * 2.5.5 target without changing how the button looks.
  */
 const NUDGE_BUTTON_CLASS =
-  "absolute flex size-9 items-center justify-center rounded-xl bg-white/80 text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] backdrop-blur-md transition-colors before:absolute before:-inset-1 before:content-[''] hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-blue-500";
+  "absolute flex size-9 items-center justify-center rounded-xl bg-white/80 text-neutral-400 shadow-[0_1px_3px_rgb(0_0_0/0.08)] backdrop-blur-md transition-colors duration-200 before:absolute before:-inset-1 before:content-[''] hover:bg-white hover:text-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-neutral-100 active:text-neutral-900";
 
 export const ColorGridPanel = ({ ox, oy, center }: Props) => {
   const [measureRef, bounds] = useMeasure();
@@ -560,7 +560,12 @@ export const ColorGridPanel = ({ ox, oy, center }: Props) => {
           aria-valuemin={0}
           aria-valuenow={wrap(center.s, SHADES)}
           aria-valuetext={`hue ${wrap(center.h, HUES) + 1} of ${HUES}, shade ${wrap(center.s, SHADES) + 1} of ${SHADES}`}
-          className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl focus-visible:outline-2 focus-visible:outline-blue-500 active:cursor-grabbing"
+          /*
+           * The ring is drawn inside and at 3px because this layer is scaled
+           * (~0.65 at max-w-md, ~0.52 on a phone): an outside 2px outline lands
+           * at ~1.3px and half of it falls outside the panel's own rounding.
+           */
+          className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl focus-visible:-outline-offset-[3px] focus-visible:outline-[3px] focus-visible:outline-blue-500 active:cursor-grabbing"
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}

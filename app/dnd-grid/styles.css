@@ -1,0 +1,114 @@
+/* Scoped to `.dnd-grid-demo`. @dnd-grid/react ships its theme as `:root` custom
+   properties, so re-declaring them on the demo root retints the whole grid
+   without touching the global tokens in app/globals.css.
+
+   The blocks used to inherit the library default of `--background` on
+   `--dnd-grid-item-bg`, which is white cards on a white page: in a still frame
+   the grid was invisible and a drag read as nothing moving. The fix is
+   tone-led — a recessed muted board behind raised `--card` tiles — rather than
+   piling on shadow. */
+
+.dnd-grid-demo {
+  /* One tone ladder off --foreground, so both themes get the same separation
+     without a second set of colours. */
+  --board-tone: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --edge-rest: color-mix(in oklab, var(--foreground) 15%, transparent);
+  --edge-hover: color-mix(in oklab, var(--foreground) 28%, transparent);
+  --edge-held: color-mix(in oklab, var(--foreground) 40%, transparent);
+
+  /* 24px was rounder than a two-row (64px tall) block can carry. */
+  --dnd-grid-radius: 16px;
+  --dnd-grid-transition-duration: 0.22s;
+  /* Blocks reflowing around the dragged one is movement within the screen. */
+  --dnd-grid-transition-easing: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --dnd-grid-item-bg: var(--card);
+  --dnd-grid-item-color: var(--card-foreground);
+  --dnd-grid-item-border-color: var(--edge-rest);
+  --dnd-grid-item-shadow:
+    0 1px 2px oklch(0 0 0 / 6%), 0 1px 1px oklch(0 0 0 / 4%);
+  --dnd-grid-item-font-size: 0.875rem;
+  --dnd-grid-item-font-weight: 500;
+
+  /* The hole the block will drop into, read as a recess in the board. */
+  --dnd-grid-placeholder-bg: color-mix(
+    in oklab,
+    var(--foreground) 9%,
+    transparent
+  );
+  --dnd-grid-placeholder-shadow: inset 0 1px 2px
+    color-mix(in oklab, var(--foreground) 10%, transparent);
+
+  --dnd-grid-handle-size: 14px;
+  --dnd-grid-handle-bg: var(--background);
+  --dnd-grid-handle-shadow:
+    0 0 0 1.5px color-mix(in oklab, var(--foreground) 32%, transparent),
+    0 1px 3px oklch(0 0 0 / 12%);
+}
+
+/* The board the tiles sit on. Without it they are white cards on a white page
+   and a drag reads as nothing happening. */
+.dnd-grid-board {
+  background: var(--board-tone);
+  border: 1px solid var(--border);
+  /* Concentric with the tiles: 16px padding + their 16px radius. */
+  border-radius: 32px;
+  padding: 16px;
+}
+
+.dnd-grid-demo .dnd-grid-item-content {
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dnd-grid-demo .dnd-grid-item-content:hover {
+    border-color: var(--edge-hover);
+  }
+}
+
+.dnd-grid-demo .dnd-grid-item-content:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Picked up or being resized: lift it clear of the board. */
+.dnd-grid-demo .dnd-grid-item-content.dnd-draggable-dragging,
+.dnd-grid-demo .dnd-grid-item-content.resizing {
+  border-color: var(--edge-held);
+  box-shadow:
+    0 12px 24px -8px oklch(0 0 0 / 14%),
+    0 4px 8px -4px oklch(0 0 0 / 10%);
+}
+
+/* Placeholder for the grid before its container has been measured. */
+.dnd-grid-skeleton {
+  width: 100%;
+  border: 1px dashed var(--edge-rest);
+  border-radius: 12px;
+}
+
+.dnd-grid-demo .dnd-grid-item > .react-resizable-handle {
+  transition: opacity 150ms ease;
+}
+
+/* The library reveals the corner handles on hover only, which leaves keyboard
+   users with no way to see what the arrow keys are about to resize. */
+.dnd-grid-demo .dnd-grid-item:focus-visible > .react-resizable-handle,
+.dnd-grid-demo .dnd-grid-item:focus-within > .react-resizable-handle {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The library reads the same preference for its own reflow animation; this
+     covers the CSS transitions it drives off the custom property. */
+  .dnd-grid-demo {
+    --dnd-grid-transition-duration: 0.01ms;
+  }
+
+  .dnd-grid-demo .dnd-grid-item-content,
+  .dnd-grid-demo .dnd-grid-item > .react-resizable-handle {
+    transition: none;
+  }
+}

@@ -1,6 +1,11 @@
 "use client";
 
-import { BarChart3, Receipt, Users, Wallet } from "lucide-react";
+import {
+  Chart3Icon,
+  ReceiptBillIcon,
+  Users,
+  Wallet1Icon,
+} from "blode-icons-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -16,7 +21,7 @@ export const TabsBlock = () => {
           >
             {TABS.map((tab) => (
               <TabsTrigger
-                className="flex flex-shrink-0 items-center gap-2 rounded-full px-4"
+                className="flex h-10 flex-shrink-0 items-center gap-2 rounded-full px-4"
                 key={tab.value}
                 value={tab.value}
               >
@@ -29,11 +34,13 @@ export const TabsBlock = () => {
 
         {TABS.map((tab) => (
           <TabsContent
-            className="mt-6 rounded-3xl border border-border py-8 text-center"
+            className="mt-6 rounded-2xl border border-border py-8 text-center"
             key={tab.value}
             value={tab.value}
           >
-            <p className="text-gray-600">Content for {tab.name}</p>
+            <p className="text-muted-foreground text-sm">
+              Content for {tab.name}
+            </p>
           </TabsContent>
         ))}
       </Tabs>
@@ -45,21 +52,21 @@ const TABS = [
   {
     name: "Payments",
     value: "payments",
-    icon: <Wallet className="h-4 w-4" />,
+    icon: <Wallet1Icon aria-hidden className="size-4" />,
   },
   {
     name: "Balances",
     value: "balances",
-    icon: <BarChart3 className="h-4 w-4" />,
+    icon: <Chart3Icon aria-hidden className="size-4" />,
   },
   {
     name: "Customers",
     value: "customers",
-    icon: <Users className="h-4 w-4" />,
+    icon: <Users aria-hidden className="size-4" />,
   },
   {
     name: "Billing",
     value: "billing",
-    icon: <Receipt className="h-4 w-4" />,
+    icon: <ReceiptBillIcon aria-hidden className="size-4" />,
   },
 ];

@@ -12,6 +12,7 @@ import {
   type HTMLMotionProps,
   motion,
   type Transition,
+  useReducedMotion,
 } from "motion/react";
 import {
   type ComponentProps,
@@ -24,6 +25,14 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+
+// ~270ms to settle: fast enough for ANIMATION.md's 0.2-0.3s window while
+// still reading as a spring rather than a tween.
+const DEFAULT_TRANSITION: Transition = {
+  type: "spring",
+  stiffness: 300,
+  damping: 30,
+};
 
 interface AccordionItemContextType {
   isOpen: boolean;
@@ -77,12 +86,14 @@ function AccordionTrigger({
   ref,
   className,
   children,
-  transition = { type: "spring", stiffness: 150, damping: 22 },
+  transition = DEFAULT_TRANSITION,
   ...props
 }: AccordionTriggerProps) {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   useImperativeHandle(ref, () => triggerRef.current as HTMLButtonElement);
   const { isOpen, setIsOpen } = useAccordionItem();
+  const shouldReduceMotion = useReducedMotion();
+  const iconTransition = shouldReduceMotion ? { duration: 0 } : transition;
 
   useEffect(() => {
     const node = triggerRef.current;
@@ -113,7 +124,7 @@ function AccordionTrigger({
     <AccordionHeader className="flex">
       <AccordionTriggerPrimitive
         className={cn(
-          "flex flex-1 cursor-pointer items-start justify-between gap-4 rounded-md py-4 text-left font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50",
+          "group flex flex-1 cursor-pointer items-start justify-between gap-4 rounded-md py-4 text-left font-medium text-sm outline-none transition-[color,opacity] duration-200 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",
           className
         )}
         data-slot="accordion-trigger"
@@ -121,17 +132,20 @@ function AccordionTrigger({
         {...props}
       >
         {children}
-        <div className="relative flex h-4 w-4 shrink-0 items-center justify-center">
+        <div
+          aria-hidden
+          className="relative mt-0.5 flex size-4 shrink-0 items-center justify-center text-muted-foreground transition-colors duration-200 group-hover:text-foreground motion-reduce:transition-none"
+        >
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
-            className="pointer-events-none absolute h-0.5 w-4 rounded-full bg-foreground"
-            transition={transition}
+            className="pointer-events-none absolute h-0.5 w-4 rounded-full bg-current"
+            transition={iconTransition}
           />
           <motion.div
             animate={{ scale: isOpen ? 0 : 1, rotateZ: isOpen ? 80 : 0 }}
-            className="pointer-events-none absolute h-4 w-0.5 rounded-full bg-foreground"
+            className="pointer-events-none absolute h-4 w-0.5 rounded-full bg-current"
             style={{ transformOrigin: "center" }}
-            transition={transition}
+            transition={iconTransition}
           />
         </div>
       </AccordionTriggerPrimitive>
@@ -147,15 +161,19 @@ type AccordionContentProps = ComponentProps<typeof AccordionContentPrimitive> &
 function AccordionContent({
   className,
   children,
-  transition = { type: "spring", stiffness: 150, damping: 22 },
+  transition = DEFAULT_TRANSITION,
   ...props
 }: AccordionContentProps) {
   const { isOpen } = useAccordionItem();
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <AccordionContentPrimitive forceMount {...props}>
+        <AccordionContentPrimitive forceMount>
+          {/* Height is tweened deliberately: CSS cannot animate to `auto`, and
+              the gradient mask riding alongside it is what reveals the answer
+              top-down instead of sliding it up behind a clipped edge. */}
           <motion.div
             animate={{ height: "auto", opacity: 1, "--mask-stop": "100%" }}
             className="overflow-hidden"
@@ -169,10 +187,15 @@ function AccordionContent({
               WebkitMaskImage:
                 "linear-gradient(black var(--mask-stop), transparent var(--mask-stop))",
             }}
-            transition={transition}
+            transition={shouldReduceMotion ? { duration: 0 } : transition}
             {...props}
           >
-            <div className={cn("pt-0 pb-4 text-sm leading-[1.5]", className)}>
+            <div
+              className={cn(
+                "pt-0 pb-6 text-muted-foreground text-sm leading-relaxed",
+                className
+              )}
+            >
               {children}
             </div>
           </motion.div>

@@ -25,7 +25,6 @@ const nowLocalISO = () => {
   const d = new Date();
   // round to minute
   d.setSeconds(0, 0);
-  const _tz = -d.getTimezoneOffset();
   const pad = (n: number) => String(n).padStart(2, "0");
   const iso = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   return iso;
@@ -41,16 +40,37 @@ const useStore = create<Store>((set) => ({
   set,
 }));
 
+/**
+ * Two-hour increments either side of now, formatted for display and, in words,
+ * for the range input's `aria-valuetext` — the raw value is a count of
+ * increments, which announces as a meaningless number on its own.
+ */
+const formatOffset = (totalHours: number) => {
+  if (totalHours === 0) {
+    return { text: "Now", spoken: "now" };
+  }
+  const days = Math.floor(Math.abs(totalHours) / 24);
+  const hours = Math.abs(totalHours) % 24;
+  const parts: string[] = [];
+  if (days > 0) {
+    parts.push(`${days}d`);
+  }
+  if (hours > 0 || days === 0) {
+    parts.push(`${hours}h`);
+  }
+  const magnitude = parts.join(" ");
+  const ahead = totalHours > 0;
+  return {
+    text: `${ahead ? "+" : "−"}${magnitude}`,
+    spoken: `${magnitude.replace("d", " days").replace("h", " hours")} ${
+      ahead ? "ahead" : "behind"
+    }`,
+  };
+};
+
 export const MoonBlock = () => {
-  const {
-    lat,
-    lon,
-    datetimeLocal,
-    speed: _speed,
-    locationStatus,
-    locationName,
-    set,
-  } = useStore();
+  const { lat, lon, datetimeLocal, locationStatus, locationName, set } =
+    useStore();
   const [scrubIncrement, setScrubIncrement] = useState(0); // In 2-hour increments
 
   // Request geolocation on component mount
@@ -92,10 +112,6 @@ export const MoonBlock = () => {
     );
   }, [locationStatus, set]);
 
-  const _requestLocation = () => {
-    set({ locationStatus: "unknown" });
-  };
-
   const baseDate = useMemo(() => new Date(datetimeLocal), [datetimeLocal]);
   const date = useMemo(() => {
     const d = new Date(baseDate);
@@ -105,9 +121,7 @@ export const MoonBlock = () => {
     return d;
   }, [baseDate, scrubIncrement]);
 
-  const totalScrubHours = scrubIncrement * 2;
-  const scrubDays = Math.floor(Math.abs(totalScrubHours) / 24);
-  const scrubHours = Math.abs(totalScrubHours) % 24;
+  const offset = formatOffset(scrubIncrement * 2);
 
   const inputs: Inputs = useMemo(() => ({ date, lat, lon }), [date, lat, lon]);
   const sol = useMemo(() => {
@@ -131,64 +145,72 @@ export const MoonBlock = () => {
 
   return (
     <>
+      {/*
+       * The scene is a canvas, so every number behind it is invisible to a
+       * screen reader. This is the whole demo in text.
+       */}
+      <p className="sr-only">
+        {sol.phaseName}, {Math.round(sol.illumFraction * 100)}% illuminated,
+        seen from {locationName}
+        {scrubIncrement === 0 ? " now" : `, ${offset.spoken}`}.
+      </p>
+
       <div className="controls">
         <div>
-          <label htmlFor="time-travel-input">
-            Time Travel:{" "}
-            {totalScrubHours >= 0 ? `+${totalScrubHours}` : totalScrubHours}h (
-            {(() => {
-              if (scrubDays > 0) {
-                return `+${scrubDays}d ${scrubHours}h`;
-              }
-              if (scrubDays < 0) {
-                return `-${scrubDays}d ${scrubHours}h`;
-              }
-              return `${scrubHours}h`;
-            })()}
-            )
-          </label>
+          <div className="controls-row">
+            <label htmlFor="time-travel-input">Time travel</label>
+            <span className="controls-value">{offset.text}</span>
+            <button
+              className="controls-reset"
+              disabled={scrubIncrement === 0}
+              onClick={() => setScrubIncrement(0)}
+              type="button"
+            >
+              Reset
+            </button>
+          </div>
+
           <input
+            aria-valuetext={offset.spoken}
             id="time-travel-input"
-            max={+360}
-            min={-360} // -30 days in 2-hour increments
-            onChange={(e) => setScrubIncrement(Number(e.target.value))} // +30 days in 2-hour increments
-            style={{ width: "100%" }}
+            // ±360 two-hour increments, so ±30 days either side of now.
+            max={360}
+            min={-360}
+            onChange={(e) => setScrubIncrement(Number(e.target.value))}
             type="range"
             value={scrubIncrement}
           />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "10px",
-              opacity: 0.7,
-              marginTop: "2px",
-            }}
-          >
-            <span>-30 days</span>
+
+          <div aria-hidden="true" className="controls-ticks">
+            <span>−30 days</span>
             <span>Now</span>
             <span>+30 days</span>
           </div>
         </div>
 
         <div className="readout">
-          <div
-            style={{
-              fontSize: "14px",
-              margin: "8px 0 4px",
-              fontWeight: "bold",
-            }}
-          >
-            📍<strong> Location:</strong> {locationName}
+          <div className="readout-line">
+            <span className="readout-label">Location</span>
+            <span className="readout-value">{locationName}</span>
           </div>
-          <div
-            style={{
-              fontSize: "14px",
-              margin: "8px 0 4px",
-              fontWeight: "bold",
-            }}
-          >
-            {sol.phaseEmoji} <strong>{sol.phaseName}</strong>
+          <div className="readout-line">
+            <span className="readout-label">Phase</span>
+            <span className="readout-value">
+              <span aria-hidden="true">{sol.phaseEmoji} </span>
+              {sol.phaseName}
+            </span>
+          </div>
+          <div className="readout-line">
+            <span className="readout-label">Illuminated</span>
+            <span className="readout-value">
+              {Math.round(sol.illumFraction * 100)}%
+            </span>
+          </div>
+          <div className="readout-line">
+            <span className="readout-label">Distance</span>
+            <span className="readout-value">
+              {Math.round(sol.distanceKm).toLocaleString("en-AU")} km
+            </span>
           </div>
         </div>
       </div>

@@ -1,38 +1,51 @@
 "use client";
 
-import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
-import React, { useEffect, useState } from "react";
+import {
+  AnimatePresence,
+  type HTMLMotionProps,
+  motion,
+  useReducedMotion,
+} from "motion/react";
+import {
+  Children,
+  isValidElement,
+  type MouseEvent,
+  type ReactNode,
+  type Ref,
+  useState,
+} from "react";
 
 import { cn } from "@/lib/utils";
 
 interface AnimatedSubscribeButtonProps extends Omit<
   HTMLMotionProps<"button">,
-  "ref"
+  "ref" | "children"
 > {
   subscribeStatus?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
+  ref?: Ref<HTMLButtonElement>;
 }
 
-export const AnimatedSubscribeButton = React.forwardRef<
-  HTMLButtonElement,
-  AnimatedSubscribeButtonProps
->(({ subscribeStatus, onClick, className, children, ...props }, ref) => {
-  const isControlled = subscribeStatus !== undefined; // controlled vs uncontrolled check
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(
-    subscribeStatus ?? false
-  );
+export const AnimatedSubscribeButton = ({
+  ref,
+  subscribeStatus,
+  onClick,
+  className,
+  children,
+  ...props
+}: AnimatedSubscribeButtonProps) => {
+  const isControlled = subscribeStatus !== undefined;
+  const [uncontrolledStatus, setUncontrolledStatus] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    if (isControlled && subscribeStatus !== undefined) {
-      setIsSubscribed(subscribeStatus);
-    }
-  }, [subscribeStatus, isControlled]);
+  // One source of truth: the prop wins when controlled, otherwise local state.
+  const isSubscribed = isControlled ? subscribeStatus : uncontrolledStatus;
 
   if (
-    React.Children.count(children) !== 2 ||
-    !React.Children.toArray(children).every(
-      (child) => React.isValidElement(child) && child.type === "span"
+    Children.count(children) !== 2 ||
+    !Children.toArray(children).every(
+      (child) => isValidElement(child) && child.type === "span"
     )
   ) {
     throw new Error(
@@ -40,69 +53,58 @@ export const AnimatedSubscribeButton = React.forwardRef<
     );
   }
 
-  const childrenArray = React.Children.toArray(children);
-  const initialChild = childrenArray[0];
-  const changeChild = childrenArray[1];
+  const [initialChild, changeChild] = Children.toArray(children);
+
+  // The subscribed label drops in from above, the follow label slides out to
+  // the right; going back plays the same two paths in reverse.
+  const offscreen = isSubscribed
+    ? { y: -40, opacity: 0 }
+    : { x: 40, opacity: 0 };
 
   return (
-    <AnimatePresence mode="wait">
-      {isSubscribed ? (
-        <motion.button
-          animate={{ opacity: 1 }}
-          className={cn(
-            "relative flex h-10 w-fit items-center justify-center overflow-hidden rounded-lg bg-primary px-6 text-primary-foreground",
-            className
-          )}
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
-          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-            if (!isControlled) {
-              setIsSubscribed(false); // Only toggle manually if uncontrolled
-            }
-            onClick?.(e);
-          }}
-          ref={ref}
-          {...props}
-        >
-          <motion.span
-            animate={{ y: 0 }}
-            className="relative flex h-full w-full items-center justify-center font-semibold"
-            initial={{ y: -50 }}
-            key="action"
-          >
-            {changeChild} {/* Use children for subscribed state */}
-          </motion.span>
-        </motion.button>
-      ) : (
-        <motion.button
-          animate={{ opacity: 1 }}
-          className={cn(
-            "relative flex h-10 w-fit cursor-pointer items-center justify-center rounded-lg border-none bg-primary px-6 text-primary-foreground",
-            className
-          )}
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
-          onClick={(e) => {
-            if (!isControlled) {
-              setIsSubscribed(true); // Only toggle manually if uncontrolled
-            }
-            onClick?.(e);
-          }}
-          ref={ref}
-          {...props}
-        >
-          <motion.span
-            className="relative flex items-center justify-center font-semibold"
-            exit={{ x: 50, transition: { duration: 0.1 } }}
-            initial={{ x: 0 }}
-            key="reaction"
-          >
-            {initialChild} {/* Use children for unsubscribed state */}
-          </motion.span>
-        </motion.button>
+    <motion.button
+      className={cn(
+        "group relative flex h-10 w-fit cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary px-6 font-semibold text-primary-foreground transition-[background-color,transform] duration-150 hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-2 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100",
+        className
       )}
-    </AnimatePresence>
+      onClick={(event: MouseEvent<HTMLButtonElement>) => {
+        if (!isControlled) {
+          setUncontrolledStatus((current) => !current);
+        }
+        onClick?.(event);
+      }}
+      ref={ref}
+      type="button"
+      {...props}
+    >
+      {/* One persistent button, so focus survives the toggle and only the
+          label is swapped. */}
+      <AnimatePresence initial={false} mode="wait">
+        <motion.span
+          animate={{ x: 0, y: 0, opacity: 1 }}
+          className="flex items-center justify-center"
+          exit={
+            shouldReduceMotion
+              ? { opacity: 0, transition: { duration: 0 } }
+              : {
+                  ...offscreen,
+                  transition: {
+                    duration: 0.12,
+                    ease: [0.55, 0.085, 0.68, 0.53],
+                  },
+                }
+          }
+          initial={shouldReduceMotion ? { opacity: 0 } : offscreen}
+          key={isSubscribed ? "subscribed" : "follow"}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 420, damping: 34 }
+          }
+        >
+          {isSubscribed ? changeChild : initialChild}
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
   );
-});
-
-AnimatedSubscribeButton.displayName = "AnimatedSubscribeButton";
+};

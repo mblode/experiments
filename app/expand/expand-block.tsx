@@ -1,6 +1,12 @@
 "use client";
-import { LayoutGroup, motion } from "motion/react";
-import { useState } from "react";
+import { LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { useId, useState } from "react";
+
+import { cn } from "@/lib/utils";
+
+// ease-out-quart from ANIMATION.md. The height tween is the deliberate
+// container-resize exception; everything else stays on transform/opacity.
+const EASE_OUT: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 
 interface DateCardProps {
   day: number;
@@ -9,79 +15,70 @@ interface DateCardProps {
 }
 
 function DateCard({ day, isExpanded, onToggle }: DateCardProps) {
+  const reduced = useReducedMotion();
+  const detailId = useId();
+  const duration = reduced ? 0 : 0.28;
+
   return (
     <motion.div
       className="w-64"
       initial={false}
       layout
-      transition={{ layout: { duration: 0.3, ease: "easeOut" } }}
+      transition={{ layout: { duration, ease: EASE_OUT } }}
     >
       <div className="flex flex-col">
         {/* Main card container */}
-        <motion.div
-          animate={{
-            height: isExpanded ? 160 : 64,
-            backgroundColor: isExpanded ? "#001f3f" : "#ffffff",
-          }}
-          className="relative flex w-64 cursor-pointer items-center justify-center overflow-hidden rounded-2xl shadow-lg"
+        <motion.button
+          animate={{ height: isExpanded ? 160 : 64 }}
+          aria-controls={detailId}
+          aria-expanded={isExpanded}
+          className={cn(
+            "relative flex w-64 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-border transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+            isExpanded ? "bg-primary" : "bg-card hover:bg-muted"
+          )}
           initial={false}
           onClick={onToggle}
           transition={{
-            height: { duration: 0.3, ease: "easeOut" },
-            backgroundColor: { duration: 0.4, ease: "easeOut" },
-            opacity: { duration: 0.2, ease: "easeOut" },
-            scale: { duration: 0.15 },
+            height: { duration, ease: EASE_OUT },
+            scale: { duration: reduced ? 0 : 0.12, ease: EASE_OUT },
           }}
-          whileHover={isExpanded ? {} : { scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          type="button"
+          whileHover={reduced || isExpanded ? undefined : { scale: 1.02 }}
+          whileTap={reduced ? undefined : { scale: 0.98 }}
         >
-          {/* Text with transform for position */}
-          <motion.h2
-            animate={{
-              fontSize: isExpanded ? "5rem" : "1.5rem",
-              color: isExpanded ? "#ffffff" : "#001f3f",
-            }}
-            className="absolute m-0 font-extrabold"
+          {/* Absolutely positioned so the type resize never reflows the card */}
+          <motion.span
+            animate={{ fontSize: isExpanded ? "5rem" : "1.5rem" }}
+            className={cn(
+              "absolute font-extrabold leading-none tracking-tight transition-colors duration-150",
+              isExpanded ? "text-primary-foreground" : "text-foreground"
+            )}
             initial={false}
-            style={{
-              lineHeight: 1,
-            }}
-            transition={{
-              fontSize: { duration: 0.3, ease: "easeOut" },
-              color: { duration: 0.15, ease: "easeOut" },
-            }}
+            transition={{ fontSize: { duration, ease: EASE_OUT } }}
           >
             {day}
-          </motion.h2>
-        </motion.div>
+          </motion.span>
+        </motion.button>
 
-        {/* Secondary info card */}
+        {/* Secondary info card, revealed by the clip rather than by moving */}
         <motion.div
-          animate={{
-            height: isExpanded ? 48 : 0,
-            marginTop: isExpanded ? 8 : 0,
-          }}
+          animate={{ height: isExpanded ? 48 : 0 }}
           className="overflow-hidden"
-          initial={{ height: 0, marginTop: 0 }}
-          transition={{
-            duration: 0.3,
-            ease: "easeOut",
-          }}
+          id={detailId}
+          initial={false}
+          transition={{ duration, ease: EASE_OUT }}
         >
           <motion.p
-            animate={{
-              opacity: isExpanded ? 1 : 0,
-              y: isExpanded ? 0 : -10,
-            }}
-            className="box-border flex h-10 w-64 cursor-pointer items-center justify-center rounded-xl bg-white p-2 text-black shadow-md"
-            initial={{ opacity: 0, y: -10 }}
-            onClick={onToggle}
+            animate={{ opacity: isExpanded ? 1 : 0 }}
+            className="mt-2 flex h-10 w-64 items-center justify-center rounded-xl border border-border bg-card px-3 text-foreground text-sm"
+            initial={false}
             transition={{
-              duration: 0.2,
-              delay: isExpanded ? 0.15 : 0,
+              duration: reduced ? 0 : 0.18,
+              delay: isExpanded && !reduced ? 0.1 : 0,
+              ease: EASE_OUT,
             }}
           >
-            Day {day} - Today is clear
+            Day {day} — today is clear
           </motion.p>
         </motion.div>
       </div>
@@ -98,10 +95,11 @@ export const ExpandBlock = () => {
   };
 
   return (
-    <div className="p-8 font-sans">
-      <p className="mb-8 text-center">
-        Click on any date to expand it. Click another date to switch.
+    <div className="py-8">
+      <p className="mb-8 text-center text-muted-foreground text-sm">
+        Select a date to expand it. Selecting another switches.
       </p>
+
       <LayoutGroup>
         <motion.div
           className="flex flex-col items-center gap-4"

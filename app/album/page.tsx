@@ -1,6 +1,7 @@
 import { Header } from "@/components/ui/header";
 import { getExperimentMetadata } from "@/lib/seo";
 
+import "./styles.css";
 import { AlbumBlock } from "./album-block";
 
 export const metadata = getExperimentMetadata("album");

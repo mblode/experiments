@@ -13,6 +13,17 @@ export function DitherBlock() {
   return (
     <GameProvider>
       <UI />
+
+      {/* The scene is WebGL, so nothing in it reaches the accessibility tree.
+          This is the only description of what is on screen for anyone who
+          cannot see it, and the only warning that the game needs a pointer. */}
+      <p className="sr-only">
+        A first-person flight through a field of asteroids, rendered in two
+        colours by a dithering pass. Aim with the mouse or by dragging on a
+        touchscreen and hold to fire. The game cannot be played from the
+        keyboard.
+      </p>
+
       <Canvas
         camera={{
           position: INITIAL_CAMERA_POSITION,

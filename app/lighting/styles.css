@@ -1,10 +1,15 @@
 /* ========================================
    CONTAINER & LAYOUT
    ======================================== */
-html,
-body {
+
+/* Scoped with :has() rather than a bare html/body rule. This file is imported
+   from a client component, so an unscoped rule keeps applying to every other
+   experiment after a client-side navigation away from this one. The scene's
+   fixed 2000px overlay layers are what need the clamp. */
+html:has(.lighting-container),
+body:has(.lighting-container) {
   overscroll-behavior: none;
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
@@ -12,7 +17,7 @@ body {
   --perspective: 750px;
   --color-stop-1: #3a3939;
   --color-stop-2: #2a2929;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   perspective: var(--perspective);
   background: linear-gradient(
@@ -25,6 +30,8 @@ body {
   overflow: hidden;
 }
 
+/* Movement within the screen, so ease-in-out-quad. These only retarget when a
+   breakpoint changes the offsets, and only ever move `transform`. */
 .transformContainer {
   --x-offset: 0px;
   --y-offset: -10px;
@@ -32,33 +39,29 @@ body {
   transform-origin: 50%;
   transform: rotate3d(0, 1, 0.8, -20deg) skewX(-13.5deg) skewY(10deg)
     scale(var(--scale)) translateX(var(--x-offset)) translateY(var(--y-offset));
-  transition: all 0.35s ease-in-out;
+  transition: transform 0.35s cubic-bezier(0.455, 0.03, 0.515, 0.955);
   position: relative;
 }
 
+/* 0.8s matches the interval the noise handler writes on, so each nudge is
+   still travelling when the next one lands and the drift never stops. */
 .bumpContainer {
   --bump-offset-x: 0px;
   --bump-offset-y: 0px;
   transform: translate(var(--bump-offset-x), var(--bump-offset-y));
-  transition: all 0.8s ease-in-out;
+  transition: transform 0.8s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
 .touchContainer {
   --translate-x: 0px;
   --translate-y: 0px;
   transform: translate(var(--translate-x), var(--translate-y));
-  transition: all 0.4s ease-in-out;
+  transition: transform 0.4s cubic-bezier(0.455, 0.03, 0.515, 0.955);
   position: relative;
 }
 
 .lighting-container div {
   pointer-events: none;
-}
-
-.scene {
-  width: 100%;
-  height: 100%;
-  position: relative;
 }
 
 .contents {
@@ -147,9 +150,9 @@ body {
     0 5px 2px #262525,
     var(--shadow-offset) var(--shadow-strength) 30px #262525;
   filter: blur(2px);
-  transition:
-    height 0.5s ease-in-out,
-    box-shadow 0.2s ease-in-out;
+  /* Only the shadow follows the pointer. The height changes at a breakpoint,
+     which is a layout property and not worth a tween. */
+  transition: box-shadow 0.2s ease;
   transform-origin: 50%;
   background: radial-gradient(#3f3636, #525252);
   border-top-left-radius: 120px;
@@ -269,18 +272,6 @@ body {
   position: absolute;
 }
 
-.fritBands {
-  --top: 0.7%;
-  --left: 0.45%;
-  top: var(--top);
-  left: var(--left);
-  width: calc(100% - var(--top));
-  height: calc(100% - var(--left));
-  border-top-left-radius: 4em;
-  border-bottom-left-radius: 4em;
-  position: absolute;
-}
-
 /* ========================================
    WINDOW CONTENT
    ======================================== */
@@ -330,86 +321,6 @@ body {
   mask-size: 104% 52%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-}
-
-/* ========================================
-   INFO DISPLAY
-   ======================================== */
-
-.timeContainer {
-  mix-blend-mode: plus-lighter;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 2px;
-  transition: opacity 0.8s ease-out;
-  display: flex;
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-}
-
-.destinationContainer,
-.time {
-  opacity: 0;
-  filter: blur(8px);
-  font-family: "Departure Mono", monospace;
-  animation: 0.4s ease-in-out 1.6s forwards text-load-in;
-}
-
-.destinationContainer {
-  flex-direction: row;
-  gap: 6px;
-  display: flex;
-}
-
-.trainIcon {
-  position: relative;
-}
-
-.trainIcon:after {
-  content: "";
-  background: green;
-  width: 2px;
-  height: 2px;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.time {
-  animation-delay: 1.7s;
-}
-
-.infoContainer {
-  pointer-events: none;
-  mix-blend-mode: plus-lighter;
-  flex-direction: column;
-  gap: 10px;
-  width: 200px;
-  transition: all 0.4s ease-out;
-  display: flex;
-  position: fixed;
-  bottom: 100px;
-  left: 30px;
-}
-
-.infoContainer div {
-  background: rgba(128, 128, 128, 0.2);
-  width: 70%;
-  height: 1px;
-  margin-top: 20px;
-  margin-bottom: 15px;
-}
-
-.infoTouchContainer {
-  cursor: pointer;
-  z-index: 1000;
-  width: 250px;
-  height: 80px;
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  pointer-events: all !important;
 }
 
 /* ========================================
@@ -576,18 +487,6 @@ body {
   left: 0;
 }
 
-.gradientAdjustment {
-  opacity: 0.5;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-  background: linear-gradient(#2f2e2e, #fff);
-  width: 2000px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
 .yummyColorGrading {
   --opacity: 1;
   mix-blend-mode: color-dodge;
@@ -616,60 +515,11 @@ body {
   left: 0;
 }
 
-.sunrise {
-  opacity: 0.4;
-  mix-blend-mode: color-dodge;
-  pointer-events: none;
-  background: linear-gradient(#674938 60%, #5a4848);
-  width: 2000px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-.colorGrade {
-  opacity: 1;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  background: #878681;
-  width: 2000px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-.contrast {
-  opacity: 1;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-  background: #60564b;
-  width: 2000px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-.contrast2 {
-  opacity: 1;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-  background: #4a4644;
-  width: 2000px;
-  height: 100dvh;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
 /* ========================================
    GRAIN EFFECTS
    ======================================== */
 
-.grain,
-.grain2 {
+.grain {
   pointer-events: none;
   mix-blend-mode: overlay;
   width: 2000px;
@@ -680,46 +530,28 @@ body {
   left: 0;
 }
 
-.grain:before,
-.grain2:before {
+/* Generated rather than fetched: this used to hotlink a noise PNG off
+   Wikimedia, so the grain vanished whenever that request failed. feTurbulence
+   with the colour matrix flattening it to opaque greyscale is the same
+   texture, with no third-party request. */
+.grain:before {
   content: "";
   opacity: 0.16;
   pointer-events: none;
-  background-image: url(https://upload.wikimedia.org/wikipedia/commons/5/5c/Image_gaussian_noise_example.png);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 240px 240px;
   width: calc(200% + 20rem);
   height: calc(200% + 20rem);
-  transition: opacity 0.5s;
   animation: 1s steps(2, end) infinite noise;
   position: fixed;
   top: -10rem;
   left: -10rem;
 }
 
-.grain1 {
-  --opacity: 1;
-}
-
-.grain2 {
-  --opacity: 0.3;
-  mix-blend-mode: normal;
-  opacity: var(--opacity);
-}
-
 /* ========================================
    KEYFRAME ANIMATIONS
    ======================================== */
-
-@keyframes text-load-in {
-  0% {
-    opacity: 0;
-    filter: blur(8px);
-  }
-
-  to {
-    opacity: 1;
-    filter: blur();
-  }
-}
 
 @keyframes load-in {
   0% {
@@ -866,6 +698,50 @@ body {
   to {
     opacity: 0.08;
     transform: rotate(-2deg) scaleY(1.1);
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+/* The scene still has to arrive lit, so this is not a blanket `animation:
+   none`: every layer lands on the opacity its load-in was heading for, the
+   flicker and drift loops stop, and the film fade-up is skipped rather than
+   left covering the page. The 800ms noise drift stops with them — the
+   JS interval that feeds it is gated on the same preference. */
+@media (prefers-reduced-motion: reduce) {
+  .transformContainer,
+  .bumpContainer,
+  .touchContainer {
+    transition: none;
+  }
+
+  .light,
+  .circularLight,
+  .tinyCircularLight,
+  .artifactTop,
+  .circularLightArtifact,
+  .verticalBeams,
+  .yummyColorGrading,
+  .warmth,
+  .video {
+    animation: none;
+    opacity: var(--opacity);
+  }
+
+  .grain,
+  .grain:before {
+    animation: none;
+  }
+
+  .grain {
+    opacity: 1;
+  }
+
+  .whiteOverlay {
+    animation: none;
+    opacity: 0;
   }
 }
 

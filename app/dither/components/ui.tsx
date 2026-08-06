@@ -1,252 +1,193 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 
-import { useGame } from "../game";
+import { cn } from "@/lib/utils";
 
-// UI timing constants
-const INSTRUCTIONS_DISPLAY_MS = 4000; // How long to show instructions before fading
-const ANIMATION_FRAME_INTERVAL_MS = 16; // Update interval for animations (~60fps)
-const SHOT_FLASH_DURATION_MS = 100; // Duration of white flash when shooting
-const HIT_INDICATOR_DURATION_MS = 150; // Duration of red crosshair when hitting target
+import { speedMultiplierAtScore, useGame } from "../game";
+
+/** How long the opening instructions hold before they fade away. */
+const INSTRUCTIONS_DISPLAY_MS = 4000;
+/** Crosshair kick when a shot leaves. Has to land before the next shot 200ms later. */
+const SHOT_PULSE_MS = 120;
+/** How long the crosshair stays inverted after a hit registers. */
+const HIT_FLASH_MS = 150;
+
+/** ANIMATION.md's ease-out-quart: leads hard, settles clean. */
+const EASE_OUT_QUART = "cubic-bezier(.165, .84, .44, 1)";
+
+/**
+ * The HUD is drawn in the same two colours the dither pass outputs, so the
+ * chrome never introduces a tone the shader could not have produced. Ink
+ * plates sit behind every readout because white-on-white over a lit asteroid
+ * is unreadable, and the crosshair carries an ink outline for the same reason.
+ *
+ * Tailwind arbitrary values have to be static, so the plates spell the hex as
+ * `bg-[#333319]`; this constant covers the box-shadows, which cannot.
+ */
+const INK = "#333319";
 
 export const UI = () => {
-  const {
-    distance,
-    kills,
-    score,
-    isGameOver,
-    startGame,
-    lastShotTime,
-    lastHitTime,
-  } = useGame();
+  const { kills, score, isGameOver, startGame, lastShotTime, lastHitTime } =
+    useGame();
   const [showInstructions, setShowInstructions] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+  const [isHitFlashing, setIsHitFlashing] = useState(false);
 
-  // Detect mobile
+  const crosshairRef = useRef<HTMLDivElement>(null);
+  const restartRef = useRef<HTMLButtonElement>(null);
+
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)", {
+    initializeWithValue: false,
+  });
+
+  // Matches the predicate GameControls binds its listeners with, so the
+  // instructions can never describe a control scheme that is not bound.
   useEffect(() => {
-    const checkMobile = () => {
-      const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-      setIsMobile(hasTouch);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowInstructions(false);
-    }, INSTRUCTIONS_DISPLAY_MS);
-
+    const timer = setTimeout(
+      () => setShowInstructions(false),
+      INSTRUCTIONS_DISPLAY_MS
+    );
     return () => clearTimeout(timer);
   }, []);
 
-  // Update current time for animations
+  // Fire feedback runs on the element rather than through state: shots come
+  // every 200ms and re-rendering the HUD that often on top of a WebGL frame
+  // loop is wasted work. Cancelling on re-run retargets an in-flight pulse.
   useEffect(() => {
-    // Initialize time on client side
-    setCurrentTime(Date.now());
+    const node = crosshairRef.current;
+    if (!(node && lastShotTime) || reducedMotion) {
+      return;
+    }
 
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, ANIMATION_FRAME_INTERVAL_MS);
+    // The `scale` property, not `transform`: the wrapper's centring translate
+    // lives on `transform`, and animating that would replace it and throw the
+    // crosshair into the corner for the length of the pulse.
+    const pulse = node.animate([{ scale: "1.3" }, { scale: "1" }], {
+      duration: SHOT_PULSE_MS,
+      easing: EASE_OUT_QUART,
+    });
+    return () => pulse.cancel();
+  }, [lastShotTime, reducedMotion]);
 
-    return () => clearInterval(interval);
-  }, []);
+  // The hit flash has to decay on a clock, so it is the one piece of timed
+  // state here. A kill already re-renders this component (score and kills both
+  // change), so this only costs the one extra render that clears it.
+  useEffect(() => {
+    if (!lastHitTime) {
+      return;
+    }
+    setIsHitFlashing(true);
+    const timer = setTimeout(() => setIsHitFlashing(false), HIT_FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [lastHitTime]);
 
-  const _distanceMeters = Math.floor(distance);
+  // Losing is the one moment the keyboard needs a target, so put it there.
+  useEffect(() => {
+    if (isGameOver) {
+      restartRef.current?.focus();
+    }
+  }, [isGameOver]);
+
   const scoreRounded = Math.floor(score);
-
-  // Calculate speed multiplier (same formula as GameControls)
-  const BASE_SPEED = 30;
-  const SPEED_SCALE_POINTS = 500;
-  const SPEED_SCALE_MULTIPLIER = 1.2;
-  const MAX_SPEED = 150;
-  const speedTier = Math.max(0, score) / SPEED_SCALE_POINTS;
-  const scaledSpeed = Math.min(
-    MAX_SPEED,
-    BASE_SPEED * SPEED_SCALE_MULTIPLIER ** speedTier
-  );
-  const speedMultiplier = (scaledSpeed / BASE_SPEED).toFixed(1);
-
-  // Calculate animation states
-  const timeSinceShot = currentTime - lastShotTime;
-  const timeSinceHit = currentTime - lastHitTime;
-  const shotFlashActive = timeSinceShot < SHOT_FLASH_DURATION_MS;
-  const hitIndicatorActive = timeSinceHit < HIT_INDICATOR_DURATION_MS;
-  const crosshairPulse = shotFlashActive ? 1.3 : 1;
+  const speedMultiplier = speedMultiplierAtScore(score).toFixed(1);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        fontFamily: '"VT323", monospace',
-        color: "#ffffff",
-        zIndex: 1000,
-      }}
-    >
-      {/* Score Display */}
+    <div className="pointer-events-none fixed inset-0 z-20 font-mono text-white">
       {!isGameOver && (
         <>
-          <div
-            style={{
-              position: "absolute",
-              top: "20px",
-              left: "20px",
-              fontSize: "20px",
-            }}
-          >
-            Score: {scoreRounded} | {kills} kills
+          {/* Readouts sit along the bottom edge: the page header owns the top
+              of the viewport, and at narrow widths a top-left HUD lands on it. */}
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 text-lg">
+            <p className="rounded-[10px] bg-[#333319] px-3 py-1.5">
+              Score {scoreRounded} · {kills} kills
+            </p>
+            <p className="rounded-[10px] bg-[#333319] px-3 py-1.5">
+              Speed {speedMultiplier}×
+            </p>
           </div>
+
+          {/* Kept mounted and faded, because the old version unmounted the node
+              and the 0.5s fade it declared never ran. */}
           <div
-            style={{
-              position: "absolute",
-              top: "20px",
-              right: "20px",
-              fontSize: "20px",
-              color: "#ffffff",
-            }}
+            aria-hidden={!showInstructions}
+            className={cn(
+              "-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 max-w-[90%] rounded-[14px] bg-[#333319] px-6 py-5 text-center text-2xl leading-relaxed transition-opacity duration-300 ease-out motion-reduce:transition-none",
+              showInstructions ? "opacity-100" : "opacity-0"
+            )}
           >
-            SPEED: {speedMultiplier}x
+            {isTouch ? (
+              <>
+                <p>Touch and drag to aim</p>
+                <p>Auto-fires while touching</p>
+                <p>Dodge the asteroids</p>
+              </>
+            ) : (
+              <>
+                <p>Click to lock the pointer</p>
+                <p>Hold the mouse to auto-fire</p>
+                <p>Dodge the asteroids</p>
+              </>
+            )}
+          </div>
+
+          {/* Crosshair. One wrapper owns the centring translate so the shot
+              pulse can scale without having to restate it every frame. */}
+          <div
+            aria-hidden
+            className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 grid size-6 place-items-center"
+            ref={crosshairRef}
+          >
+            <span
+              className={cn(
+                "absolute inset-0 rounded-full border-2 border-white transition-colors duration-150 ease-out motion-reduce:transition-none",
+                isHitFlashing && "bg-white"
+              )}
+              style={{ boxShadow: `0 0 0 1px ${INK}, inset 0 0 0 1px ${INK}` }}
+            />
+            <span
+              className={cn(
+                "size-1 rounded-full transition-colors duration-150 ease-out motion-reduce:transition-none",
+                isHitFlashing ? "bg-[#333319]" : "bg-white"
+              )}
+              style={
+                isHitFlashing ? undefined : { boxShadow: `0 0 0 1px ${INK}` }
+              }
+            />
           </div>
         </>
       )}
 
-      {/* Instructions (fade out after 4 seconds) */}
-      {showInstructions && !isGameOver && (
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            fontSize: 24,
-            textAlign: "center",
-            opacity: showInstructions ? 1 : 0,
-            transition: "opacity 0.5s",
-            lineHeight: "1.5",
-            maxWidth: "90%",
-          }}
-        >
-          {isMobile ? (
-            <>
-              <div>Touch and drag to aim</div>
-              <div>Auto-fires while touching</div>
-              <div>Dodge the asteroids!</div>
-            </>
-          ) : (
-            <>
-              <div>Click to lock pointer</div>
-              <div>Hold mouse to auto-fire</div>
-              <div>Dodge the asteroids!</div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Crosshair */}
-      {!isGameOver && (
-        <>
-          {/* Center dot */}
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: `translate(-50%, -50%) scale(${crosshairPulse})`,
-              width: "4px",
-              height: "4px",
-              backgroundColor: hitIndicatorActive
-                ? "rgba(255,100,100,0.9)"
-                : "rgba(255,255,255,0.9)",
-              borderRadius: "50%",
-              transition: "transform 0.1s, background-color 0.15s",
-            }}
-          />
-
-          {/* Outer ring */}
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: `translate(-50%, -50%) scale(${crosshairPulse})`,
-              width: "24px",
-              height: "24px",
-              border: `2px solid ${hitIndicatorActive ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.6)"}`,
-              borderRadius: "50%",
-              transition: "transform 0.1s, border-color 0.15s",
-            }}
-          />
-        </>
-      )}
-
-      {/* Game Over Screen */}
       {isGameOver && (
         <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-          }}
+          className="-translate-x-1/2 -translate-y-1/2 fade-in-0 zoom-in-95 absolute top-1/2 left-1/2 flex animate-in flex-col items-center gap-6 rounded-[14px] bg-[#333319] px-10 py-8 text-center duration-200 ease-out motion-reduce:animate-none"
+          role="alert"
         >
-          <div
-            style={{
-              fontSize: "64px",
-              fontWeight: "bold",
-              marginBottom: "20px",
-            }}
-          >
-            GAME OVER
+          <div className="flex flex-col gap-2">
+            <p className="font-bold text-5xl md:text-6xl">Game over</p>
+            <p className="text-2xl md:text-3xl">
+              Score {scoreRounded} · {kills} kills
+            </p>
           </div>
-          <div
-            style={{
-              fontSize: "32px",
-              marginBottom: "10px",
-            }}
-          >
-            Score: {scoreRounded}
-          </div>
-          <div
-            style={{
-              fontSize: "32px",
-              marginBottom: "40px",
-            }}
-          >
-            Kills: {kills}
-          </div>
+
           <button
+            className={cn(
+              "pointer-events-auto rounded-[10px] bg-white px-10 py-3 font-mono font-bold text-[#333319] text-xl",
+              "transition-transform duration-100 ease-out motion-reduce:transition-none",
+              "hover:scale-[1.03] active:scale-[0.98] motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
+              // An outline rather than a ring, so the indicator survives forced
+              // colours instead of disappearing with the box-shadow.
+              "focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            )}
             onClick={startGame}
-            onPointerDown={(e) => {
-              e.currentTarget.style.backgroundColor = "#cccccc";
-            }}
-            onPointerLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#ffffff";
-            }}
-            onPointerUp={(e) => {
-              e.currentTarget.style.backgroundColor = "#ffffff";
-            }}
-            style={{
-              pointerEvents: "all",
-              fontSize: isMobile ? "20px" : "24px",
-              padding: isMobile ? "20px 50px" : "15px 40px",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: '"VT323", monospace',
-              fontWeight: "bold",
-              touchAction: "manipulation",
-            }}
+            ref={restartRef}
+            style={{ touchAction: "manipulation" }}
             type="button"
           >
-            RESTART
+            Restart
           </button>
         </div>
       )}

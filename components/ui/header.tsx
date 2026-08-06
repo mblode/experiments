@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "blode-icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

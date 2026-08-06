@@ -1,21 +1,20 @@
 "use client";
 
 import { AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import { Item } from "../ios-cards/item";
-import { List } from "../ios-cards/list";
+import { Item } from "./item";
+import { List } from "./list";
 
 export const IosCardsBlock = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const close = useCallback(() => setSelectedId(null), []);
 
   return (
     <>
-      <List setSelectedId={setSelectedId} />
+      <List onSelect={setSelectedId} />
       <AnimatePresence>
-        {selectedId && (
-          <Item id={selectedId} key="item" setSelectedId={setSelectedId} />
-        )}
+        {selectedId && <Item id={selectedId} key="item" onClose={close} />}
       </AnimatePresence>
     </>
   );
