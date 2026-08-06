@@ -28,22 +28,6 @@ const WORK_DIR = path.join(os.tmpdir(), "experiments-previews");
 // to centre into.
 const FRAME = { width: 1024, height: 1024 };
 
-/**
- * Per-demo capture viewport. The fit transform cannot help a demo that pins
- * something to the viewport or portals out of the column: a transform makes
- * its subtree the containing block for fixed children, so the guard bails and
- * the demo records at life size in a frame it does not fill. Shrinking the
- * viewport instead scales everything, fixed layers and portals included,
- * because the browser genuinely believes the screen is that small.
- */
-const CAPTURE_FRAME: Record<string, number> = {
-  "ios-cards": 760,
-  markers: 760,
-  "omni-color-picker": 720,
-  "perfect-dnd": 620,
-  sheet: 560,
-  "shuffle-theme": 760,
-};
 const OUTPUT_WIDTH = 880;
 const OUTPUT_HEIGHT = 880;
 
@@ -180,9 +164,6 @@ const easeInOut = (t: number): number =>
 const makeCursor = (page: Page) => {
   const FRAME_MS = 20;
   let at: Point = { x: FRAME.width / 2, y: FRAME.height + 40 };
-  const parkTo = (side: number) => {
-    at = { x: side / 2, y: side + 40 };
-  };
 
   const pointOf = async (target: Target): Promise<Point> => {
     if (!isLocator(target)) {
@@ -264,7 +245,7 @@ const makeCursor = (page: Page) => {
     await page.keyboard.type(text, { delay: 95 });
   };
 
-  return { click, drag, parkTo, scrollTo, to, type, wait };
+  return { click, drag, scrollTo, to, type, wait };
 };
 
 type Cursor = ReturnType<typeof makeCursor>;
@@ -405,7 +386,7 @@ const CHOREOGRAPH: Record<string, Routine> = {
   // reflowing body copy long before the progress rail becomes the subject.
   markers: async (cursor) => {
     await cursor.wait(600);
-    await cursor.scrollTo(1000, 2600);
+    await cursor.scrollTo(680, 2600);
     await cursor.wait(700);
     await cursor.scrollTo(0, 2300);
     await cursor.wait(500);
@@ -606,25 +587,15 @@ const record = async (
   const dir = path.join(WORK_DIR, slug);
   await rm(dir, { force: true, recursive: true });
 
-  // Captured at 1024 unless the demo needs a smaller screen. The scale factor
-  // keeps the recorded surface at 1024 physical pixels either way, so a 560px
-  // capture is still downsampled into the output rather than blown up.
-  const side = CAPTURE_FRAME[slug] ?? FRAME.width;
-  const viewport = { height: side, width: side };
-  const scale = Math.max(1, Math.round((FRAME.width / side) * 2) / 2);
-
+  // `recordVideo.size` fits the viewport into the frame rather than scaling it
+  // up, so the two have to match: a smaller viewport records its surplus as
+  // grey padding. Demos that need a smaller screen ask for it with a `zoom` in
+  // `lib/blocks.ts`, which `?preview` applies.
   const context = await browser.newContext({
     colorScheme: "light",
-    deviceScaleFactor: scale,
-    recordVideo: {
-      dir,
-      size: {
-        height: Math.round(side * scale),
-        width: Math.round(side * scale),
-      },
-    },
+    recordVideo: { dir, size: FRAME },
     reducedMotion: "no-preference",
-    viewport,
+    viewport: FRAME,
   });
   const page = await context.newPage();
   await page.addInitScript(CURSOR_SCRIPT);
@@ -651,7 +622,6 @@ const record = async (
 
   const headMs = Date.now() - startedAt;
   const cursor = makeCursor(page);
-  cursor.parkTo(side);
   const routine = CHOREOGRAPH[slug];
   // Best-effort: a selector that has drifted shouldn't abort the batch, and
   // the still clip it leaves behind is obvious on review.
