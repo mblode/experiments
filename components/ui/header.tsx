@@ -125,6 +125,23 @@ export const Header = ({ id, className }: Props) => {
         </p>
       ))}
 
+      {blocks[id].credit && (
+        // Between the prose and the nav: it credits the demo, not the
+        // navigation, and below the pagination it read as a footnote to the
+        // wrong thing. `.link` so `?hideHeader` and `?preview` still drop it.
+        <p className="mt-4">
+          <a
+            className="link"
+            href={blocks[id].credit.href}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {blocks[id].credit.text}
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </p>
+      )}
+
       {(previous || next) && (
         // data-chrome so `?hideHeader` drops this too, via the style above.
         // A two-column grid, not `justify-between`: with the halves sized to

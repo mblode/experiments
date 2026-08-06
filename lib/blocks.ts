@@ -29,6 +29,13 @@ export const blocks: Record<
      * than the square frame.
      */
     preview?: { width?: number; zoom?: number };
+    /**
+     * An outbound credit or source link, rendered by `Header` between the
+     * prose and the prev/next nav. It lived in each page below the header,
+     * which put it under the pagination and made it read as a footnote to the
+     * navigation rather than to the demo.
+     */
+    credit?: { href: string; text: string };
   }
 > = {
   "animated-button": {
@@ -113,6 +120,7 @@ export const blocks: Record<
     ],
   },
   sky: {
+    credit: { href: "https://blode.co", text: "See a real-world example" },
     name: "Sky",
     description: "Scroll from sunrise to night through a fixed sky",
     about: [
@@ -208,6 +216,10 @@ export const blocks: Record<
     description: "Roll the dice to cast one of 99 shadows over the page",
   },
   "qr-code": {
+    credit: {
+      href: "https://github.com/mblode/beautiful-qr-code",
+      text: "Beautiful QR Code on GitHub",
+    },
     name: "QR code generator",
     description: "QR code generator with an OKLCH colour grid, SVG or PNG",
     about: [
@@ -226,6 +238,10 @@ export const blocks: Record<
     description: "Vertical scroll progress with clickable chapter markers",
   },
   "perfect-dnd": {
+    credit: {
+      href: "https://github.com/mblode/perfect-dnd",
+      text: "Perfect DnD on GitHub",
+    },
     preview: { zoom: 1.3 },
     name: "Perfect drag and drop",
     description: "Sortable list where the card swings with drag velocity",
@@ -245,6 +261,10 @@ export const blocks: Record<
     hidden: true,
   },
   "omni-color-picker": {
+    credit: {
+      href: "https://x.com/mackenziechild",
+      text: "Original concept by Mackenzie Child",
+    },
     preview: { zoom: 1.15 },
     name: "Omni-directional colour picker",
     description: "Drag a fish-eye sphere of dots to recolour the page",
