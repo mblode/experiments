@@ -1,6 +1,7 @@
 import { readdirSync } from "node:fs";
 import path from "node:path";
 
+import { GithubIcon } from "blode-icons-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -43,8 +44,21 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl">
-        <header>
-          <h1 className="mb-8 font-bold text-4xl">Matt's experiments</h1>
+        <header className="mb-8 flex items-center justify-between gap-4">
+          <h1 className="font-bold text-4xl">Matt's experiments</h1>
+
+          {/* The only thing the old footer carried that the layout's
+              attribution does not. Negative margin keeps the tap target at
+              36px without adding a gap above the grid. */}
+          <a
+            aria-label="View source on GitHub"
+            className="-m-2 rounded-lg p-2 text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            href="https://github.com/mblode/experiments"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <GithubIcon aria-hidden className="size-5" />
+          </a>
         </header>
 
         {/* A list, marked up as one, so it is announced with its length. */}
@@ -75,29 +89,6 @@ export default function Page() {
               ))}
           </ul>
         </main>
-
-        <footer className="mt-8 border-border border-t px-4 py-8 text-center">
-          <div className="text-sm">
-            © 2026{" "}
-            <a
-              className="text-foreground underline-offset-2 hover:underline"
-              href="https://blode.co"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Matthew Blode
-            </a>
-            {" · "}
-            <a
-              className="text-foreground underline-offset-2 hover:underline"
-              href="https://github.com/mblode/experiments"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              View Source
-            </a>
-          </div>
-        </footer>
       </div>
     </div>
   );
