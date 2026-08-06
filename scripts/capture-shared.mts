@@ -81,9 +81,16 @@ export const requireServer = async (): Promise<void> => {
  * aren't the demo: `?hideHeader` drops the title/description/back-arrow, then
  * fonts and images have to land before anything is worth capturing.
  */
-export const openBlock = async (page: Page, slug: string): Promise<void> => {
-  await page.goto(`${BASE_URL}/${slug}?hideHeader=1`, { waitUntil: "load" });
-  if (CENTER.has(slug)) {
+export const openBlock = async (
+  page: Page,
+  slug: string,
+  // `hideHeader` drops the chrome; `preview` also centres the demo and applies
+  // the per-demo width from `lib/blocks.ts`. Both live in `Header`.
+  mode: "hideHeader" | "preview" = "hideHeader"
+): Promise<void> => {
+  await page.goto(`${BASE_URL}/${slug}?${mode}=1`, { waitUntil: "load" });
+  // Only the screenshot mode needs this: `?preview` centres the demo itself.
+  if (mode === "hideHeader" && CENTER.has(slug)) {
     await page.addStyleTag({ content: CENTER_CSS });
   }
   // Best-effort: some demos stream assets forever and never go network-idle

@@ -37,18 +37,47 @@ const getNeighbours = (id: keyof typeof blocks) => {
   return { previous: ids[index - 1], next: ids[index + 1] };
 };
 
+/**
+ * Two capture modes, both driven by a query param so the page decides how it
+ * presents itself rather than the capture scripts reaching in with selectors.
+ *
+ * `?hideHeader` drops the chrome and nothing else. The OG screenshots use it.
+ *
+ * `?preview` is for the gallery's video clips: chrome gone, the attribution
+ * footer gone, and the demo centred in the viewport at the width it records
+ * best at. Open any demo with it to see exactly what the recorder sees.
+ */
+const CHROME_CSS = ".link,[data-chrome]{display:none!important}";
+
+const previewCss = (width: number | undefined) =>
+  `${CHROME_CSS}body>footer{display:none!important}` +
+  // `div.` matters: <body> also carries min-h-screen, and centring a column
+  // flex body stops its children stretching, which shrink-wraps the page.
+  "div.min-h-screen{display:flex!important;align-items:center!important;min-height:100dvh!important}" +
+  `div.min-h-screen>.mx-auto{width:100%!important${width ? `;max-width:${width}px!important` : ""}}`;
+
 export const Header = ({ id, className }: Props) => {
   const { previous, next } = getNeighbours(id);
-  // `?hideHeader` renders the demo on its own — used for OG screenshots
-  const [hidden, setHidden] = useState(false);
+  const [mode, setMode] = useState<"full" | "chrome" | "preview">("full");
   useEffect(() => {
-    setHidden(new URLSearchParams(window.location.search).has("hideHeader"));
+    const query = new URLSearchParams(window.location.search);
+    if (query.has("preview")) {
+      setMode("preview");
+    } else if (query.has("hideHeader")) {
+      setMode("chrome");
+    }
   }, []);
 
-  if (hidden) {
-    // Also drop attribution links and any chrome-only wrapper — an emptied
-    // wrapper still renders its padding as a band above the demo.
-    return <style>{".link,[data-chrome]{display:none!important}"}</style>;
+  if (mode !== "full") {
+    // An emptied wrapper still renders its padding as a band above the demo,
+    // so the chrome is hidden rather than merely unpopulated.
+    return (
+      <style>
+        {mode === "preview"
+          ? previewCss(blocks[id].preview?.width)
+          : CHROME_CSS}
+      </style>
+    );
   }
 
   return (
