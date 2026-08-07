@@ -26,7 +26,7 @@ import {
 
 import { cn } from "@/lib/utils";
 
-// ~270ms to settle: fast enough for ANIMATION.md's 0.2-0.3s window while
+// ~270ms to settle: fast enough for the 0.2-0.3s window while
 // still reading as a spring rather than a tween.
 const DEFAULT_TRANSITION: Transition = {
   type: "spring",

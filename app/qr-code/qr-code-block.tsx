@@ -71,7 +71,7 @@ const RADIUS_OPTIONS = [
   { value: 1, label: "Circular" },
 ] as const;
 
-/** ANIMATION.md ease-out-quart, and a stagger that finishes inside 300ms. */
+/** ease-out-quart, and a stagger that finishes inside 300ms. */
 const EASE_OUT = "cubic-bezier(.165, .84, .44, 1)";
 const EASE_OUT_POINTS = [0.165, 0.84, 0.44, 1] as [
   number,

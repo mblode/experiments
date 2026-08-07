@@ -12,7 +12,7 @@ const SHOT_PULSE_MS = 120;
 /** How long the crosshair stays inverted after a hit registers. */
 const HIT_FLASH_MS = 150;
 
-/** ANIMATION.md's ease-out-quart: leads hard, settles clean. */
+/** ease-out-quart: leads hard, settles clean. */
 const EASE_OUT_QUART = "cubic-bezier(.165, .84, .44, 1)";
 
 /**

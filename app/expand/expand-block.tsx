@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-// ease-out-quart from ANIMATION.md. The height tween is the deliberate
+// ease-out-quart. The height tween is the deliberate
 // container-resize exception; everything else stays on transform/opacity.
 const EASE_OUT: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 

@@ -222,7 +222,7 @@ const badgeStyles = {
   cyan: "border-cyan-200 bg-cyan-50 text-cyan-800 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-200",
 };
 
-// ease-out-quart, per ANIMATION.md
+// ease-out-quart
 const EASE_OUT: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 
 /**

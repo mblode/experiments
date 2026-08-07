@@ -58,9 +58,17 @@ index looks fine and that experiment is the only still frame on the page.
   is full of shader math, canvas ports and generated primitives where they fight
   the code. Correctness and accessibility rules stay on. If `npm run lint` passes,
   the style is correct for this repo.
-- **Motion**: follow `ANIMATION.md`. 0.2–0.3s by default and never over 1s,
-  `ease-out` for entrances, `ease-in-out` for movement within the screen, animate
-  `opacity` and `transform` only, and honour `prefers-reduced-motion`.
+- **Motion**: 0.2–0.3s by default and never over 1s. `ease-out` for entrances and
+  user-initiated interactions, `ease-in-out` for movement within the screen; avoid
+  `ease-in`. Plain CSS `ease` at 200ms for simple hovers, otherwise the named
+  curves — `ease-out-quart` `cubic-bezier(.165,.84,.44,1)`, `ease-out-expo`
+  `cubic-bezier(.19,1,.22,1)`, `ease-in-out-cubic` `cubic-bezier(.645,.045,.355,1)`.
+  Animate `opacity` and `transform` only (`x`/`y` over a transform string in
+  Motion), set `transform-origin` to the trigger, and honour
+  `prefers-reduced-motion` wherever a transform is involved.
+- **Springs** are the default in Motion, with no bounce unless the motion has
+  implied mass — a flicked gesture, or a container the user watched grow. Bounce
+  on the way in only; the close is critically damped and about half the duration.
 - **One source of truth for state.** `useState` for local UI state; never mirror
   one piece of state into another with `useEffect`. The lint rules do not catch
   this and it is the most common bug in these routes.
