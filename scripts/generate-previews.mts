@@ -110,6 +110,10 @@ const FIT_SCRIPT = (maxScale: number) => `(() => {
   // The layout wrapper, so this sees the demo whichever shape the page uses.
   const root = document.querySelector("body > [data-page]");
   if (!root || root.querySelector('canvas')) return null;
+  // A demo that asked for a \`preview.zoom\` has already chosen its framing, and
+  // the two do not compose: every measurement below is a client rect the zoom
+  // has multiplied, while the transform they produce is applied inside it.
+  if (parseFloat(getComputedStyle(document.documentElement).zoom) !== 1) return null;
 
   let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
   for (const el of root.querySelectorAll('*')) {
@@ -599,9 +603,6 @@ const MAX_ZOOM: Record<string, number> = {
   // A 120px row becomes 400px
   preview: 1.5,
   sheet: 1,
-  // Its popover portals to <body>, so a transform would leave the options
-  // behind the trigger they belong to. Zoomed in `lib/blocks.ts` instead.
-  status: 1,
   // Gains a countdown chip and a longer label
   "timed-undo": 2.6,
   // The pill grows taller between states
@@ -644,8 +645,16 @@ const record = async (
       // Applied to the element it was measured against. These drifted apart
       // once, and a scale computed from one box and applied to another is
       // wrong everywhere and invisible on the demos that have no such box.
+      //
+      // Scrolling off, because the scale is scrollable overflow: the demo
+      // still fits the frame, but the box it lives in now runs past it, and
+      // Playwright scrolls whatever it is about to click into view. That
+      // scroll slides the whole demo sideways mid-clip. `clip` and on both
+      // elements: `hidden` still scrolls for a script or a `scrollIntoView`,
+      // and the viewport takes its overflow from whichever of the two is not
+      // `visible`, so clipping one alone just moves the scroll to the other.
       await page.addStyleTag({
-        content: `body > [data-page]{${fit}}`,
+        content: `html,body{overflow:clip!important}body > [data-page]{${fit}}`,
       });
     }
   }

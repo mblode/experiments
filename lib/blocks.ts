@@ -154,7 +154,6 @@ export const blocks: Record<
     ],
   },
   status: {
-    preview: { zoom: 2.2 },
     name: "Status",
     description: "Emoji status picker that rewrites its own label",
     about: [
