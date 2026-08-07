@@ -8,6 +8,10 @@ Open any one and play with it, then read what is actually interesting in how it 
 
 </div>
 
+<p align="center">
+  <img alt="A grid of the interaction experiments" src=".github/assets/screenshot.png" width="800" />
+</p>
+
 ## Demo
 
 Every experiment on one index page, each card a looping clip of the thing itself.
