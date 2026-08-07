@@ -22,6 +22,18 @@ const springConfig = {
 // reads as two animations.
 const smoothEasing: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 
+const COLLAPSED_IMAGE = 86;
+const EXPANDED_IMAGE = 280;
+
+// Percent, not px, and that is load-bearing. On a node with a `layout` prop Motion
+// rewrites a px radius into a percentage of the box it projected, then hands the px
+// value back when the layout spring settles. That correction assumes the box is only
+// being scaled by a transform; this one resizes for real and on a slower curve, so
+// the percentage drifts off the true radius and the corner snaps ~50px at the end,
+// after the size has already stopped moving. Percentages pass through untouched.
+const radiusPercent = (radius: number, size: number) =>
+  `${(radius / size) * 100}%`;
+
 const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
   const reduced = useReducedMotion();
   const duration = reduced ? 0 : 0.42;
@@ -74,9 +86,11 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
           {/* Image */}
           <motion.span
             animate={{
-              width: isExpanded ? 280 : 86,
-              height: isExpanded ? 280 : 86,
-              borderRadius: isExpanded ? 24 : 12,
+              width: isExpanded ? EXPANDED_IMAGE : COLLAPSED_IMAGE,
+              height: isExpanded ? EXPANDED_IMAGE : COLLAPSED_IMAGE,
+              borderRadius: isExpanded
+                ? radiusPercent(24, EXPANDED_IMAGE)
+                : radiusPercent(12, COLLAPSED_IMAGE),
             }}
             className="relative block shrink-0 select-none overflow-hidden"
             initial={false}
@@ -98,7 +112,7 @@ const Card = ({ id, isExpanded, onToggle }: RabbitCardProps) => {
               alt=""
               className="object-cover"
               fill
-              sizes={isExpanded ? "280px" : "86px"}
+              sizes={`${isExpanded ? EXPANDED_IMAGE : COLLAPSED_IMAGE}px`}
               src="/experiments/jamie-kettle-3t-j09n_pYo-unsplash.jpg"
             />
           </motion.span>

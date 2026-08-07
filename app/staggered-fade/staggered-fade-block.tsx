@@ -156,7 +156,7 @@ export const StaggeredFadeBlock = () => {
 
         {/* Email section */}
         <div className="z-10 flex shrink-0 items-center gap-1 text-muted-foreground text-sm">
-          <span className="select-none">yo@rauno.me</span>
+          <span className="select-none">yo@blode.co</span>
           {/* Kept mounted rather than unmounted while dimmed, so activating it
               does not throw focus back to the document. */}
           <button
