@@ -47,6 +47,16 @@ const MAX_CLIP_MS = 9500;
  * every clip looks like the UI operating itself. A fixed arrow that follows
  * `mousemove` turns the same recording into someone demonstrating the demo.
  *
+ * The arrow is macOS's own, traced: white body, black outline, the notch at
+ * the tail. Screen recorders draw this rather than a generic triangle because
+ * it is the shape a viewer already reads as "a pointer" without looking at it,
+ * and a hand-drawn one lands in the uncanny valley beside the real UI. Drawn
+ * larger than life at 40px, again as they do — at the size the system draws
+ * it, a cursor is four pixels of detail in a downscaled thumbnail.
+ *
+ * `left`/`top` put the arrow's tip, not its box, on the pointer: the tip sits
+ * at (8.2, 4.9) of a 28-unit box drawn at 40px.
+ *
  * Mounted on `load` and parented to `<html>`: Next renders `<body>`, so an
  * extra child inserted before hydration is a mismatch React will complain
  * about — and, more visibly, may get blown away when it hydrates.
@@ -76,10 +86,10 @@ const CURSOR_SCRIPT = `
 
   addEventListener('load', () => {
     root = document.createElement('div');
-    root.style.cssText = 'position:fixed;left:-4px;top:-3px;width:34px;height:34px;z-index:2147483647;pointer-events:none;opacity:0;will-change:transform;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28))';
+    root.style.cssText = 'position:fixed;left:-12px;top:-7px;width:40px;height:40px;z-index:2147483647;pointer-events:none;opacity:0;will-change:transform;filter:drop-shadow(0 2px 3px rgba(0,0,0,.22))';
     inner = document.createElement('div');
-    inner.style.cssText = 'width:100%;height:100%;transform-origin:8px 5px;transition:transform .1s cubic-bezier(.22,1,.36,1)';
-    inner.innerHTML = '<svg width="34" height="34" viewBox="0 0 26 26" fill="none"><path d="M6 3.2 19.6 13.4l-6.4.35-3 5.8z" fill="#fff" stroke="#18181b" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    inner.style.cssText = 'width:100%;height:100%;transform-origin:12px 7px;transition:transform .1s cubic-bezier(.22,1,.36,1)';
+    inner.innerHTML = '<svg width="40" height="40" viewBox="0 0 28 28"><polygon fill="#fff" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6"/><polygon fill="#fff" points="17.3,21.6 13.7,23.1 9,12 12.7,10.5"/><rect x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/><polygon points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5"/></svg>';
     root.appendChild(inner);
     document.documentElement.appendChild(root);
     draw();
@@ -435,11 +445,22 @@ const CHOREOGRAPH: Record<string, Routine> = {
     await cursor.wait(1000);
   },
 
+  // The lens fills the lower half of the frame and the old path was dragging
+  // above it, so the clip was a cursor gliding over a grid that never moved.
+  // Diagonally, and across three cells: one axis is hue and the other shade,
+  // and a pan that crosses both is the only one that recolours the page.
+  // Symmetric, because the release is slow enough to snap rather than fling,
+  // so the same distance back lands on the cell it started from.
   "omni-color-picker": async (cursor) => {
-    await cursor.drag({ x: 512, y: 384 }, { x: 700, y: 300 }, 1600);
+    // Both ends inside the lens (254-846 by 457-1049): the return drag presses
+    // where the first one released, and a release past the edge presses on
+    // nothing, which left the clip ending on a colour it never started from.
+    const centre = { x: 550, y: 753 };
+    const out = { x: 800, y: 615 };
+    await cursor.drag(centre, out, 1300);
     await cursor.wait(900);
-    await cursor.drag({ x: 700, y: 300 }, { x: 512, y: 384 }, 1400);
-    await cursor.wait(900);
+    await cursor.drag(out, centre, 1300);
+    await cursor.wait(800);
   },
 
   "password-strength": async (cursor, page) => {
