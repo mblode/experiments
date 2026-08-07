@@ -13,8 +13,17 @@
   }
 }
 
+/*
+ * The delay matches the open/close transition, and is not a stylistic pause: the
+ * artwork is a square exactly the size of the frame, so a rotated copy of it only
+ * ever reaches 200px from the centre, while the clip's corners bulge past that
+ * until the radius finishes growing. Turn during those 1000ms and the two shapes
+ * intersect — the rounded rect comes back with straight chords sawn off it. At
+ * rest the clip is a 200px circle, which the rotated square covers exactly, so
+ * the record can turn freely from then on.
+ */
 .album-record-spin {
-  animation: album-record-spin 3s linear infinite;
+  animation: album-record-spin 3s linear 1s infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
