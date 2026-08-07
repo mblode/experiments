@@ -88,7 +88,7 @@ const SPRING_CONFIG = {
   damping: 55,
 } as const;
 
-/** ANIMATION.md: ease-out-quart for entrances, ease-in-out-cubic for movement. */
+/** ease-out-quart for entrances, ease-in-out-cubic for movement. */
 const EASE_OUT = "cubic-bezier(.165, .84, .44, 1)";
 const EASE_MOVE = "cubic-bezier(.645, .045, .355, 1)";
 
