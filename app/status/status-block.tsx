@@ -2,12 +2,10 @@
 import {
   Anchor as PopoverAnchor,
   Content as PopoverContent,
-  Portal as PopoverPortal,
   Root as PopoverRoot,
 } from "@radix-ui/react-popover";
 import {
   Content as TooltipContent,
-  Portal as TooltipPortal,
   Provider as TooltipProvider,
   Root as TooltipRoot,
   Trigger as TooltipTrigger,
@@ -36,7 +34,12 @@ const LABEL_SPRING = {
 const CLEAR_BUTTON_WIDTH = 20;
 
 export const StatusBlock = () => {
-  const [ref, bounds] = useMeasure();
+  // `offsetSize`, so this is the label's layout width and not its painted
+  // width. The two only differ under an ancestor `transform` — which the
+  // gallery recorder applies to fill the frame — and there a client rect
+  // feeds a scaled-up number back into a width inside the same scale, so the
+  // pill grows by the scale again every time the label changes.
+  const [ref, bounds] = useMeasure({ offsetSize: true });
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<keyof typeof statuses | null>(null);
   const reduced = useReducedMotion();
@@ -160,113 +163,113 @@ export const StatusBlock = () => {
           </motion.button>
         </PopoverAnchor>
 
-        {/* forceMount plus a conditional child, so the exit animation gets to
+        {/* Not portalled: nothing on this page clips the options, and a portal
+            hoists them out of any ancestor transform, which leaves them
+            unscaled and behind the button under the gallery recorder's fit.
+
+            forceMount plus a conditional child, so the exit animation gets to
             run before Radix tears the content down. */}
         <AnimatePresence>
           {isOpen && (
-            <PopoverPortal forceMount>
-              <PopoverContent
-                align="center"
-                asChild
-                className="z-50 origin-(--radix-popover-content-transform-origin) rounded-full border border-border bg-popover text-popover-foreground outline-hidden"
-                data-slot="popover-content"
-                forceMount
-                onCloseAutoFocus={(event) => {
-                  event.preventDefault();
-                  triggerRef.current?.focus();
+            <PopoverContent
+              align="center"
+              asChild
+              className="z-50 origin-(--radix-popover-content-transform-origin) rounded-full border border-border bg-popover text-popover-foreground outline-hidden"
+              data-slot="popover-content"
+              forceMount
+              onCloseAutoFocus={(event) => {
+                event.preventDefault();
+                triggerRef.current?.focus();
+              }}
+              onOpenAutoFocus={(event) => {
+                event.preventDefault();
+                (event?.target as HTMLElement)?.focus();
+              }}
+              side="top"
+              sideOffset={4}
+            >
+              <motion.div
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                  filter: "blur(0px)",
                 }}
-                onOpenAutoFocus={(event) => {
-                  event.preventDefault();
-                  (event?.target as HTMLElement)?.focus();
-                }}
-                side="top"
-                sideOffset={4}
+                className="flex items-center px-1.5"
+                exit={
+                  reduced
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        scale: 0.9,
+                        y: 8,
+                        filter: "blur(4px)",
+                      }
+                }
+                initial={
+                  reduced
+                    ? { opacity: 0 }
+                    : {
+                        opacity: 0,
+                        scale: 0.9,
+                        y: 8,
+                        filter: "blur(4px)",
+                      }
+                }
+                transition={reduced ? { duration: 0 } : LABEL_SPRING}
               >
-                <motion.div
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    y: 0,
-                    filter: "blur(0px)",
-                  }}
-                  className="flex items-center px-1.5"
-                  exit={
-                    reduced
-                      ? { opacity: 0 }
-                      : {
-                          opacity: 0,
-                          scale: 0.9,
-                          y: 8,
-                          filter: "blur(4px)",
-                        }
-                  }
-                  initial={
-                    reduced
-                      ? { opacity: 0 }
-                      : {
-                          opacity: 0,
-                          scale: 0.9,
-                          y: 8,
-                          filter: "blur(4px)",
-                        }
-                  }
-                  transition={reduced ? { duration: 0 } : LABEL_SPRING}
-                >
-                  {Object.entries(statuses).map(([id, { text, emoji }]) => (
-                    <TooltipRoot data-slot="tooltip" key={id}>
-                      <TooltipTrigger asChild data-slot="tooltip-trigger">
-                        {/* Grows downward by animating padding rather than
+                {Object.entries(statuses).map(([id, { text, emoji }]) => (
+                  <TooltipRoot data-slot="tooltip" key={id}>
+                    <TooltipTrigger asChild data-slot="tooltip-trigger">
+                      {/* Grows downward by animating padding rather than
                             scale: scaling an emoji makes it soft, and this keeps
                             every glyph rendering at its native size. */}
-                        <motion.button
-                          aria-label={text}
-                          className="cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-                          initial={{
-                            paddingLeft: 2,
-                            paddingRight: 2,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                          }}
-                          key={id}
-                          onClick={() => {
-                            setStatus(id as keyof typeof statuses);
-                            setIsOpen(false);
-                          }}
-                          type="button"
-                          whileHover={
-                            reduced
-                              ? undefined
-                              : { paddingTop: 4, paddingBottom: 12 }
-                          }
-                          whileTap={
-                            reduced
-                              ? undefined
-                              : { paddingTop: 4, paddingBottom: 12 }
-                          }
+                      <motion.button
+                        aria-label={text}
+                        className="cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                        initial={{
+                          paddingLeft: 2,
+                          paddingRight: 2,
+                          paddingTop: 8,
+                          paddingBottom: 8,
+                        }}
+                        key={id}
+                        onClick={() => {
+                          setStatus(id as keyof typeof statuses);
+                          setIsOpen(false);
+                        }}
+                        type="button"
+                        whileHover={
+                          reduced
+                            ? undefined
+                            : { paddingTop: 4, paddingBottom: 12 }
+                        }
+                        whileTap={
+                          reduced
+                            ? undefined
+                            : { paddingTop: 4, paddingBottom: 12 }
+                        }
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="flex size-10 items-center justify-center rounded-full bg-muted"
                         >
-                          <span
-                            aria-hidden="true"
-                            className="flex size-10 items-center justify-center rounded-full bg-muted"
-                          >
-                            {emoji}
-                          </span>
-                        </motion.button>
-                      </TooltipTrigger>
+                          {emoji}
+                        </span>
+                      </motion.button>
+                    </TooltipTrigger>
 
-                      <TooltipPortal>
-                        <TooltipContent
-                          className="fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:zoom-out-95 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) animate-in text-balance rounded-full bg-muted px-3 py-1.5 text-muted-foreground text-xs blur-in-xs duration-200 data-[state=closed]:animate-out data-[state=closed]:blur-out-xs"
-                          data-slot="tooltip-content"
-                          sideOffset={8}
-                        >
-                          {text}
-                        </TooltipContent>
-                      </TooltipPortal>
-                    </TooltipRoot>
-                  ))}
-                </motion.div>
-              </PopoverContent>
-            </PopoverPortal>
+                    <TooltipContent
+                      className="fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:zoom-out-95 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) animate-in text-balance rounded-full bg-muted px-3 py-1.5 text-muted-foreground text-xs blur-in-xs duration-200 data-[state=closed]:animate-out data-[state=closed]:blur-out-xs"
+                      data-slot="tooltip-content"
+                      sideOffset={8}
+                    >
+                      {text}
+                    </TooltipContent>
+                  </TooltipRoot>
+                ))}
+              </motion.div>
+            </PopoverContent>
           )}
         </AnimatePresence>
       </TooltipProvider>
