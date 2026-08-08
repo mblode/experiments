@@ -6,6 +6,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-glide);
+  --font-mono: var(--font-glide-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -205,10 +206,10 @@
   );
 
   --font-page-heading:
-    var(--page-heading-font-family), var(--font-manrope), ui-sans-serif,
+    var(--page-heading-font-family), var(--font-glide), ui-sans-serif,
     system-ui, sans-serif;
   --font-page-body:
-    var(--page-body-font-family), var(--font-manrope), ui-sans-serif, system-ui,
+    var(--page-body-font-family), var(--font-glide), ui-sans-serif, system-ui,
     sans-serif;
 
   --color-page-background: var(--page-background-color);
@@ -275,27 +276,31 @@
   --backdrop-blur-page-card: var(--page-card-backdrop-blur);
 }
 
+/* Chrome sits on a pure-neutral ramp: every grey is chroma 0, so the only
+   colour on the page comes from a demo or from --primary. The dark scheme
+   mirrors the ramp rather than inverting it, so the two schemes share the same
+   contrast steps instead of one being a photographic negative of the other. */
 :root {
-  --radius: 0.375rem;
+  --radius: 0.625rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.18 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.18 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.18 0 0);
+  --primary: oklch(0.52 0.23 268);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.18 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.52 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.18 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.9491 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.18 0 0 / 0.16);
+  --input: oklch(0.18 0 0 / 0.16);
+  --ring: oklch(0.52 0.23 268);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -392,25 +397,27 @@
     -23.2px 59.6px 72px -2.5px hsl(var(--shadow-color) / 0.34);
 
   @media (prefers-color-scheme: dark) {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(100 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --background: oklch(0.18 0 0);
+    --foreground: oklch(0.96 0 0);
+    --card: oklch(0.26 0 0);
+    --card-foreground: oklch(0.96 0 0);
+    --popover: oklch(0.26 0 0);
+    --popover-foreground: oklch(0.96 0 0);
+    /* Lifted off the light ramp's 0.52: the same blue reads as a hole at this
+       lightness against a 0.18 background. Same hue and chroma, one step up. */
+    --primary: oklch(0.62 0.2 268);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.26 0 0);
+    --secondary-foreground: oklch(0.96 0 0);
+    --muted: oklch(0.26 0 0);
+    --muted-foreground: oklch(0.7 0 0);
+    --accent: oklch(0.26 0 0);
+    --accent-foreground: oklch(0.96 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --border: oklch(1 0 0 / 0.16);
+    --input: oklch(1 0 0 / 0.16);
+    --ring: oklch(0.62 0.2 268);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
