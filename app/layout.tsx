@@ -6,13 +6,23 @@ import "@dnd-grid/react/styles.css";
 import { CraftedBy } from "@/components/crafted-by";
 import { Toaster } from "@/components/ui/sonner";
 
+// Glide 2.0.0 — https://github.com/mblode/glide. One variable file per style
+// covers the whole weight axis, so each declares 100-950 rather than a face per
+// weight.
 const glide = localFont({
   src: [
-    { path: "../public/fonts/glide-variable.woff2", style: "normal" },
-    { path: "../public/fonts/glide-variable-italic.woff2", style: "italic" },
+    { path: "./fonts/glide-variable.woff2", style: "normal" },
+    { path: "./fonts/glide-variable-italic.woff2", style: "italic" },
   ],
   variable: "--font-glide",
-  weight: "400 900",
+  weight: "100 950",
+  display: "swap",
+});
+
+const glideMono = localFont({
+  src: "./fonts/glide-mono.woff2",
+  variable: "--font-glide-mono",
+  weight: "400",
   display: "swap",
 });
 
@@ -32,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${glide.variable} h-full font-normal font-sans text-foreground antialiased`}
+      className={`${glide.variable} ${glideMono.variable} h-full font-normal font-sans text-foreground antialiased`}
       lang="en"
       suppressHydrationWarning
     >
