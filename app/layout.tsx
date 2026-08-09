@@ -5,6 +5,7 @@ import "./globals.css";
 import "@dnd-grid/react/styles.css";
 import { CraftedBy } from "@/components/crafted-by";
 import { Toaster } from "@/components/ui/sonner";
+import { ROOT_TITLE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 // Glide 2.0.0 — https://github.com/mblode/glide. One variable file per style
 // covers the whole weight axis, so each declares 100-950 rather than a face per
@@ -27,9 +28,36 @@ const glideMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://blode.co"),
-  title: "Blode Experiments",
+  // The zone URL, not the bare origin, so that every relative path in this
+  // app's metadata is resolved against the zone the app actually serves at.
+  // See blode-co/apps/web/.claude/knowledge/zone-conventions.md Rule 11.
+  //
+  // Next joins `metadataBase.pathname` with the path rather than replacing it,
+  // even for a leading slash, so each path here is written *without*
+  // `/experiments` and gets the prefix from exactly one place. The bare origin
+  // worked only because every path spelled the prefix out by hand, which is
+  // the arrangement that produced glide's `/glide/glide/` card.
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: ROOT_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
   description: "A collection of Matthew Blode's UI experiments",
+  authors: [{ name: "Matthew Blode", url: "https://blode.co" }],
+  creator: "Matthew Blode",
+  // Declared, rather than left to `app/opengraph-image.png`. Next emits a
+  // *static* metadata image file with `basePath` already on it (unlike a
+  // dynamic `opengraph-image.tsx` route, which it does not prefix), so with
+  // the zone `metadataBase` above the two stacked up into
+  // `/experiments/experiments/opengraph-image.png`. From `public/` the prefix
+  // has one source. Regenerating these belongs in `scripts/`, not here.
+  openGraph: {
+    images: ["/opengraph-image.png"],
+    // Who made it, on every path. The product is already in og:title. See
+    // blode-co/apps/web/.claude/knowledge/zone-conventions.md Rule 9.
+    siteName: "Matthew Blode",
+  },
+  twitter: { creator: "@mattblode", images: ["/twitter-image.png"] },
   verification: {
     google: "mFwyBIbXTaKK4uF_NA0MzVWFyY40hPgBjFObg3rje04",
   },
