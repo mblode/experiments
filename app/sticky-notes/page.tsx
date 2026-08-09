@@ -5,7 +5,7 @@ import { Header } from "@/components/ui/header";
 import { StickyNotesBlock } from "./sticky-notes-block";
 
 export const metadata: Metadata = {
-  title: "Sticky notes — Blode Experiments",
+  title: "Sticky notes",
   robots: { index: false, follow: true },
 };
 
