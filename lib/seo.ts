@@ -45,6 +45,22 @@ export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
   );
   const socialDescription = asSentence(block.description);
 
+  // `og:generate` only visits the gallery's visible demos, so a hidden one has
+  // no `og/<id>.png` and pointing at it served a 404 card. Those four have a
+  // colocated `opengraph-image.tsx` instead (see app/demo-og-card.tsx), and
+  // this key has to be *absent* for the file convention to win: `images:
+  // undefined` is still an override, and suppresses it to no card at all.
+  //
+  // No `/experiments` prefix on the ones that do exist: `metadataBase` already
+  // carries the basePath, and Next joins the two rather than replacing.
+  const cardImage = block.hidden
+    ? {}
+    : {
+        images: [
+          { alt: socialTitle, height: 1260, url: `/og/${id}.png`, width: 2400 },
+        ],
+      };
+
   return {
     title,
     description,
@@ -58,23 +74,14 @@ export const getExperimentMetadata = (id: keyof typeof blocks): Metadata => {
       siteName: "Matthew Blode",
       title: socialTitle,
       description: socialDescription,
-      images: [
-        {
-          // No `/experiments` prefix: `metadataBase` already carries the
-          // basePath, and Next joins the two rather than replacing.
-          url: `/og/${id}.png`,
-          width: 2400,
-          height: 1260,
-          alt: socialTitle,
-        },
-      ],
+      ...cardImage,
     },
     twitter: {
       card: "summary_large_image",
       creator: "@mattblode",
       title: socialTitle,
       description: socialDescription,
-      images: [`/og/${id}.png`],
+      ...cardImage,
     },
   };
 };

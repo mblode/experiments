@@ -35,16 +35,12 @@ export const metadata: Metadata = {
     siteName: "Matthew Blode",
     title: ROOT_TITLE,
     description: SOCIAL_DESCRIPTION,
-    // This block replaces the root layout's openGraph rather than merging into
-    // it, so the card has to be repeated here.
-    images: ["/opengraph-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     creator: "@mattblode",
     title: ROOT_TITLE,
     description: SOCIAL_DESCRIPTION,
-    images: ["/twitter-image.png"],
   },
 };
 

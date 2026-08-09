@@ -45,19 +45,17 @@ export const metadata: Metadata = {
   description: "A collection of Matthew Blode's UI experiments",
   authors: [{ name: "Matthew Blode", url: "https://blode.co" }],
   creator: "Matthew Blode",
-  // Declared, rather than left to `app/opengraph-image.png`. Next emits a
-  // *static* metadata image file with `basePath` already on it (unlike a
-  // dynamic `opengraph-image.tsx` route, which it does not prefix), so with
-  // the zone `metadataBase` above the two stacked up into
-  // `/experiments/experiments/opengraph-image.png`. From `public/` the prefix
-  // has one source. Regenerating these belongs in `scripts/`, not here.
+  // No `images` here: `app/opengraph-image.tsx` is the card. A *generated*
+  // route is the one form Next does not prefix with `basePath`, so it composes
+  // with `metadataBase` instead of stacking against it, which is what the
+  // static `opengraph-image.png` did. Next reuses it for `twitter:image` too
+  // when there is no `twitter-image` file.
   openGraph: {
-    images: ["/opengraph-image.png"],
     // Who made it, on every path. The product is already in og:title. See
     // blode-co/apps/web/.claude/knowledge/zone-conventions.md Rule 9.
     siteName: "Matthew Blode",
   },
-  twitter: { creator: "@mattblode", images: ["/twitter-image.png"] },
+  twitter: { creator: "@mattblode" },
   verification: {
     google: "mFwyBIbXTaKK4uF_NA0MzVWFyY40hPgBjFObg3rje04",
   },
