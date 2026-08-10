@@ -14,7 +14,6 @@ export const CraftedBy = () => {
         rel="author"
       >
         <span>Crafted by</span>
-        {/* biome-ignore lint/performance/noImgElement: self-hosted 20px avatar, plain img avoids next/image overhead */}
         <img
           alt=""
           className="size-5 rounded-full"

@@ -94,7 +94,6 @@ export const ThemeStyle = ({ content: defaultContent }: Props) => {
       `}
       </style>
       {content?.html && (
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: Theme customization HTML is controlled by admin
         <div dangerouslySetInnerHTML={{ __html: content.html }} />
       )}
     </>
