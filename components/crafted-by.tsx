@@ -24,15 +24,6 @@ export const CraftedBy = () => {
         />
         <span>Matthew Blode</span>
       </a>
-      <span aria-hidden="true" className="text-muted-foreground">
-        &middot;
-      </span>
-      <a
-        className="inline-flex items-center gap-2 rounded-lg text-muted-foreground text-sm transition-colors duration-200 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-4 motion-reduce:transition-none"
-        href="https://blode.co/projects"
-      >
-        All projects
-      </a>
     </span>
   );
 };
