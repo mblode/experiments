@@ -7,13 +7,13 @@
  */
 export const CraftedBy = () => {
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-2">
+    <span className="inline-flex flex-wrap items-center gap-x-2 text-muted-foreground text-sm">
+      <span>Crafted by</span>
       <a
-        className="inline-flex items-center gap-2 rounded-lg text-muted-foreground text-sm transition-colors duration-200 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-4 motion-reduce:transition-none"
+        className="inline-flex items-center gap-2 rounded-lg transition-colors duration-200 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground focus-visible:outline-offset-4 motion-reduce:transition-none"
         href="https://blode.co"
         rel="author"
       >
-        <span>Crafted by</span>
         <img
           alt=""
           className="size-5 rounded-full"
