@@ -1,4 +1,5 @@
 import { renderZoneOgImage } from "@/app/og-image-shared";
+import { OgLogo } from "@/app/og-logo";
 import { ROOT_TITLE } from "@/lib/seo";
 
 export {
@@ -24,9 +25,9 @@ export { ROOT_TITLE as alt } from "@/lib/seo";
  */
 export default function OpengraphImage() {
   return renderZoneOgImage({
-    badge: "EXPERIMENTS",
-    eyebrow: "blode.co/experiments",
-    subtitle: "Interactions, 3D scenes and components, built to a finish.",
+    background: "#0a0a0a",
+    color: "#ffffff",
+    logo: <OgLogo />,
     title: ROOT_TITLE,
   });
 }
