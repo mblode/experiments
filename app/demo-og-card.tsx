@@ -1,4 +1,5 @@
 import { renderZoneOgImage } from "@/app/og-image-shared";
+import { OgLogo } from "@/app/og-logo";
 import { blocks } from "@/lib/blocks";
 
 /**
@@ -15,8 +16,12 @@ import { blocks } from "@/lib/blocks";
  */
 export const renderDemoCard = (id: keyof typeof blocks) =>
   renderZoneOgImage({
-    badge: "EXPERIMENTS",
-    eyebrow: `blode.co/experiments/${id}`,
+    background: "#0a0a0a",
+    color: "#ffffff",
+    logo: <OgLogo />,
     subtitle: blocks[id].description,
+    // Half-tone white rather than a second hex, so the pair stays right if the
+    // background ever moves.
+    subtitleColor: "rgba(255,255,255,0.64)",
     title: blocks[id].name,
   });

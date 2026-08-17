@@ -30,10 +30,9 @@ export const blocks: Record<
      */
     preview?: { width?: number; zoom?: number };
     /**
-     * An outbound credit or source link, rendered by `Header` between the
-     * prose and the prev/next nav. It lived in each page below the header,
-     * which put it under the pagination and made it read as a footnote to the
-     * navigation rather than to the demo.
+     * An outbound credit for the demo's origin — the post or pen it came
+     * from. `Header` renders it under the prose. Not the source of this
+     * experiment: `Header` links that from the GitHub mark beside the title.
      */
     credit?: { href: string; text: string };
   }
