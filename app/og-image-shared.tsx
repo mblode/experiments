@@ -47,20 +47,28 @@ export const renderZoneOgImage = ({
   background,
   color,
   logo,
+  subtitle,
+  subtitleColor,
   title,
 }: {
   /** sRGB hex. Satori cannot read `oklch()` or CSS variables. */
   background: string;
   color: string;
   logo: ReactNode;
+  /** A second line under the title. The demo cards put the description here. */
+  subtitle?: string;
+  subtitleColor?: string;
   title: string;
 }) => {
-  let titleSize = 108;
+  // A subtitle takes a line off the baseline, so the whole ladder steps down
+  // one rung to leave room for it rather than crowding the mark.
+  const sizes = subtitle ? [88, 72, 60] : [108, 88, 72];
+  let titleSize = sizes[0];
   if (title.length > 28) {
-    titleSize = 88;
+    titleSize = sizes[1];
   }
   if (title.length > 44) {
-    titleSize = 72;
+    titleSize = sizes[2];
   }
 
   const content = (
@@ -77,20 +85,40 @@ export const renderZoneOgImage = ({
     >
       <div style={{ display: "flex" }}>{logo}</div>
 
-      <div
-        style={{
-          color,
-          display: "flex",
-          fontFamily: "Glide",
-          fontSize: titleSize,
-          fontWeight: 600,
-          letterSpacing: "-0.02em",
-          lineHeight: 1.05,
-          maxWidth: 1040,
-          textWrap: "balance",
-        }}
-      >
-        {title}
+      {/* Satori has no block layout, so every wrapper is an explicit flex box. */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <div
+          style={{
+            color,
+            display: "flex",
+            fontFamily: "Glide",
+            fontSize: titleSize,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.05,
+            maxWidth: 1040,
+            textWrap: "balance",
+          }}
+        >
+          {title}
+        </div>
+
+        {subtitle && (
+          <div
+            style={{
+              color: subtitleColor ?? color,
+              display: "flex",
+              fontFamily: "Glide",
+              fontSize: 34,
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
+              lineHeight: 1.3,
+              maxWidth: 900,
+            }}
+          >
+            {subtitle}
+          </div>
+        )}
       </div>
     </div>
   );
