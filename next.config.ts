@@ -109,6 +109,22 @@ const nextConfig: NextConfig = {
   redirects() {
     return Promise.resolve([
       {
+        // Public URL is blode.co/experiments/moon; this catches the same path
+        // on the zone origin (basePath prefixes source to /experiments/moon).
+        destination: "https://blode.co/moon",
+        permanent: true,
+        source: "/moon",
+      },
+      {
+        // Ahead of the :path* host catch-all so experiments.blode.co/moon does
+        // not hop through blode.co/experiments/moon first.
+        basePath: false,
+        destination: "https://blode.co/moon",
+        has: [{ type: "host" as const, value: "experiments.blode.co" }],
+        permanent: true,
+        source: "/moon",
+      },
+      {
         basePath: false,
         destination: "https://blode.co/experiments",
         has: [{ type: "host" as const, value: "experiments.blode.co" }],

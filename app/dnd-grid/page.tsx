@@ -10,13 +10,8 @@ export default function Page() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-5xl p-8">
         <Header id="dnd-grid" />
-        <a
-          className="link mb-6"
-          href="https://dnd-grid.com"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Visit dnd-grid.com
+        <a className="link mb-6" href="https://blode.co/dnd-grid">
+          Visit blode.co/dnd-grid
         </a>
         <DndGridBlock />
       </div>
