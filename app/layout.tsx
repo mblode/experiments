@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Geist_Mono, Inter } from "next/font/google";
 
 import "./globals.css";
 import "@dnd-grid/react/styles.css";
@@ -7,23 +7,15 @@ import { CraftedBy } from "@/components/crafted-by";
 import { Toaster } from "@/components/ui/sonner";
 import { ROOT_TITLE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
-// Glide 4.0.2 — https://github.com/mblode/glide. One variable file per style
-// covers the whole weight axis, so each declares 100-950 rather than a face per
-// weight.
-const glide = localFont({
-  src: [
-    { path: "./fonts/glide-variable.woff2", style: "normal" },
-    { path: "./fonts/glide-variable-italic.woff2", style: "italic" },
-  ],
-  variable: "--font-glide",
-  weight: "100 950",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
   display: "swap",
 });
 
-const glideMono = localFont({
-  src: "./fonts/glide-mono.woff2",
-  variable: "--font-glide-mono",
-  weight: "400",
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -36,7 +28,7 @@ export const metadata: Metadata = {
   // even for a leading slash, so each path here is written *without*
   // `/experiments` and gets the prefix from exactly one place. The bare origin
   // worked only because every path spelled the prefix out by hand, which is
-  // the arrangement that produced glide's `/glide/glide/` card.
+  // the arrangement that previously produced a doubled-up card URL.
   metadataBase: new URL(SITE_URL),
   title: {
     default: ROOT_TITLE,
@@ -68,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${glide.variable} ${glideMono.variable} h-full font-normal font-sans text-foreground antialiased`}
+      className={`${inter.variable} ${geistMono.variable} h-full font-normal font-sans text-foreground antialiased`}
       lang="en"
       suppressHydrationWarning
     >
