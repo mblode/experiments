@@ -5,8 +5,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-glide);
-  --font-mono: var(--font-glide-mono);
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, "SFMono-Regular", "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -206,10 +210,10 @@
   );
 
   --font-page-heading:
-    var(--page-heading-font-family), var(--font-glide), ui-sans-serif,
+    var(--page-heading-font-family), var(--font-inter), ui-sans-serif,
     system-ui, sans-serif;
   --font-page-body:
-    var(--page-body-font-family), var(--font-glide), ui-sans-serif, system-ui,
+    var(--page-body-font-family), var(--font-inter), ui-sans-serif, system-ui,
     sans-serif;
 
   --color-page-background: var(--page-background-color);
